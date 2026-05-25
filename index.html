@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Tracker</title>
+    <title>Functional Path Tracker v2</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg-color: #0b0f19;
+            --card-bg: #151f32;
             --accent-color: #38bdf8;
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --success-color: #22c55e;
-            --warning-color: #fbbf24;
+            --text-muted: #64748b;
+            --border-color: #22314d;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --score-up: #10b981;
         }
 
         body {
@@ -22,17 +23,42 @@
             color: var(--text-main);
             margin: 0;
             padding: 12px;
-            padding-bottom: 40px;
+            padding-bottom: 60px;
             -webkit-tap-highlight-color: transparent;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        h1 { margin: 0; font-size: 1.4rem; color: var(--accent-color); }
-        
+        h1 { margin: 0; font-size: 1.2rem; color: var(--accent-color); }
+
+        .bodyweight-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .bodyweight-box input {
+            width: 50px;
+            background: transparent;
+            border: none;
+            color: var(--warning-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            outline: none;
+        }
+
+        /* Stats Dashboard Panel */
         .stats-panel {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 1px solid var(--border-color);
@@ -45,9 +71,10 @@
         }
 
         .stat-box { flex: 1; }
-        .stat-num { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;}
+        .stat-num { font-size: 1.3rem; font-weight: bold; color: var(--accent-color); }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;}
 
+        /* Navigation Menu tabs */
         .tabs {
             display: flex;
             gap: 6px;
@@ -67,7 +94,7 @@
             padding: 10px 4px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
         }
 
@@ -80,6 +107,7 @@
         .workout-section { display: none; }
         .workout-section.active { display: block; }
 
+        /* Exercise Design Card */
         .exercise-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -92,77 +120,90 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            margin-bottom: 8px;
         }
 
-        .exercise-title { font-size: 1rem; font-weight: bold; margin: 0; }
+        .exercise-title { font-size: 0.95rem; font-weight: bold; margin: 0; }
         
         .meta-row {
             display: flex;
             gap: 6px;
             margin-top: 4px;
-            flex-wrap: wrap;
         }
 
         .tag {
-            font-size: 0.7rem;
-            background: var(--border-color);
-            color: var(--text-main);
+            font-size: 0.65rem;
+            background: rgba(255,255,255,0.05);
             padding: 2px 6px;
             border-radius: 4px;
         }
+        .target-tag { color: var(--warning-color); font-weight: bold; }
 
-        .target-tag { color: var(--accent-color); font-weight: bold; background: rgba(56, 189, 248, 0.1); }
-        .rep-tag { color: var(--warning-color); font-weight: bold; background: rgba(251, 191, 36, 0.1); }
-
-        .info-toggle {
-            background: none;
-            border: none;
-            color: var(--accent-color);
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        .exercise-info {
-            display: none;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            background: rgba(0,0,0,0.2);
+        /* Gamified HUD Box */
+        .hud-box {
+            background: rgba(0,0,0,0.25);
+            border-radius: 8px;
             padding: 8px;
-            border-radius: 6px;
-            margin: 8px 0;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            border-left: 3px solid var(--accent-color);
         }
+        .hud-block span { display: block; color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;}
+        .hud-block strong { color: var(--text-main); font-size: 0.85rem;}
 
-        .log-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        .log-table th { font-size: 0.75rem; color: var(--text-muted); text-align: left; padding-bottom: 4px; }
-        .log-row td { padding: 4px 0; vertical-align: middle; }
-        .set-num { font-weight: bold; color: var(--text-muted); width: 10%; font-size: 0.85rem;}
-        .input-cell { width: 35%; padding-right: 6px; }
+        /* Input Grid Elements */
+        .log-table { width: 100%; border-collapse: collapse; }
+        .log-table th { font-size: 0.65rem; color: var(--text-muted); text-align: left; padding-bottom: 4px; text-transform: uppercase;}
+        .log-row { border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .log-row td { padding: 6px 0; vertical-align: middle; }
+        
+        .set-num { font-weight: bold; color: var(--text-muted); width: 8%; font-size: 0.8rem;}
+        .input-cell { width: 28%; padding-right: 6px; }
         
         .log-input {
             width: 100%;
             background: var(--bg-color);
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            padding: 8px;
+            padding: 8px 4px;
             border-radius: 6px;
             box-sizing: border-box;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            font-weight: bold;
         }
-
         .log-input:focus { border-color: var(--accent-color); outline: none; }
-        .done-btn {
-            background: var(--border-color);
-            border: none;
-            color: var(--text-muted);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+
+        /* Intelligent Tracker Button Counters */
+        .tracker-btn {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            padding: 8px 2px;
+            border-radius: 6px;
+            font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .done-btn.checked { background: var(--success-color); color: white; }
+        .tracker-btn.running {
+            background: #ef4444;
+            color: white;
+            animation: pulse 1s infinite alternate;
+        }
 
+        @keyframes pulse {
+            from { opacity: 1; }
+            to { opacity: 0.7; }
+        }
+
+        .score-cell { width: 20%; text-align: right; font-size: 0.75rem; font-weight: bold; color: var(--text-muted); }
+        .score-up { color: var(--success-color); }
+
+        /* Finish Session Footer Action */
         .finish-container { margin: 20px 0; }
         .finish-btn {
             width: 100%;
@@ -176,6 +217,7 @@
             cursor: pointer;
         }
 
+        /* History Stream Logs */
         .history-section {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -191,9 +233,8 @@
         }
         .history-item:last-child { border-bottom: none; }
         .history-date { font-weight: bold; color: var(--text-main); }
-        .history-details { color: var(--text-muted); margin-top: 2px; font-family: monospace; white-space: pre-wrap; }
+        .history-details { color: var(--text-muted); margin-top: 4px; font-family: monospace; white-space: pre-wrap; line-height: 1.3;}
 
-        /* Backup Utilities System styling */
         .backup-controls {
             display: flex;
             gap: 10px;
@@ -208,32 +249,23 @@
             border: 1px solid rgba(255,255,255,0.1);
             padding: 10px;
             border-radius: 6px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
         }
         .btn-danger { background: none; border: none; color: #ef4444; font-size: 0.75rem; cursor: pointer; padding: 0; margin-top: 15px; display: block;}
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent-color);
-            color: var(--bg-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            display: none;
-            z-index: 100;
-        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Functional Path Tracker</h1>
+        <h1>Functional Path v2</h1>
+        <div class="bodyweight-box">
+            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Bodyweight:</span>
+            <input type="number" id="global-bw" pattern="[0-9]*" inputmode="decimal" placeholder="0.0" oninput="localStorage.setItem('user_bodyweight', this.value)">
+            <span style="font-size: 0.7rem; color: var(--text-muted);">kg</span>
+        </div>
     </header>
 
     <div class="stats-panel">
@@ -242,12 +274,12 @@
             <div class="stat-label">Workouts</div>
         </div>
         <div class="stat-box" style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
-            <div id="stat-last-type" class="stat-num">-</div>
-            <div class="stat-label">Last Done</div>
+            <div id="stat-volume" class="stat-num">0<span style="font-size:0.6rem">kg</span></div>
+            <div class="stat-label">All-Time Vol</div>
         </div>
         <div class="stat-box">
-            <div id="stat-date" class="stat-num">--/--</div>
-            <div class="stat-label">Last Date</div>
+            <div id="stat-streak" class="stat-num">-</div>
+            <div class="stat-label">Last Workout</div>
         </div>
     </div>
 
@@ -255,7 +287,7 @@
         <button class="tab-btn active" onclick="switchWorkout('workout-a')">A: Push/Pull</button>
         <button class="tab-btn" onclick="switchWorkout('workout-b')">B: Hinge/Mobility</button>
         <button class="tab-btn" onclick="switchWorkout('workout-c')">C: Rotation</button>
-        <button class="tab-btn" onclick="switchWorkout('view-history')">📜 History</button>
+        <button class="tab-btn" onclick="switchWorkout('view-history')">📜 Analytics</button>
     </div>
 
     <div id="workout-a" class="workout-section active"></div>
@@ -264,8 +296,8 @@
 
     <div id="view-history" class="workout-section">
         <div class="history-section">
-            <h3>Logged Training History</h3>
-            <div id="history-stream">No training sessions recorded yet. Complete a session to track metrics!</div>
+            <h3>Logged Training Performance History</h3>
+            <div id="history-stream">No training sessions recorded yet. Complete a session to map metrics!</div>
             
             <div class="backup-controls">
                 <button class="btn-backup" onclick="exportDataData()">📤 Export Backup File</button>
@@ -274,81 +306,114 @@
                     <input type="file" id="import-trigger" accept=".json" onchange="importDataData(event)" style="display: none;">
                 </label>
             </div>
-
             <button class="btn-danger" onclick="resetAllHistory()">⚠️ Wipe App Data</button>
         </div>
     </div>
 
     <div id="footer-actions" class="finish-container">
-        <button class="finish-btn" onclick="finishWorkout()">✓ Complete Workout & Save Stats</button>
+        <button class="finish-btn" onclick="finishWorkout()">✓ Complete Workout & Calculate Load</button>
     </div>
-
-    <div class="toast" id="toast">Saved!</div>
 
     <script>
         const routines = {
             'workout-a': {
                 name: 'Workout A',
                 exercises: [
-                    { id: 'a1', name: '1. Goblet Squat or Box Squat', target: 'Legs & Core', sets: 3, reps: '8-10 Reps', note: 'Hold weight at chest level. Keep torso upright. Sit deep down to stretch your hips and build real-world moving power.', unit: 'lbs/kg' },
-                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', target: 'Upper Back', sets: 3, reps: '10-12 Reps', note: 'Pull bar down to your chest. Consciously pull shoulder blades down. Acts directly to straighten a hunched back.', unit: 'lbs/kg' },
-                    { id: 'a3', name: '3. Dumbbell Bench Press', target: 'Chest & Arms', sets: 3, reps: '8-10 Reps', note: 'Press dumbbells straight up from a flat bench. Safer path of motion for shoulders; prevents stronger arm dominance.', unit: 'lbs/kg' },
-                    { id: 'a4', name: '4. Cable Face Pulls', target: 'Rear Delts / Alignment', sets: 3, reps: '15 Reps', note: 'Pull cable rope toward your forehead, flaring your hands out wide at the end. Fixes rolling desk shoulders.', unit: 'lbs/kg' },
-                    { id: 'a5', name: '5. RKC Plank or Dead Bug', target: 'Deep Core Stabilization', sets: 3, reps: '30 Sec Hold', note: 'Squeeze glutes, abs, and thighs like iron. Pulls stomach wall inward to correct sitting posture mechanics.', unit: 'Secs' }
+                    { id: 'a1', name: '1. Goblet Squat or Box Squat', sets: 3, repsRange: '8-10', unit: 'kg' },
+                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', sets: 3, repsRange: '10-12', unit: 'kg' },
+                    { id: 'a3', name: '3. Dumbbell Bench Press', sets: 3, repsRange: '8-10', unit: 'kg' },
+                    { id: 'a4', name: '4. Cable Face Pulls', sets: 3, repsRange: '15', unit: 'kg' },
+                    { id: 'a5', name: '5. RKC Plank or Dead Bug', sets: 3, repsRange: 'Hold', unit: 'Sec' }
                 ]
             },
             'workout-b': {
                 name: 'Workout B',
                 exercises: [
-                    { id: 'b1', name: '1. Romanian Deadlift (DB or Barbell)', target: 'Hamstrings & Glutes', sets: 3, reps: '8-10 Reps', note: 'Push hips backward while maintaining a perfectly flat upper spine. Wakes up the glutes after hours of sitting down.', unit: 'lbs/kg' },
-                    { id: 'b2', name: '2. Seated Cable Row (Wide Grip)', target: 'Mid-Spine Traps', sets: 3, reps: '10-12 Reps', note: 'Sit proud. Pull the handles to lower rib boundary. Intentionally pin shoulder blades tightly together to reverse slouching.', unit: 'lbs/kg' },
-                    { id: 'b3', name: '3. DB Overhead Shoulder Press', target: 'Shoulders / Vertical', sets: 3, reps: '8 Reps', note: 'Press dumbbells up vertically. Pull ribs down to prevent leaning back excessively. Protects neck joints.', unit: 'lbs/kg' },
-                    { id: 'b4', name: '4. Bulgarian Split Squat / Reverse Lunge', target: 'Single-Leg Balance', sets: 3, reps: '8 Reps/Leg', note: 'Step rear leg backward onto a box/bench. Unlocks intense hip flexor stiffness while correcting limb imbalances.', unit: 'lbs/kg' },
-                    { id: 'b5', name: '5. Farmer’s Walks / Dumbbell Carries', target: 'Grip & Total Body Stability', sets: 3, reps: '40 Meters', note: 'Grab heavy dumbbells in each hand. Walk perfectly tall with an active spine. Bulletproofs the core layout.', unit: 'lbs/kg' }
+                    { id: 'b1', name: '1. Romanian Deadlift', sets: 3, repsRange: '8-10', unit: 'kg' },
+                    { id: 'b2', name: '2. Seated Cable Row (Wide)', sets: 3, repsRange: '10-12', unit: 'kg' },
+                    { id: 'b3', name: '3. DB Overhead Shoulder Press', sets: 3, repsRange: '8', unit: 'kg' },
+                    { id: 'b4', name: '4. Bulgarian Split Squat', sets: 3, repsRange: '8', unit: 'kg' },
+                    { id: 'b5', name: '5. Farmer’s Walks / Carries', sets: 3, repsRange: '40m', unit: 'kg' }
                 ]
             },
             'workout-c': {
                 name: 'Workout C',
                 exercises: [
-                    { id: 'c1', name: '1. Leg Press or Hack Squat', target: 'Quad Development', sets: 3, reps: '10 Reps', note: 'Keep feet securely planted. Highers weight deep to stimulate leg muscles safely without fatiguing lower back structure.', unit: 'lbs/kg' },
-                    { id: 'c2', name: '2. Chest-Supported DB Row', target: 'Isolated Mid-Back', sets: 3, reps: '10 Reps', note: 'Lie chest-down on incline bench surface. Pull weights up with elbows high. Eliminates cheating to focus entirely on upper spine.', unit: 'lbs/kg' },
-                    { id: 'c3', name: '3. Incline Dumbbell Press', target: 'Upper Chest Boundary', sets: 3, reps: '10 Reps', note: 'Set bench angle precisely to 30 degrees. Expands your chest to offset slouching structures.', unit: 'lbs/kg' },
-                    { id: 'c4', name: '4. Cable Woodchoppers', target: 'Rotational Core Core', sets: 3, reps: '12 Reps/Side', note: 'Pull cable down diagonally across knee path using core rotation. Essential cross-body athleticism for healthy longevity.', unit: 'lbs/kg' },
-                    { id: 'c5', name: '5. Hanging Knee Raises', target: 'Lower Core Ab Wall', sets: 3, reps: '12 Reps', note: 'Tuck knees to chest. Rotates hips into neutral tracking to mechanically pull lower stomach fat/organs tight and inward.', unit: 'Reps' }
+                    { id: 'c1', name: '1. Leg Press or Hack Squat', sets: 3, repsRange: '10', unit: 'kg' },
+                    { id: 'c2', name: '2. Chest-Supported DB Row', sets: 3, repsRange: '10', unit: 'kg' },
+                    { id: 'c3', name: '3. Incline Dumbbell Press', sets: 3, repsRange: '10', unit: 'kg' },
+                    { id: 'c4', name: '4. Cable Woodchoppers', sets: 3, repsRange: '12', unit: 'kg' },
+                    { id: 'c5', name: '5. Hanging Knee Raises', sets: 3, repsRange: '12', unit: 'Reps' }
                 ]
             }
         };
 
         let activeTabId = 'workout-a';
+        let activeTimers = {};
 
         function renderApp() {
+            // Restore bodyweight value
+            if(localStorage.getItem('user_bodyweight')) {
+                document.getElementById('global-bw').value = localStorage.getItem('user_bodyweight');
+            }
+
             for (const [dayId, data] of Object.entries(routines)) {
                 const container = document.getElementById(dayId);
                 let html = '';
 
                 data.exercises.forEach(ex => {
+                    // Extract historical bests & averages for the HUD
+                    const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+                    let pastWeights = [];
+                    let pastReps = [];
+                    let bestVol = 0;
+
+                    historyList.forEach(session => {
+                        const regex = new RegExp(`${ex.name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\s*\\n(?:\\s*Set\\s*\\d+:\\s*(\\d+(?:\\.\\d+)?)\\s*x\\s*(\\d+)\\s*reps\\s*\\n?)+`, 'g');
+                        let match;
+                        while ((match = regex.exec(session.details)) !== null) {
+                            // Secondary internal parsing loop
+                            const setLines = match[0].split('\n').slice(1);
+                            let exerciseVol = 0;
+                            setLines.forEach(line => {
+                                const parts = line.match(/Set\s*\d+:\s*(\d+(?:\.\d+)?)\s*x\s*(\d+)/);
+                                if(parts) {
+                                    const w = parseFloat(parts[1]);
+                                    const r = parseInt(parts[2]);
+                                    pastWeights.push(w);
+                                    pastReps.push(r);
+                                    exerciseVol += (w * r);
+                                }
+                            });
+                            if (exerciseVol > bestVol) bestVol = exerciseVol;
+                        }
+                    });
+
+                    const avgWeight = pastWeights.length ? (pastWeights.reduce((a,b)=>a+b,0)/pastWeights.length).toFixed(1) : '0';
+                    const avgReps = pastReps.length ? Math.round(pastReps.reduce((a,b)=>a+b,0)/pastReps.length) : '0';
+                    const targetWeight = pastWeights.length ? Math.max(...pastWeights) : '0';
+                    const targetReps = pastReps.length ? Math.max(...pastReps) + 1 : parseInt(ex.repsRange) || 10;
+
                     html += `
                         <div class="exercise-card">
                             <div class="exercise-header">
-                                <div>
-                                    <h2 class="exercise-title">${ex.name}</h2>
-                                    <div class="meta-row">
-                                        <span class="tag target-tag">${ex.target}</span>
-                                        <span class="tag rep-tag">🎯 Target: ${ex.reps}</span>
-                                    </div>
-                                </div>
-                                <button class="info-toggle" onclick="toggleInfo('${ex.id}')">ℹ️ How-To</button>
+                                <h2 class="exercise-title">${ex.name}</h2>
+                                <span class="tag target-tag">🎯 Goal: ${ex.repsRange}</span>
                             </div>
                             
-                            <div class="exercise-info" id="info-${ex.id}">${ex.note}</div>
+                            <div class="hud-box">
+                                <div class="hud-block"><span>Past Avg</span><strong>${avgWeight}${ex.unit} x ${avgReps}</strong></div>
+                                <div class="hud-block"><span>Personal Best Vol</span><strong>${bestVol.toLocaleString()} kg</strong></div>
+                                <div class="hud-block"><span style="color:var(--warning-color)">Aim to Beat</span><strong style="color:var(--warning-color)">${targetWeight}${ex.unit} x ${targetReps}</strong></div>
+                            </div>
 
                             <table class="log-table">
                                 <thead>
                                     <tr>
                                         <th>Set</th>
-                                        <th>${ex.unit}</th>
-                                        <th>Actual Reps</th>
-                                        <th style="text-align:right">Log</th>
+                                        <th>Weight (${ex.unit})</th>
+                                        <th>Smart Counter</th>
+                                        <th style="text-align:right">Score Load</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -357,24 +422,35 @@
                     for (let s = 1; s <= ex.sets; s++) {
                         const weightKey = `cur-${ex.id}-w-${s}`;
                         const repKey = `cur-${ex.id}-r-${s}`;
-                        const checkKey = `cur-${ex.id}-c-${s}`;
 
                         const wVal = localStorage.getItem(weightKey) || '';
                         const rVal = localStorage.getItem(repKey) || '';
-                        const isChecked = localStorage.getItem(checkKey) === 'true' ? 'checked' : '';
+                        
+                        // Dynamic live display calculation logic
+                        let currentSetScore = '-';
+                        let scoreClass = '';
+                        if (wVal && rVal) {
+                            const curVol = parseFloat(wVal) * parseInt(rVal);
+                            currentSetScore = `${curVol} kg`;
+                            if(pastWeights.length && curVol > (avgWeight * avgReps)) {
+                                scoreClass = 'score-up';
+                                currentSetScore = `🔥 ${curVol} kg`;
+                            }
+                        }
 
                         html += `
                             <tr class="log-row">
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
-                                    <input type="text" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="Weight" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value)">
+                                    <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); evaluateLiveGrid();">
                                 </td>
                                 <td class="input-cell">
-                                    <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="Reps" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value)">
+                                    <button id="btn-${ex.id}-${s}" class="tracker-btn" onclick="toggleSmartRepCounter('${ex.id}', ${s}, '${repKey}')">
+                                        ${rVal ? 'Reps: ' + rVal : '⏱️ Start Set'}
+                                    </button>
+                                    <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
                                 </td>
-                                <td class="check-cell" style="text-align:right">
-                                    <button id="${checkKey}" class="done-btn ${isChecked}" onclick="toggleSetCheck('${checkKey}')">✓</button>
-                                </td>
+                                <td id="score-${ex.id}-${s}" class="score-cell ${scoreClass}">${currentSetScore}</td>
                             </tr>
                         `;
                     }
@@ -384,6 +460,62 @@
             }
             updateDashboardStats();
             renderHistoryLog();
+        }
+
+        // SMART TIMER BUTTON CONTROLLER
+        function toggleSmartRepCounter(exId, setNum, repKey) {
+            const btn = document.getElementById(`btn-${exId}-${setNum}`);
+            const timerId = `${exId}-${setNum}`;
+
+            if (activeTimers[timerId]) {
+                // STOP TIMER & CALCULATE APPROXIMATED REPS BASED ON TIME SPENT UNDER TENSION
+                clearInterval(activeTimers[timerId].interval);
+                const secondsElapsed = Math.round((Date.now() - activeTimers[timerId].start) / 1000);
+                
+                // Average functional rep under tension takes roughly 3 seconds (1.5s up, 1.5s down)
+                let calculatedReps = Math.max(1, Math.round(secondsElapsed / 3));
+                
+                // Prompt user instantly so they can confirm or adjust manually
+                let finalReps = prompt(`Set completed! Detected Time: ${secondsElapsed}s.\nEstimated Reps achieved:`, calculatedReps);
+                if (finalReps === null) finalReps = calculatedReps; // Fallback to calculation if cancel clicked
+                
+                localStorage.setItem(repKey, finalReps);
+                btn.innerText = `Reps: ${finalReps}`;
+                btn.classList.remove('running');
+                delete activeTimers[timerId];
+                
+                evaluateLiveGrid();
+            } else {
+                // START TIMER
+                btn.innerText = "⏱️ Counting...";
+                btn.classList.add('running');
+                activeTimers[timerId] = {
+                    start: Date.now(),
+                    interval: setInterval(() => {
+                        const elapsed = Math.round((Date.now() - activeTimers[timerId].start) / 1000);
+                        btn.innerText = `⏱️ Reps ~${Math.max(1, Math.round(elapsed / 3))} (${elapsed}s)`;
+                    }, 1000)
+                };
+            }
+        }
+
+        function evaluateLiveGrid() {
+            // Real-time structural grid calculation update loop without rendering the entire app view
+            for (const [dayId, data] of Object.entries(routines)) {
+                data.exercises.forEach(ex => {
+                    for (let s = 1; s <= ex.sets; s++) {
+                        const w = document.getElementById(`cur-${ex.id}-w-${s}`)?.value;
+                        const r = localStorage.getItem(`cur-${ex.id}-r-${s}`);
+                        const cell = document.getElementById(`score-${ex.id}-${s}`);
+                        
+                        if (w && r && cell) {
+                            const v = parseFloat(w) * parseInt(r);
+                            cell.innerText = `🔥 ${v} kg`;
+                            cell.classList.add('score-up');
+                        }
+                    }
+                });
+            }
         }
 
         function switchWorkout(dayId) {
@@ -399,23 +531,8 @@
             window.scrollTo({top: 0});
         }
 
-        function toggleInfo(id) {
-            const el = document.getElementById(`info-${id}`);
-            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-        }
-
         function saveCurrentLive(key, val) {
             localStorage.setItem(key, val);
-        }
-
-        function toggleSetCheck(key) {
-            const btn = document.getElementById(key);
-            const isChecked = btn.classList.toggle('checked');
-            localStorage.setItem(key, isChecked);
-            
-            const toast = document.getElementById('toast');
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 600);
         }
 
         function finishWorkout() {
@@ -423,27 +540,28 @@
             if (!currentRoutine) return;
 
             let logDetails = '';
-            let exercisesLogCount = 0;
+            let sessionVolume = 0;
+            let loggedCount = 0;
 
             currentRoutine.exercises.forEach(ex => {
                 let exLines = [];
                 for (let s = 1; s <= ex.sets; s++) {
                     const weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
                     const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
-                    const checked = localStorage.getItem(`cur-${ex.id}-c-${s}`) === 'true';
                     
-                    if (checked || weight !== '0' || reps !== '0') {
+                    if (parseFloat(weight) > 0 && parseInt(reps) > 0) {
                         exLines.push(`  Set ${s}: ${weight} x ${reps} reps`);
+                        sessionVolume += (parseFloat(weight) * parseInt(reps));
+                        loggedCount++;
                     }
                 }
                 if (exLines.length > 0) {
                     logDetails += `${ex.name}\n${exLines.join('\n')}\n`;
-                    exercisesLogCount++;
                 }
             });
 
-            if (exercisesLogCount === 0) {
-                alert("Please log at least one completed set before finalizing your workout session!");
+            if (loggedCount === 0) {
+                alert("Please complete at least one set via the Smart Counter before finalizing data output!");
                 return;
             }
 
@@ -453,6 +571,7 @@
             const sessionRecord = {
                 date: dateString,
                 type: currentRoutine.name,
+                volume: sessionVolume,
                 details: logDetails.trim()
             };
 
@@ -460,27 +579,30 @@
             historyList.unshift(sessionRecord);
             localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
 
+            // Accumulate global statistics variables
+            let totalAllTimeVolume = historyList.reduce((acc, curr) => acc + (curr.volume || 0), 0);
             localStorage.setItem('stat_total_count', historyList.length);
+            localStorage.setItem('stat_total_volume', totalAllTimeVolume);
             localStorage.setItem('stat_last_type', currentRoutine.name);
-            localStorage.setItem('stat_last_date', today.toLocaleDateString(undefined, {month: '2-digit', day: '2-digit'}));
 
+            // Wipe setup fields cleanly
             currentRoutine.exercises.forEach(ex => {
                 for (let s = 1; s <= ex.sets; s++) {
                     localStorage.removeItem(`cur-${ex.id}-w-${s}`);
                     localStorage.removeItem(`cur-${ex.id}-r-${s}`);
-                    localStorage.removeItem(`cur-${ex.id}-c-${s}`);
                 }
             });
 
-            alert(`Awesome job! ${currentRoutine.name} has been successfully logged.`);
+            alert(`Workout Tracked Successfully!\nTotal Session Load: ${sessionVolume.toLocaleString()} kg raised.`);
             renderApp();
             switchWorkout('view-history');
         }
 
         function updateDashboardStats() {
             document.getElementById('stat-count').innerText = localStorage.getItem('stat_total_count') || '0';
-            document.getElementById('stat-last-type').innerText = localStorage.getItem('stat_last_type') || '-';
-            document.getElementById('stat-date').innerText = localStorage.getItem('stat_last_date') || '--/--';
+            const totalVol = parseInt(localStorage.getItem('stat_total_volume')) || 0;
+            document.getElementById('stat-volume').innerHTML = `${totalVol.toLocaleString()}<span style="font-size:0.6rem">kg</span>`;
+            document.getElementById('stat-streak').innerText = localStorage.getItem('stat_last_type') || '-';
         }
 
         function renderHistoryLog() {
@@ -488,7 +610,7 @@
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
 
             if (historyList.length === 0) {
-                historyStream.innerHTML = "No training sessions recorded yet. Complete a session to track metrics!";
+                historyStream.innerHTML = "No training sessions recorded yet. Complete a session to map metrics!";
                 return;
             }
 
@@ -496,7 +618,8 @@
             historyList.forEach(item => {
                 html += `
                     <div class="history-item">
-                        <span class="history-date">${item.date}</span> - <span style="color: var(--accent-color); font-weight:bold;">${item.type}</span>
+                        <span class="history-date">${item.date}</span> - <span style="color: var(--accent-color); font-weight:bold;">${item.type}</span> 
+                        <span style="color: var(--warning-color); font-weight:bold; margin-left:10px;">(Vol: ${item.volume ? item.volume.toLocaleString() : 0} kg)</span>
                         <div class="history-details">${item.details}</div>
                     </div>
                 `;
@@ -504,53 +627,36 @@
             historyStream.innerHTML = html;
         }
 
-        // Export System Module
         function exportDataData() {
             const stateData = {};
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 stateData[key] = localStorage.getItem(key);
             }
-            
-            if (Object.keys(stateData).length === 0) {
-                alert("No training history exists to export yet!");
-                return;
-            }
-
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_backup_${new Date().toISOString().slice(0,10)}.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v2_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
 
-        // Import System Module
         function importDataData(event) {
             const fileElement = event.target.files[0];
             if (!fileElement) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (confirm("Importing backup will merge or overwrite current device data. Proceed?")) {
-                        Object.keys(parsed).forEach(k => {
-                            localStorage.setItem(k, parsed[k]);
-                        });
-                        alert("Data backup successfully restored!");
-                        renderApp();
-                    }
-                } catch (err) {
-                    alert("Error processing backup file. Ensure it is a valid backup file generated by this app.");
-                }
+                const parsed = JSON.parse(e.target.result);
+                Object.keys(parsed).forEach(k => { localStorage.setItem(k, parsed[k]); });
+                alert("Analytics restored seamlessly!");
+                renderApp();
             };
             reader.readAsText(fileElement);
         }
 
         function resetAllHistory() {
-            if (confirm("Are you absolutely sure you want to delete your entire training history and all stats? This cannot be undone.")) {
+            if (confirm("Reset everything?")) {
                 localStorage.clear();
                 renderApp();
             }
