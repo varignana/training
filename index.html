@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Ultimate v5</title>
+    <title>Functional Path Analytics v6</title>
     <style>
         :root {
-            --bg-color: #070a13;
-            --card-bg: #111a2e;
+            --bg-color: #060913;
+            --card-bg: #10192e;
             --accent-color: #38bdf8;
             --text-main: #ffffff;
-            --text-muted: #94a3b8; /* Enhanced high-contrast text color */
+            --text-muted: #94a3b8;
             --border-color: #243557;
             --success-color: #10b981;
             --warning-color: #f59e0b;
-            --row-complete-border: #059669;
-            --row-complete-bg: rgba(16, 185, 129, 0.04);
+            --row-complete-border: #10b981;
+            --row-complete-bg: rgba(16, 185, 129, 0.07);
         }
 
         body {
@@ -60,7 +60,6 @@
             outline: none;
         }
 
-        /* Session Gate Control Layout */
         .session-gate-panel {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 2px dashed var(--accent-color);
@@ -91,7 +90,6 @@
             font-family: monospace;
         }
 
-        /* Analytics Scoreboard Widgets */
         .stats-panel {
             background: #0f172a;
             border: 1px solid var(--border-color);
@@ -136,7 +134,6 @@
         .workout-section { display: none; }
         .workout-section.active { display: block; }
 
-        /* Flexible Exercise Component Layout Cards */
         .exercise-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -175,25 +172,28 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .clock-toggle-btn.active-run {
-            background: #ef4444;
-            color: white;
-        }
+        .clock-toggle-btn.active-run { background: #ef4444; color: white; }
 
         .metrics-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-            background: rgba(0,0,0,0.2);
-            padding: 6px 8px;
+            background: rgba(0,0,0,0.25);
+            padding: 6px 10px;
             border-radius: 6px;
+            border: 1px solid var(--border-color);
         }
         .efficiency-badge {
             font-size: 0.75rem;
             font-weight: bold;
             color: var(--success-color);
-            background: rgba(16, 185, 129, 0.1);
+        }
+        .alltime-best-badge {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #ec4899; /* Pink accent color for absolute PB records */
+            background: rgba(236, 72, 153, 0.1);
             padding: 2px 6px;
             border-radius: 4px;
         }
@@ -201,49 +201,73 @@
         .log-table { width: 100%; border-collapse: collapse; }
         .log-table th { font-size: 0.7rem; color: var(--text-muted); text-align: left; padding-bottom: 6px; text-transform: uppercase;}
         
-        /* Grid Input Rows with Dynamic Conditional Status Formatting */
+        /* Tactical Full Row Completion Design */
         .log-row { border-bottom: 1px solid var(--border-color); transition: all 0.2s ease; }
         .log-row.row-filled {
-            background-color: var(--row-complete-bg);
-            border-left: 3px solid var(--row-complete-border);
+            background-color: var(--row-complete-bg) !important;
         }
-        .log-row td { padding: 8px 4px; vertical-align: middle; }
+        .log-row td { padding: 10px 4px; vertical-align: middle; }
         
         .set-num { font-weight: bold; color: var(--text-main); width: 8%; font-size: 0.85rem;}
-        .input-cell { width: 26%; }
         
-        .log-input {
-            width: 95%;
-            background: var(--bg-color);
+        /* Border box wrapper logic around inputs */
+        .input-container-box {
+            display: flex;
+            align-items: center;
             border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 8px 4px;
             border-radius: 6px;
-            box-sizing: border-box;
+            background: var(--bg-color);
+            padding: 2px;
+            width: 92%;
+        }
+        .row-filled .input-container-box {
+            border: 1.5px solid var(--row-complete-border);
+        }
+
+        .log-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 6px 2px;
             text-align: center;
             font-size: 0.9rem;
             font-weight: bold;
+            outline: none;
         }
-        .log-input:focus { border-color: var(--accent-color); outline: none; }
+        .log-input:disabled { opacity: 0.2; }
 
         .stopwatch-btn {
-            width: 95%;
+            width: 100%;
             background: #1e293b;
-            border: 1px solid var(--border-color);
+            border: none;
             color: var(--warning-color);
-            padding: 8px 2px;
-            border-radius: 6px;
+            padding: 7px 2px;
+            border-radius: 4px;
             font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
         }
         .stopwatch-btn.running { background: #ef4444; color: white; }
 
-        .target-cell { width: 40%; font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
+        .target-cell { width: 40%; font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; position: relative; padding-left: 6px;}
         .target-cell strong { color: var(--accent-color); }
         .target-cell span { color: var(--warning-color); display: block; font-size: 0.65rem; margin-top: 2px;}
 
-        /* Bottom Action Tray Panel Control Links */
+        /* Return of the satisfying status mark check */
+        .check-status-badge {
+            display: none;
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 0.75rem;
+            background: rgba(16, 185, 129, 0.15);
+            padding: 2px 5px;
+            border-radius: 4px;
+            float: right;
+            margin-right: 4px;
+        }
+        .row-filled .check-status-badge { display: inline-block; }
+
         .action-tray {
             margin: 20px 0;
             display: none;
@@ -335,7 +359,7 @@
 <body>
 
     <header>
-        <h1>Functional Path v5</h1>
+        <h1>Functional Path v6</h1>
         <div style="display:flex; gap:6px; align-items:center;">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div class="bodyweight-box">
@@ -347,14 +371,14 @@
     </header>
 
     <div id="session-gate" class="session-gate-panel">
-        <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Set your current body weight, then press Start to open inputs and timers.</p>
+        <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Lock your morning body weight, then click Start Session to open trackers.</p>
         <button class="start-session-btn" onclick="startWorkoutSession()">▶ Start Training Session</button>
     </div>
 
     <div class="stats-panel">
         <div class="stat-box">
             <div id="stat-week-ratio" class="stat-num">0.0x</div>
-            <div class="stat-label">Weekly Vol Score</div>
+            <div class="stat-label">Weekly Score</div>
         </div>
         <div class="stat-box" style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
             <div id="stat-last-ratio" class="stat-num">0.0x</div>
@@ -397,7 +421,7 @@
 
     <div id="footer-actions" class="action-tray">
         <div class="live-day-efficiency">
-            Estimated Workout Efficiency Score: <span id="live-day-score" style="color:var(--accent-color)">0.0x</span> BW Multiplier
+            Session Efficiency Load: <span id="live-day-score" style="color:var(--accent-color)">0.0x</span> BW Multiplier
         </div>
         <button class="finish-btn" onclick="finishWorkout()">✓ Complete Workout & Save Metrics</button>
         <button class="reset-day-btn" onclick="resetCurrentSessionInputs()">🔄 Reset Day Data</button>
@@ -446,7 +470,7 @@
         let holdTimers = {};
 
         function renderApp() {
-            const userBw = localStorage.getItem('user_bodyweight') || '80';
+            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
             document.getElementById('global-bw').value = userBw;
 
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
@@ -457,8 +481,11 @@
 
                 data.exercises.forEach(ex => {
                     let pastSetRecords = {};
-                    const lastMatchingSession = historyList.find(s => s.type === data.name);
                     
+                    // Pull All-Time Peak Personal Best Multiplier score for this exercise card
+                    let peakPersonalBest = localStorage.getItem(`pb-score-${ex.id}`) || '0.0';
+
+                    const lastMatchingSession = historyList.find(s => s.type === data.name);
                     if (lastMatchingSession) {
                         const regex = new RegExp(`${ex.name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\s*\\n(?:\\s*Set\\s*\\d+:\\s*(\\d+(?:\\.\\d+)?)\\s*x\\s*(\\d+)\\s*reps\\s*\\n?)+`, 'g');
                         const match = lastMatchingSession.details.match(regex);
@@ -487,8 +514,8 @@
                             </div>
                             
                             <div class="metrics-bar">
-                                <span class="tag" style="margin:0; color:var(--text-muted); font-weight:bold;">🎯 Goal: ${ex.repsRange}</span>
-                                <div class="efficiency-badge">Efficiency: <span id="eff-${ex.id}">0.0x</span> BW</div>
+                                <span class="alltime-best-badge">🏆 Best Ever: ${peakPersonalBest}x BW</span>
+                                <div class="efficiency-badge">Live: <span id="eff-${ex.id}">0.0x</span> BW</div>
                             </div>
 
                             <table class="log-table">
@@ -497,7 +524,7 @@
                                         <th>Set</th>
                                         <th>Weight (${ex.unit})</th>
                                         <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps Done'}</th>
-                                        <th style="text-align:left; padding-left:4px;">Set Target</th>
+                                        <th style="text-align:left; padding-left:6px;">Progressive Overload Target</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -510,31 +537,51 @@
                         const wVal = localStorage.getItem(weightKey) || '';
                         const rVal = localStorage.getItem(repKey) || '';
 
-                        let setTargetDisplay = '<span style="color:var(--text-muted)">No history</span>';
+                        let setTargetDisplay = '<span style="color:var(--text-muted)">No baseline</span>';
                         if (pastSetRecords[s]) {
-                            const pastW = pastSetRecords[s].weight;
-                            const pastR = pastSetRecords[s].reps;
-                            setTargetDisplay = `Last: <strong>${pastW}${ex.unit} x ${pastR}</strong>
-                                                <span>Target: ${pastW}${ex.unit} x ${parseInt(pastR) + 1}</span>`;
+                            const pastW = parseFloat(pastSetRecords[s].weight);
+                            const pastR = parseInt(pastSetRecords[s].reps);
+                            const nextR = pastR + 1;
+                            
+                            // Formulate Overload Efficiency target
+                            let scoreTarget = "";
+                            if (ex.type === 'hold') {
+                                scoreTarget = ((pastR + 5) / 10).toFixed(1);
+                                setTargetDisplay = `Last: <strong>${pastR}s</strong>
+                                                    <span>Target: Hold ${pastR + 5}s (+5s Overload) → Aim for ${scoreTarget}x</span>`;
+                            } else {
+                                scoreTarget = ((pastW * nextR) / userBw).toFixed(1);
+                                setTargetDisplay = `Last: <strong>${pastW}kg x ${pastR}</strong>
+                                                    <span>Target: ${pastW}kg x ${nextR} (+1 Rep Overload) → Aim for ${scoreTarget}x</span>`;
+                            }
                         }
 
                         html += `
                             <tr class="log-row" id="row-${ex.id}-${s}">
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
-                                    <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); evaluateLiveGridAndEfficiency();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                    <div class="input-container-box">
+                                        <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); evaluateLiveGridAndEfficiency();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                    </div>
                                 </td>
                                 <td class="input-cell">
+                                    <div class="input-container-box" style="background:transparent; border:none;">
                                     ${ex.type === 'hold' ? `
                                         <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
                                             ${rVal ? rVal + ' Sec' : '⏱️ Start'}
                                         </button>
                                         <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
                                     ` : `
-                                        <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); evaluateLiveGridAndEfficiency();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        <div class="input-container-box" style="width:100%;">
+                                            <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); evaluateLiveGridAndEfficiency();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        </div>
                                     `}
+                                    </div>
                                 </td>
-                                <td class="target-cell">${setTargetDisplay}</td>
+                                <td class="target-cell">
+                                    <span class="check-status-badge">✓ Complete</span>
+                                    ${setTargetDisplay}
+                                </td>
                             </tr>
                         `;
                     }
@@ -561,7 +608,6 @@
                 const gSec = (globalTimeElapsed % 60).toString().padStart(2, '0');
                 document.getElementById('global-timer-box').innerText = `${gMin}:${gSec}`;
 
-                // Process ongoing individual exercise timers if marked active
                 Object.keys(exerciseClockStates).forEach(exId => {
                     if (exerciseClockStates[exId].running) {
                         exerciseClockStates[exId].time++;
@@ -580,7 +626,6 @@
             renderApp();
         }
 
-        // FULL CONTROLLABLE INDIVIDUAL EXERCISE TIMERS
         function toggleExerciseClock(exId) {
             const btn = document.getElementById(`clock-toggle-${exId}`);
             if (!exerciseClockStates[exId]) {
@@ -588,12 +633,10 @@
             }
 
             if (exerciseClockStates[exId].running) {
-                // Pause clock
                 exerciseClockStates[exId].running = false;
                 btn.innerText = "▶ Start Clock";
                 btn.classList.remove('active-run');
             } else {
-                // Resume/Start clock
                 exerciseClockStates[exId].running = true;
                 btn.innerText = "⏸ Pause Clock";
                 btn.classList.add('active-run');
@@ -601,14 +644,14 @@
         }
 
         function toggleHoldStopwatch(exId, setNum, repKey) {
-            const btn = document.getElementById(`btn-${exId}-${setNum}`);
-            const timerId = `${exId}-${setNum}`;
+            const btn = document.getElementById('btn-' + exId + '-' + setNum);
+            const timerId = exId + '-' + setNum;
 
             if (holdTimers[timerId]) {
                 clearInterval(holdTimers[timerId].interval);
                 const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
                 localStorage.setItem(repKey, totalSeconds);
-                btn.innerText = `${totalSeconds} Sec`;
+                btn.innerText = totalSeconds + " Sec";
                 btn.classList.remove('running');
                 delete holdTimers[timerId];
                 evaluateLiveGridAndEfficiency();
@@ -619,22 +662,23 @@
                     start: Date.now(),
                     interval: setInterval(() => {
                         const elapsed = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
-                        btn.innerText = `⏱️ ${elapsed}s`;
+                        btn.innerText = "⏱️ " + elapsed + "s";
                     }, 1000)
                 };
             }
         }
 
-        // REAL-TIME MULTI-LEVEL EFFICIENCY ENGINE
+        // SCIENTIFIC EXERCISE PROFILE EFFICIENCY ENGINE
         function evaluateLiveGridAndEfficiency() {
             const userBw = parseFloat(document.getElementById('global-bw').value) || 80;
             const currentRoutine = routines[activeTabId];
-            let dayTotalVolume = 0;
+            let dayTotalVolumeScore = 0;
 
             if (!currentRoutine) return;
 
             currentRoutine.exercises.forEach(ex => {
-                let exerciseVolume = 0;
+                let exerciseVolumeLoad = 0;
+                let holdsTotalSeconds = 0;
                 
                 for (let s = 1; s <= ex.sets; s++) {
                     const rowElement = document.getElementById(`row-${ex.id}-${s}`);
@@ -646,29 +690,37 @@
                     if (rowElement) {
                         if (rVal !== '' && (ex.type === 'hold' || wVal !== '')) {
                             rowElement.classList.add('row-filled');
-                            const calculatedWeight = parseFloat(wVal) || 0;
-                            const calculatedReps = parseInt(rVal) || 0;
                             
-                            exerciseVolume += (calculatedWeight * calculatedReps);
+                            if (ex.type === 'hold') {
+                                holdsTotalSeconds += parseInt(rVal) || 0;
+                            } else {
+                                exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
+                            }
                         } else {
                             rowElement.classList.remove('row-filled');
                         }
                     }
                 }
 
-                dayTotalVolume += exerciseVolume;
+                // Unified calculation logic (Weighted Volume Load vs. Bodyweight Hold TUT Baseline)
+                let calculatedExerciseScore = 0;
+                if (ex.type === 'hold') {
+                    calculatedExerciseScore = holdsTotalSeconds / 10;
+                } else {
+                    calculatedExerciseScore = exerciseVolumeLoad / userBw;
+                }
+
+                dayTotalVolumeScore += calculatedExerciseScore;
                 
-                // Calculate and output Exercise Level Score
                 const exEffBadge = document.getElementById(`eff-${ex.id}`);
                 if (exEffBadge) {
-                    exEffBadge.innerText = (exerciseVolume / userBw).toFixed(1) + 'x';
+                    exEffBadge.innerText = calculatedExerciseScore.toFixed(1) + 'x';
                 }
             });
 
-            // Calculate and output Day Workout Level Score
             const dayScoreText = document.getElementById('live-day-score');
             if (dayScoreText) {
-                dayScoreText.innerText = (dayTotalVolume / userBw).toFixed(1) + 'x';
+                dayScoreText.innerText = dayTotalVolumeScore.toFixed(1) + 'x';
             }
         }
 
@@ -695,7 +747,7 @@
         }
 
         function resetCurrentSessionInputs() {
-            if (!confirm("Are you sure you want to clear your metrics for this current session layout?")) return;
+            if (!confirm("Reset all training inputs for this current workout view?")) return;
             const currentRoutine = routines[activeTabId];
             currentRoutine.exercises.forEach(ex => {
                 localStorage.removeItem(`ex-clock-time-${ex.id}`);
@@ -714,13 +766,16 @@
             const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
 
             let logDetails = '';
-            let sessionVolume = 0;
+            let parsedSessionScoreTotal = 0;
+            let rawAbsoluteWeightVolumeSum = 0;
             let loggedCount = 0;
 
             logDetails += `Session Total Duration: ${document.getElementById('global-timer-box').innerText}\n\n`;
 
             currentRoutine.exercises.forEach(ex => {
                 let exLines = [];
+                let exerciseVolumeLoad = 0;
+                let holdsTotalSeconds = 0;
                 const trackingClockText = document.getElementById(`clock-${ex.id}`).innerText;
                 
                 for (let s = 1; s <= ex.sets; s++) {
@@ -728,22 +783,37 @@
                     const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
                     
                     if (parseInt(reps) > 0) {
-                        exLines.push(`  Set ${s}: ${weight} x ${reps} reps`);
-                        sessionVolume += (parseFloat(weight) * parseInt(reps));
+                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : weight + 'kg x '}${reps} ${ex.type === 'hold' ? 'seconds' : 'reps'}`);
+                        if (ex.type === 'hold') {
+                            holdsTotalSeconds += parseInt(reps);
+                        } else {
+                            exerciseVolumeLoad += (parseFloat(weight) * parseInt(reps));
+                            rawAbsoluteWeightVolumeSum += (parseFloat(weight) * parseInt(reps));
+                        }
                         loggedCount++;
                     }
                 }
+                
                 if (exLines.length > 0) {
-                    logDetails += `${ex.name} (Duration: ${trackingClockText})\n${exLines.join('\n')}\n\n`;
+                    let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / userBw);
+                    parsedSessionScoreTotal += finalExScore;
+
+                    // Evaluate and check if this beats All-Time Best historical metrics cache
+                    let pastPb = parseFloat(localStorage.getItem(`pb-score-${ex.id}`)) || 0;
+                    if (finalExScore > pastPb) {
+                        localStorage.setItem(`pb-score-${ex.id}`, finalExScore.toFixed(1));
+                    }
+
+                    logDetails += `${ex.name} (Duration: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x BW)\n${exLines.join('\n')}\n\n`;
                 }
             });
 
             if (loggedCount === 0) {
-                alert("Please track field indicators before locking session parameters!");
+                alert("Please log track sets before closing session!");
                 return;
             }
 
-            const dayRatioMultiplier = (sessionVolume / userBw).toFixed(1);
+            const finalRecordedDayRatio = parsedSessionScoreTotal.toFixed(1);
             const today = new Date();
             const dateString = today.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
 
@@ -751,8 +821,8 @@
                 date: dateString,
                 timestamp: Date.now(),
                 type: currentRoutine.name,
-                volume: sessionVolume,
-                ratio: parseFloat(dayRatioMultiplier),
+                volume: rawAbsoluteWeightVolumeSum,
+                ratio: parseFloat(finalRecordedDayRatio),
                 details: logDetails.trim()
             };
 
@@ -760,7 +830,6 @@
             historyList.unshift(sessionRecord);
             localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
 
-            // Clear cache properties cleanly
             currentRoutine.exercises.forEach(ex => {
                 localStorage.removeItem(`ex-clock-time-${ex.id}`);
                 delete exerciseClockStates[ex.id];
@@ -774,39 +843,35 @@
             document.getElementById('session-gate').style.display = 'block';
             document.getElementById('global-timer-box').style.display = 'none';
             
-            alert(`Workout logged! Efficiency Multiplier: ${dayRatioMultiplier}x BW.`);
+            alert(`Workout logged! Efficiency Multiplier: ${finalRecordedDayRatio}x BW.`);
             renderApp();
             switchWorkout('view-history');
         }
 
         function updateDashboardStats() {
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
-            
             document.getElementById('stat-count').innerText = historyList.length;
 
             if(historyList.length > 0) {
-                document.getElementById('stat-last-ratio').innerText = `${historyList[0].ratio}x`;
+                document.getElementById('stat-last-ratio').innerText = historyList[0].ratio.toFixed(1) + 'x';
             } else {
                 document.getElementById('stat-last-ratio').innerText = '0.0x';
             }
 
-            // Calculate rolling 7-day Weekly volume multiplier
+            // Rolling 7-Day Cumulative Efficiency Score calculation
             const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
             const recentSessions = historyList.filter(s => s.timestamp >= sevenDaysAgo);
-            const weeklyVolumeSum = recentSessions.reduce((acc, curr) => acc + (curr.volume || 0), 0);
-            const weeklyRatioScore = (weeklyVolumeSum / userBw).toFixed(1);
+            const weeklyScoreSum = recentSessions.reduce((acc, curr) => acc + (curr.ratio || 0), 0);
             
-            document.getElementById('stat-week-ratio').innerText = `${weeklyRatioScore}x`;
+            document.getElementById('stat-week-ratio').innerText = weeklyScoreSum.toFixed(1) + 'x';
 
             const analyticsBox = document.getElementById('weekly-analytics-panel');
             if(analyticsBox) {
                 analyticsBox.innerHTML = `
                     <div class="analytics-block">
-                        <div class="analytics-title">📊 Rolling 7-Day Cumulative Efficiency</div>
+                        <div class="analytics-title">📊 Rolling 7-Day Cumulative Microcycle Efficiency</div>
                         Completed Workouts: <strong>${recentSessions.length}</strong><br>
-                        Total Moving Microcycle Mass: <strong>${weeklyVolumeSum.toLocaleString()} kg</strong><br>
-                        Current Load Profile: <strong>${weeklyRatioScore}x</strong> your body weight lifted this week.
+                        Total Weekly Combined Efficiency Profile: <strong>${weeklyScoreSum.toFixed(1)}x</strong> your body weight cleared this week.
                     </div>
                 `;
             }
@@ -826,7 +891,7 @@
                 html += `
                     <div class="history-item">
                         <span class="history-date">${item.date}</span> - <span style="color: var(--accent-color); font-weight:bold;">${item.type}</span> 
-                        <span style="color: var(--success-color); font-weight:bold; margin-left:10px;">(Efficiency: ${item.ratio}x BW / ${item.volume.toLocaleString()} kg)</span>
+                        <span style="color: var(--success-color); font-weight:bold; margin-left:10px;">(Efficiency Score: ${item.ratio.toFixed(1)}x BW)</span>
                         <div class="history-details">${item.details}</div>
                     </div>
                 `;
@@ -843,7 +908,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v5_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v6_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
