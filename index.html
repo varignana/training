@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v10</title>
+    <title>Functional Path Overload v11</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -161,7 +161,7 @@
             border-color: var(--accent-color);
         }
 
-        /* Continuous Day Tracking Dashboard Widget below Day Selectors */
+        /* Continuous Day Tracking Dashboard Widget - NOW INVERTED */
         .day-tracking-scoreboard {
             background: linear-gradient(90deg, #131e36, #0b1324);
             border: 1px solid var(--border-color);
@@ -220,24 +220,39 @@
         }
         .clock-toggle-btn.active-run { background: #ef4444; color: white; }
 
+        /* Neater, Multi-line Metrics Display Layout */
         .metrics-bar {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 10px;
             background: rgba(0,0,0,0.25);
             padding: 6px 10px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
         }
-        .efficiency-badge { font-size: 0.75rem; font-weight: bold; color: var(--success-color); }
-        .alltime-best-badge {
+        .metric-cell-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
             font-size: 0.7rem;
+            line-height: 1.2;
+        }
+        .metric-cell-vertical .m-lbl {
+            color: var(--text-muted);
             font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+        }
+        .metric-cell-vertical .m-val-pb {
             color: #ec4899;
-            background: rgba(236, 72, 153, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .metric-cell-vertical .m-val-live {
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 0.8rem;
         }
 
         .log-table { width: 100%; border-collapse: collapse; }
@@ -402,6 +417,99 @@
         .deep-exercise-title { font-weight: bold; font-size: 0.85rem; color: #fff; margin-bottom: 4px;}
         .deep-exercise-meta { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; line-height: 1.4;}
 
+        /* Embedded Interactive Calendar Layout Engine Styles */
+        .calendar-container {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .calendar-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .calendar-month-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .calendar-nav-btn {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+        .calendar-weekday-hdr {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: bold;
+            text-transform: uppercase;
+            padding-bottom: 4px;
+        }
+        .calendar-day-cell {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 4px;
+            min-height: 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 1px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        .calendar-day-cell .num-label {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+        .calendar-day-cell.has-log {
+            border-color: var(--accent-color);
+            background: rgba(56, 189, 248, 0.08);
+        }
+        .calendar-day-cell.has-log .num-label {
+            color: #fff;
+        }
+        .calendar-day-cell.selected-day {
+            outline: 1.5px solid var(--warning-color);
+            background: rgba(245, 158, 11, 0.12) !important;
+        }
+        .calendar-badge {
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 1px 3px;
+            border-radius: 3px;
+            line-height: 1;
+            margin-top: 1px;
+            width: 80%;
+            text-align: center;
+        }
+        .badge-a { background: var(--accent-color); color: #000; }
+        .badge-b { background: var(--warning-color); color: #000; }
+        .badge-c { background: var(--cooldown-color); color: #000; }
+
+        .focused-day-inspector {
+            background: #111a2e;
+            border: 1px solid var(--warning-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
         .history-section {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -444,7 +552,7 @@
 <body>
 
     <header>
-        <h1>Functional Path v10</h1>
+        <h1>Functional Path v11</h1>
         <div style="display:flex; gap:6px; align-items:center;">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div class="bodyweight-box">
@@ -496,16 +604,16 @@
         <button class="tab-btn" id="tab-view-history" onclick="switchWorkout('view-history')">📊 Analytics</button>
     </div>
 
-    <!-- Live vs Past Overall Day Score Tracking Banner -->
+    <!-- Inverted Scoreboard Banner: Best Score Left, Live Score Right -->
     <div id="day-scoreboard-widget" class="day-tracking-scoreboard">
         <div class="day-score-block">
-            <span class="day-score-title">Live Session Score</span>
-            <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
+            <span class="day-score-title">All-Time Best Day Score</span>
+            <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
         </div>
         <div style="font-size: 1.2rem; color: var(--border-color); font-weight: bold;">/</div>
         <div class="day-score-block" style="text-align: right;">
-            <span class="day-score-title">All-Time Best Day Score</span>
-            <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
+            <span class="day-score-title">Live Session Score</span>
+            <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
         </div>
     </div>
 
@@ -515,6 +623,25 @@
 
     <div id="view-history" class="workout-section">
         <div id="weekly-analytics-panel"></div>
+
+        <!-- Training Microcycle Month Grid Calendar Module -->
+        <div class="calendar-container">
+            <div class="calendar-navbar">
+                <button class="calendar-nav-btn" onclick="shiftCalendarMonth(-1)">◀ Previous</button>
+                <span id="calendar-header-title" class="calendar-month-title">Month Year</span>
+                <button class="calendar-nav-btn" onclick="shiftCalendarMonth(1)">Next ▶</button>
+            </div>
+            <div class="calendar-grid" id="calendar-render-grid"></div>
+        </div>
+
+        <!-- Dedicated Calendar Inspection Node Panel -->
+        <div id="calendar-inspector-panel" class="focused-day-inspector" style="display:none;">
+            <div style="display:flex; justify-content:between; align-items:center; margin-bottom:6px;">
+                <span id="inspector-date-title" style="font-weight:bold; color:var(--warning-color); font-size:0.85rem;">Date Selected</span>
+                <button style="background:transparent; border:none; color:var(--text-muted); font-size:0.75rem; cursor:pointer;" onclick="document.getElementById('calendar-inspector-panel').style.display='none';">✕ Close</button>
+            </div>
+            <div id="inspector-output-content" style="font-family:monospace; font-size:0.8rem; color:#fff; white-space:pre-wrap; max-height:220px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px; border:1px solid var(--border-color);"></div>
+        </div>
         
         <!-- Deep Drill Workout Routine Analyzer Grid -->
         <div class="analytics-block" style="border-color: var(--accent-color);">
@@ -597,6 +724,7 @@
 
         let activeTabId = 'workout-a';
         let currentSelectedAnalyticsPill = 'Workout A';
+        let calendarFocusDate = new Date(); // Tracks the currently browsed calendar month view
         let sessionIsRunning = false;
         let globalTimeElapsed = 0;
         let globalTimerInterval = null;
@@ -614,7 +742,6 @@
             const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
             document.getElementById('global-bw').value = userBw;
 
-            // Generate/Extract Deep Historical Day-Bound Exercise PBs directly from log data stream
             const calculatedExercisePBs = parseDayBoundExercisePBs();
 
             for (const [dayId, data] of Object.entries(routines)) {
@@ -629,19 +756,26 @@
                     html += `
                         <div class="exercise-card" id="card-${ex.id}">
                             <div class="exercise-header">
-                                <h2 class="exercise-title">${ex.name} <span style="color:var(--accent-color); font-size:0.8rem; margin-left:4px;">(Goal: ${ex.repsRange})</span></h2>
+                                <h2 class="exercise-title">${ex.name} <span style="color:var(--accent-color); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span></h2>
                                 <div class="ex-controls">
                                     <div class="ex-clock-badge" id="clock-${ex.id}">${elapsedSavedClock}</div>
                                     <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" 
                                             onclick="toggleExerciseClock('${ex.id}')" ${!sessionIsRunning ? 'disabled' : ''}>
-                                        ▶ Start Clock
+                                        ▶ Clock
                                     </button>
                                 </div>
                             </div>
                             
+                            <!-- Compressed multi-line values after colons -->
                             <div class="metrics-bar">
-                                <span class="alltime-best-badge">🏆 Peak Day Combo Score: ${peakPersonalBestScore.toFixed(1)}x BW</span>
-                                <div class="efficiency-badge">Live Card: <span id="eff-${ex.id}">0.0x</span> BW</div>
+                                <div class="metric-cell-vertical">
+                                    <span class="m-lbl">Peak Day Score:</span>
+                                    <span class="m-val-pb">${peakPersonalBestScore.toFixed(1)}x BW</span>
+                                </div>
+                                <div class="metric-cell-vertical" style="text-align: right;">
+                                    <span class="m-lbl">Live Card:</span>
+                                    <span class="m-val-live" id="eff-${ex.id}">0.0x BW</span>
+                                </div>
                             </div>
 
                             <table class="log-table">
@@ -650,7 +784,7 @@
                                         <th>Set</th>
                                         <th>Weight</th>
                                         <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps'}</th>
-                                        <th style="padding-left:4px;">Best Single Day Combo Data</th>
+                                        <th style="padding-left:4px;">Best Day Combo</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -672,7 +806,7 @@
                             if (ex.type === 'hold') {
                                 historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.reps}s</strong></span>`;
                             } else {
-                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.weight}kg × ${pbSet.reps}</strong></span>`;
+                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.weight}kg×${pbSet.reps}</strong></span>`;
                             }
                         }
 
@@ -688,7 +822,7 @@
                                     <div class="input-container-box" style="background:transparent; border:none; width:95%;">
                                     ${ex.type === 'hold' ? `
                                         <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
-                                            ${rVal ? rVal + ' Sec' : '⏱️ Start'}
+                                            ${rVal ? rVal + 's' : '⏱️ Start'}
                                         </button>
                                         <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
                                     ` : `
@@ -716,27 +850,22 @@
             renderHistoryLog();
             updateLiveMetricsOnly();
             renderPillDeepAnalysis();
+            renderCalendarWorkspace();
         }
 
-        // Deep parse history stream to grab the absolute best single-day combined profile per exercise
         function parseDayBoundExercisePBs() {
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             const exercisePBs = {}; 
 
-            // Scan historical log stream from oldest to newest to compile true execution history
             for (let i = historyList.length - 1; i >= 0; i--) {
                 const session = historyList[i];
                 const rawDetails = session.details || '';
-                
-                // Parse out exercises from details using regex matching
-                // Looks for exercise header blocks formatted as: Name (Time: XX:XX | Score: XX.Xx)
                 const exBlocks = rawDetails.split(/\n(?=[0-9]\.)/);
                 
                 exBlocks.forEach(block => {
                     const firstLine = block.trim().split('\n')[0];
                     if (!firstLine) return;
 
-                    // Locate match inside routines map to identify exercise ID
                     let matchedExId = null;
                     let currentExType = 'reps';
                     
@@ -751,12 +880,10 @@
 
                     if (!matchedExId) return;
 
-                    // Calculate score from this day block line
                     const scoreMatch = firstLine.match(/Score:\s*([0-9.]+)/);
                     if (!scoreMatch) return;
                     const blockDayScore = parseFloat(scoreMatch[1]) || 0;
 
-                    // Parse out set specifics from following text inside block lines
                     const lines = block.trim().split('\n');
                     const setsBreakdown = {};
 
@@ -776,7 +903,6 @@
                         }
                     });
 
-                    // Evaluate if this specific structural log day beats past combined logs for this singular item
                     if (!exercisePBs[matchedExId] || blockDayScore >= exercisePBs[matchedExId].score) {
                         exercisePBs[matchedExId] = {
                             score: blockDayScore,
@@ -788,6 +914,102 @@
                 });
             }
             return exercisePBs;
+        }
+
+        /* Monthly Calendar Generator Logic with Embedded Click Interception */
+        function renderCalendarWorkspace() {
+            const gridContainer = document.getElementById('calendar-render-grid');
+            const headerTitle = document.getElementById('calendar-header-title');
+            if(!gridContainer || !headerTitle) return;
+
+            const year = calendarFocusDate.getFullYear();
+            const month = calendarFocusDate.getMonth();
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            headerTitle.innerText = `${monthNames[month]} ${year}`;
+
+            gridContainer.innerHTML = '';
+
+            // Render Week Day Headers
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            daysOfWeek.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'calendar-weekday-hdr';
+                el.innerText = d;
+                gridContainer.appendChild(el);
+            });
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Padding blank cells for calendar alignment
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                gridContainer.appendChild(emptyCell);
+            }
+
+            // Extract completed historical records mapping 
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+
+            for (let day = 1; day <= totalDaysInMonth; day++) {
+                const cellDateObj = new Date(year, month, day);
+                const cellLocaleString = cellDateObj.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day-cell';
+                
+                const numLabel = document.createElement('span');
+                numLabel.className = 'num-label';
+                numLabel.innerText = day;
+                cell.appendChild(numLabel);
+
+                // Find matching log records for this individual date string
+                const matchingLogs = historyList.filter(l => l.date === cellLocaleString);
+
+                if (matchingLogs.length > 0) {
+                    cell.classList.add('has-log');
+                    
+                    // Display workout badges inside the day block
+                    matchingLogs.forEach(log => {
+                        const badge = document.createElement('div');
+                        badge.className = 'calendar-badge';
+                        
+                        let letter = 'A';
+                        if(log.type.toLowerCase().includes('b')) letter = 'B';
+                        if(log.type.toLowerCase().includes('c')) letter = 'C';
+
+                        badge.classList.add(`badge-${letter.toLowerCase()}`);
+                        badge.innerText = letter;
+                        cell.appendChild(badge);
+                    });
+
+                    // Interactive click binding to load deep historical summary performance logs
+                    cell.onclick = () => {
+                        document.querySelectorAll('.calendar-day-cell').forEach(c => c.classList.remove('selected-day'));
+                        cell.classList.add('selected-day');
+
+                        const inspectorPanel = document.getElementById('calendar-inspector-panel');
+                        const inspectorTitle = document.getElementById('inspector-date-title');
+                        const inspectorContent = document.getElementById('inspector-output-content');
+
+                        inspectorPanel.style.display = 'block';
+                        inspectorTitle.innerText = `🔍 Inspection Node: ${cellLocaleString}`;
+
+                        let fullInspectDetails = '';
+                        matchingLogs.forEach((l, idx) => {
+                            fullInspectDetails += `== SESSION #${matchingLogs.length - idx} (${l.type}) ==\nScore: ${l.ratio.toFixed(1)}x BW\n\n${l.details}\n\n`;
+                        });
+                        inspectorContent.innerText = fullInspectDetails.trim();
+                    };
+                }
+
+                gridContainer.appendChild(cell);
+            }
+        }
+
+        function shiftCalendarMonth(direction) {
+            calendarFocusDate.setMonth(calendarFocusDate.getMonth() + direction);
+            renderCalendarWorkspace();
         }
 
         function startWorkoutSession() {
@@ -917,11 +1139,11 @@
 
             if (exerciseClockStates[exId].running) {
                 exerciseClockStates[exId].running = false;
-                btn.innerText = "▶ Start Clock";
+                btn.innerText = "▶ Clock";
                 btn.classList.remove('active-run');
             } else {
                 exerciseClockStates[exId].running = true;
-                btn.innerText = "⏸ Pause Clock";
+                btn.innerText = "⏸ Pause";
                 btn.classList.add('active-run');
             }
         }
@@ -934,7 +1156,7 @@
                 clearInterval(holdTimers[timerId].interval);
                 const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
                 localStorage.setItem(repKey, totalSeconds);
-                btn.innerText = totalSeconds + " Sec";
+                btn.innerText = totalSeconds + "s";
                 btn.classList.remove('running');
                 delete holdTimers[timerId];
                 updateLiveMetricsOnly();
@@ -980,13 +1202,12 @@
                 dayTotalVolumeScore += calculatedExerciseScore;
                 
                 const exEffBadge = document.getElementById(`eff-${ex.id}`);
-                if (exEffBadge) exEffBadge.innerText = calculatedExerciseScore.toFixed(1) + 'x';
+                if (exEffBadge) exEffBadge.innerText = calculatedExerciseScore.toFixed(1) + 'x BW';
             });
 
-            // Update persistent header panel metrics widget gauges 
+            // Update header widgets
             document.getElementById('widget-live-score').innerHTML = `${dayTotalVolumeScore.toFixed(1)}x <span style="font-size:0.75rem; color:var(--text-muted)">BW</span>`;
             
-            // Calculate historical total session score record max for the target routine layout
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             const specificRoutineLogs = historyList.filter(s => s.type === currentRoutine.name);
             let absoluteBestDayTotalVal = 0;
@@ -1018,6 +1239,7 @@
             } else {
                 scoreboardWidget.style.display = 'none';
                 stretchingDashboard.style.display = 'none';
+                document.getElementById('calendar-inspector-panel').style.display = 'none';
             }
             window.scrollTo({top: 0});
         }
@@ -1074,10 +1296,10 @@
                     <div class="deep-exercise-card">
                         <div class="deep-exercise-title" style="color:var(--accent-color);">${ex.name}</div>
                         <div class="deep-exercise-meta">
-                            🔥 Peak Combined Score: <strong style="color:var(--warning-color);">${pbEntry.score.toFixed(1)}x BW</strong><br>
+                            🔥 Peak Day Combo Score: <strong style="color:var(--warning-color);">${pbEntry.score.toFixed(1)}x BW</strong><br>
                             📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
                             🏋️ Performance Breakdown:<br>
-                            <span style="color:#fff; padding-left:8px; display:inline-block;">${setsListText.join(' | ')}</span>
+                            <span style="color:#fff; padding-left:4px; display:inline-block; margin-top:2px;">${setsListText.join(' | ')}</span>
                         </div>
                     </div>
                 `;
@@ -1264,7 +1486,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v10_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v11_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
