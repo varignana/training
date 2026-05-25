@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Analytics v6</title>
+    <title>Functional Path Overload v7</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -15,7 +15,7 @@
             --success-color: #10b981;
             --warning-color: #f59e0b;
             --row-complete-border: #10b981;
-            --row-complete-bg: rgba(16, 185, 129, 0.07);
+            --row-complete-bg: rgba(16, 185, 129, 0.08);
         }
 
         body {
@@ -184,15 +184,11 @@
             border-radius: 6px;
             border: 1px solid var(--border-color);
         }
-        .efficiency-badge {
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: var(--success-color);
-        }
+        .efficiency-badge { font-size: 0.75rem; font-weight: bold; color: var(--success-color); }
         .alltime-best-badge {
             font-size: 0.7rem;
             font-weight: bold;
-            color: #ec4899; /* Pink accent color for absolute PB records */
+            color: #ec4899;
             background: rgba(236, 72, 153, 0.1);
             padding: 2px 6px;
             border-radius: 4px;
@@ -201,16 +197,15 @@
         .log-table { width: 100%; border-collapse: collapse; }
         .log-table th { font-size: 0.7rem; color: var(--text-muted); text-align: left; padding-bottom: 6px; text-transform: uppercase;}
         
-        /* Tactical Full Row Completion Design */
         .log-row { border-bottom: 1px solid var(--border-color); transition: all 0.2s ease; }
         .log-row.row-filled {
             background-color: var(--row-complete-bg) !important;
         }
-        .log-row td { padding: 10px 4px; vertical-align: middle; }
+        .log-row td { padding: 8px 2px; vertical-align: middle; }
         
-        .set-num { font-weight: bold; color: var(--text-main); width: 8%; font-size: 0.85rem;}
+        .set-num { font-weight: bold; color: var(--text-main); width: 6%; font-size: 0.85rem;}
         
-        /* Border box wrapper logic around inputs */
+        .input-cell { width: 25%; }
         .input-container-box {
             display: flex;
             align-items: center;
@@ -218,7 +213,7 @@
             border-radius: 6px;
             background: var(--bg-color);
             padding: 2px;
-            width: 92%;
+            width: 95%;
         }
         .row-filled .input-container-box {
             border: 1.5px solid var(--row-complete-border);
@@ -250,23 +245,46 @@
         }
         .stopwatch-btn.running { background: #ef4444; color: white; }
 
-        .target-cell { width: 40%; font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; position: relative; padding-left: 6px;}
-        .target-cell strong { color: var(--accent-color); }
-        .target-cell span { color: var(--warning-color); display: block; font-size: 0.65rem; margin-top: 2px;}
-
-        /* Return of the satisfying status mark check */
-        .check-status-badge {
-            display: none;
-            color: var(--success-color);
-            font-weight: bold;
-            font-size: 0.75rem;
-            background: rgba(16, 185, 129, 0.15);
-            padding: 2px 5px;
-            border-radius: 4px;
-            float: right;
-            margin-right: 4px;
+        /* Strict phone line-wrap protection box structures */
+        .target-cell { 
+            width: 36%; 
+            font-size: 0.72rem; 
+            color: var(--text-muted); 
+            line-height: 1.2; 
+            padding-left: 4px;
         }
-        .row-filled .check-status-badge { display: inline-block; }
+        .target-group {
+            display: block;
+            white-space: nowrap; /* Forces layout to stay tight on one mobile line */
+        }
+        .target-cell strong { color: var(--accent-color); }
+        .target-cell span { color: var(--warning-color); display: block; font-size: 0.65rem; margin-top: 2px; white-space: nowrap;}
+
+        .checkbox-cell {
+            width: 8%;
+            text-align: center;
+        }
+        .manual-check-btn {
+            background: #111a2e;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0 auto;
+            font-weight: bold;
+        }
+        .row-filled .manual-check-btn {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            color: #000000;
+        }
 
         .action-tray {
             margin: 20px 0;
@@ -359,19 +377,19 @@
 <body>
 
     <header>
-        <h1>Functional Path v6</h1>
+        <h1>Functional Path v7</h1>
         <div style="display:flex; gap:6px; align-items:center;">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div class="bodyweight-box">
                 <span style="font-size: 0.75rem; text-transform: uppercase; margin-right:2px;">BW:</span>
-                <input type="number" id="global-bw" pattern="[0-9]*" inputmode="decimal" placeholder="80" oninput="localStorage.setItem('user_bodyweight', this.value); evaluateLiveGridAndEfficiency();">
+                <input type="number" id="global-bw" pattern="[0-9]*" inputmode="decimal" placeholder="80" oninput="localStorage.setItem('user_bodyweight', this.value); updateLiveMetricsOnly();">
                 <span style="font-size: 0.75rem; color: var(--text-muted);">kg</span>
             </div>
         </div>
     </header>
 
     <div id="session-gate" class="session-gate-panel">
-        <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Lock your morning body weight, then click Start Session to open trackers.</p>
+        <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Confirm body weight, then open training view dashboards.</p>
         <button class="start-session-btn" onclick="startWorkoutSession()">▶ Start Training Session</button>
     </div>
 
@@ -473,30 +491,14 @@
             const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
             document.getElementById('global-bw').value = userBw;
 
-            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-
             for (const [dayId, data] of Object.entries(routines)) {
                 const container = document.getElementById(dayId);
                 let html = '';
 
                 data.exercises.forEach(ex => {
-                    let pastSetRecords = {};
-                    
-                    // Pull All-Time Peak Personal Best Multiplier score for this exercise card
-                    let peakPersonalBest = localStorage.getItem(`pb-score-${ex.id}`) || '0.0';
-
-                    const lastMatchingSession = historyList.find(s => s.type === data.name);
-                    if (lastMatchingSession) {
-                        const regex = new RegExp(`${ex.name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\s*\\n(?:\\s*Set\\s*\\d+:\\s*(\\d+(?:\\.\\d+)?)\\s*x\\s*(\\d+)\\s*reps\\s*\\n?)+`, 'g');
-                        const match = lastMatchingSession.details.match(regex);
-                        if (match) {
-                            const setLines = match[0].split('\n').slice(1);
-                            setLines.forEach(line => {
-                                const parts = line.match(/Set\s*(\d+):\s*(\d+(?:\.\d+)?)\s*x\s*(\d+)/);
-                                if(parts) pastSetRecords[parts[1]] = { weight: parts[2], reps: parts[3] };
-                            });
-                        }
-                    }
+                    let peakHistoricalWeight = localStorage.getItem(`pb-w-${dayId}-${ex.id}`) || '0';
+                    let peakHistoricalReps = localStorage.getItem(`pb-r-${dayId}-${ex.id}`) || '0';
+                    let peakPersonalBestScore = parseFloat(localStorage.getItem(`pb-score-${dayId}-${ex.id}`)) || 0.0;
 
                     const elapsedSavedClock = localStorage.getItem(`ex-clock-time-${ex.id}`) || '00:00';
 
@@ -514,7 +516,7 @@
                             </div>
                             
                             <div class="metrics-bar">
-                                <span class="alltime-best-badge">🏆 Best Ever: ${peakPersonalBest}x BW</span>
+                                <span class="alltime-best-badge">🏆 Target Tracker Best: ${peakPersonalBestScore.toFixed(1)}x BW</span>
                                 <div class="efficiency-badge">Live: <span id="eff-${ex.id}">0.0x</span> BW</div>
                             </div>
 
@@ -522,9 +524,10 @@
                                 <thead>
                                     <tr>
                                         <th>Set</th>
-                                        <th>Weight (${ex.unit})</th>
-                                        <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps Done'}</th>
-                                        <th style="text-align:left; padding-left:6px;">Progressive Overload Target</th>
+                                        <th>Weight</th>
+                                        <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps'}</th>
+                                        <th style="padding-left:4px;">Overload Context Target</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -533,39 +536,40 @@
                     for (let s = 1; s <= ex.sets; s++) {
                         const weightKey = `cur-${ex.id}-w-${s}`;
                         const repKey = `cur-${ex.id}-r-${s}`;
+                        const checkKey = `cur-check-${ex.id}-${s}`;
 
                         const wVal = localStorage.getItem(weightKey) || '';
                         const rVal = localStorage.getItem(repKey) || '';
+                        const isChecked = localStorage.getItem(checkKey) === 'true';
 
-                        let setTargetDisplay = '<span style="color:var(--text-muted)">No baseline</span>';
-                        if (pastSetRecords[s]) {
-                            const pastW = parseFloat(pastSetRecords[s].weight);
-                            const pastR = parseInt(pastSetRecords[s].reps);
+                        let setTargetDisplay = '<span style="color:var(--text-muted)">No contextual baseline</span>';
+                        if (parseFloat(peakHistoricalReps) > 0) {
+                            const pastW = parseFloat(peakHistoricalWeight);
+                            const pastR = parseInt(peakHistoricalReps);
                             const nextR = pastR + 1;
                             
-                            // Formulate Overload Efficiency target
                             let scoreTarget = "";
                             if (ex.type === 'hold') {
                                 scoreTarget = ((pastR + 5) / 10).toFixed(1);
-                                setTargetDisplay = `Last: <strong>${pastR}s</strong>
-                                                    <span>Target: Hold ${pastR + 5}s (+5s Overload) → Aim for ${scoreTarget}x</span>`;
+                                setTargetDisplay = `<div class="target-group">Best: <strong>${pastR}s</strong></div>
+                                                    <span>Target: ${pastR + 5}s (+5s Overload)</span>`;
                             } else {
                                 scoreTarget = ((pastW * nextR) / userBw).toFixed(1);
-                                setTargetDisplay = `Last: <strong>${pastW}kg x ${pastR}</strong>
-                                                    <span>Target: ${pastW}kg x ${nextR} (+1 Rep Overload) → Aim for ${scoreTarget}x</span>`;
+                                setTargetDisplay = `<div class="target-group">Best: <strong>${pastW}kg x ${pastR}</strong></div>
+                                                    <span>Target: ${pastW}kg x ${nextR} (+1 Rep)</span>`;
                             }
                         }
 
                         html += `
-                            <tr class="log-row" id="row-${ex.id}-${s}">
+                            <tr class="log-row ${isChecked ? 'row-filled' : ''}" id="row-${ex.id}-${s}">
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
                                     <div class="input-container-box">
-                                        <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); evaluateLiveGridAndEfficiency();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
                                     </div>
                                 </td>
                                 <td class="input-cell">
-                                    <div class="input-container-box" style="background:transparent; border:none;">
+                                    <div class="input-container-box" style="background:transparent; border:none; width:95%;">
                                     ${ex.type === 'hold' ? `
                                         <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
                                             ${rVal ? rVal + ' Sec' : '⏱️ Start'}
@@ -573,14 +577,16 @@
                                         <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
                                     ` : `
                                         <div class="input-container-box" style="width:100%;">
-                                            <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); evaluateLiveGridAndEfficiency();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                            <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
                                         </div>
                                     `}
                                     </div>
                                 </td>
-                                <td class="target-cell">
-                                    <span class="check-status-badge">✓ Complete</span>
-                                    ${setTargetDisplay}
+                                <td class="target-cell">${setTargetDisplay}</td>
+                                <td class="checkbox-cell">
+                                    <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        ${isChecked ? '✓' : ''}
+                                    </button>
                                 </td>
                             </tr>
                         `;
@@ -591,7 +597,7 @@
             }
             updateDashboardStats();
             renderHistoryLog();
-            evaluateLiveGridAndEfficiency();
+            updateLiveMetricsOnly();
         }
 
         function startWorkoutSession() {
@@ -626,6 +632,20 @@
             renderApp();
         }
 
+        function toggleManualRowCheck(exId, setNum) {
+            const rowElement = document.getElementById(`row-${exId}-${setNum}`);
+            const checkKey = `cur-check-${exId}-${setNum}`;
+            
+            if (rowElement.classList.contains('row-filled')) {
+                rowElement.classList.remove('row-filled');
+                localStorage.setItem(checkKey, 'false');
+            } else {
+                rowElement.classList.add('row-filled');
+                localStorage.setItem(checkKey, 'true');
+            }
+            renderApp();
+        }
+
         function toggleExerciseClock(exId) {
             const btn = document.getElementById(`clock-toggle-${exId}`);
             if (!exerciseClockStates[exId]) {
@@ -654,7 +674,7 @@
                 btn.innerText = totalSeconds + " Sec";
                 btn.classList.remove('running');
                 delete holdTimers[timerId];
-                evaluateLiveGridAndEfficiency();
+                updateLiveMetricsOnly();
             } else {
                 btn.innerText = "⏱️ Stop";
                 btn.classList.add('running');
@@ -668,8 +688,7 @@
             }
         }
 
-        // SCIENTIFIC EXERCISE PROFILE EFFICIENCY ENGINE
-        function evaluateLiveGridAndEfficiency() {
+        function updateLiveMetricsOnly() {
             const userBw = parseFloat(document.getElementById('global-bw').value) || 80;
             const currentRoutine = routines[activeTabId];
             let dayTotalVolumeScore = 0;
@@ -681,47 +700,28 @@
                 let holdsTotalSeconds = 0;
                 
                 for (let s = 1; s <= ex.sets; s++) {
-                    const rowElement = document.getElementById(`row-${ex.id}-${s}`);
                     const wInput = document.getElementById(`cur-${ex.id}-w-${s}`);
-                    
                     const wVal = wInput ? wInput.value : '';
                     const rVal = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '';
 
-                    if (rowElement) {
-                        if (rVal !== '' && (ex.type === 'hold' || wVal !== '')) {
-                            rowElement.classList.add('row-filled');
-                            
-                            if (ex.type === 'hold') {
-                                holdsTotalSeconds += parseInt(rVal) || 0;
-                            } else {
-                                exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
-                            }
-                        } else {
-                            rowElement.classList.remove('row-filled');
+                    if (rVal !== '') {
+                        if (ex.type === 'hold') {
+                            holdsTotalSeconds += parseInt(rVal) || 0;
+                        } else if (wVal !== '') {
+                            exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
                         }
                     }
                 }
 
-                // Unified calculation logic (Weighted Volume Load vs. Bodyweight Hold TUT Baseline)
-                let calculatedExerciseScore = 0;
-                if (ex.type === 'hold') {
-                    calculatedExerciseScore = holdsTotalSeconds / 10;
-                } else {
-                    calculatedExerciseScore = exerciseVolumeLoad / userBw;
-                }
-
+                let calculatedExerciseScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / userBw);
                 dayTotalVolumeScore += calculatedExerciseScore;
                 
                 const exEffBadge = document.getElementById(`eff-${ex.id}`);
-                if (exEffBadge) {
-                    exEffBadge.innerText = calculatedExerciseScore.toFixed(1) + 'x';
-                }
+                if (exEffBadge) exEffBadge.innerText = calculatedExerciseScore.toFixed(1) + 'x';
             });
 
             const dayScoreText = document.getElementById('live-day-score');
-            if (dayScoreText) {
-                dayScoreText.innerText = dayTotalVolumeScore.toFixed(1) + 'x';
-            }
+            if (dayScoreText) dayScoreText.innerText = dayTotalVolumeScore.toFixed(1) + 'x';
         }
 
         function switchWorkout(dayId) {
@@ -735,7 +735,7 @@
             const footerBtn = document.getElementById('footer-actions');
             if(sessionIsRunning && dayId !== 'view-history') {
                 footerBtn.style.display = 'flex';
-                evaluateLiveGridAndEfficiency();
+                updateLiveMetricsOnly();
             } else {
                 footerBtn.style.display = 'none';
             }
@@ -747,7 +747,7 @@
         }
 
         function resetCurrentSessionInputs() {
-            if (!confirm("Reset all training inputs for this current workout view?")) return;
+            if (!confirm("Clear current tracking grid workspace row sets?")) return;
             const currentRoutine = routines[activeTabId];
             currentRoutine.exercises.forEach(ex => {
                 localStorage.removeItem(`ex-clock-time-${ex.id}`);
@@ -755,6 +755,7 @@
                 for (let s = 1; s <= ex.sets; s++) {
                     localStorage.removeItem(`cur-${ex.id}-w-${s}`);
                     localStorage.removeItem(`cur-${ex.id}-r-${s}`);
+                    localStorage.removeItem(`cur-check-${ex.id}-${s}`);
                 }
             });
             renderApp();
@@ -776,6 +777,8 @@
                 let exLines = [];
                 let exerciseVolumeLoad = 0;
                 let holdsTotalSeconds = 0;
+                let topWeightThisSession = 0;
+                let topRepsThisSession = 0;
                 const trackingClockText = document.getElementById(`clock-${ex.id}`).innerText;
                 
                 for (let s = 1; s <= ex.sets; s++) {
@@ -783,12 +786,17 @@
                     const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
                     
                     if (parseInt(reps) > 0) {
-                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : weight + 'kg x '}${reps} ${ex.type === 'hold' ? 'seconds' : 'reps'}`);
+                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : weight + 'kg x '}${reps} ${ex.type === 'hold' ? 'sec' : 'reps'}`);
                         if (ex.type === 'hold') {
                             holdsTotalSeconds += parseInt(reps);
+                            if (parseInt(reps) > topRepsThisSession) topRepsThisSession = parseInt(reps);
                         } else {
                             exerciseVolumeLoad += (parseFloat(weight) * parseInt(reps));
                             rawAbsoluteWeightVolumeSum += (parseFloat(weight) * parseInt(reps));
+                            if (parseFloat(weight) > topWeightThisSession || (parseFloat(weight) === topWeightThisSession && parseInt(reps) > topRepsThisSession)) {
+                                topWeightThisSession = parseFloat(weight);
+                                topRepsThisSession = parseInt(reps);
+                            }
                         }
                         loggedCount++;
                     }
@@ -798,10 +806,12 @@
                     let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / userBw);
                     parsedSessionScoreTotal += finalExScore;
 
-                    // Evaluate and check if this beats All-Time Best historical metrics cache
-                    let pastPb = parseFloat(localStorage.getItem(`pb-score-${ex.id}`)) || 0;
+                    // Contextual Performance Routine Ceiling Update Logic
+                    let pastPb = parseFloat(localStorage.getItem(`pb-score-${activeTabId}-${ex.id}`)) || 0;
                     if (finalExScore > pastPb) {
-                        localStorage.setItem(`pb-score-${ex.id}`, finalExScore.toFixed(1));
+                        localStorage.setItem(`pb-score-${activeTabId}-${ex.id}`, finalExScore.toFixed(1));
+                        localStorage.setItem(`pb-w-${activeTabId}-${ex.id}`, topWeightThisSession);
+                        localStorage.setItem(`pb-r-${activeTabId}-${ex.id}`, topRepsThisSession);
                     }
 
                     logDetails += `${ex.name} (Duration: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x BW)\n${exLines.join('\n')}\n\n`;
@@ -809,7 +819,7 @@
             });
 
             if (loggedCount === 0) {
-                alert("Please log track sets before closing session!");
+                alert("Please click checking indicators before tracking close.");
                 return;
             }
 
@@ -836,6 +846,7 @@
                 for (let s = 1; s <= ex.sets; s++) {
                     localStorage.removeItem(`cur-${ex.id}-w-${s}`);
                     localStorage.removeItem(`cur-${ex.id}-r-${s}`);
+                    localStorage.removeItem(`cur-check-${ex.id}-${s}`);
                 }
             });
 
@@ -843,7 +854,7 @@
             document.getElementById('session-gate').style.display = 'block';
             document.getElementById('global-timer-box').style.display = 'none';
             
-            alert(`Workout logged! Efficiency Multiplier: ${finalRecordedDayRatio}x BW.`);
+            alert(`Logged! Context Multiplier Performance: ${finalRecordedDayRatio}x BW.`);
             renderApp();
             switchWorkout('view-history');
         }
@@ -858,7 +869,6 @@
                 document.getElementById('stat-last-ratio').innerText = '0.0x';
             }
 
-            // Rolling 7-Day Cumulative Efficiency Score calculation
             const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
             const recentSessions = historyList.filter(s => s.timestamp >= sevenDaysAgo);
             const weeklyScoreSum = recentSessions.reduce((acc, curr) => acc + (curr.ratio || 0), 0);
@@ -908,7 +918,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v6_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v7_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
