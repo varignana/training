@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v9</title>
+    <title>Functional Path Overload v10</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -91,7 +91,6 @@
             font-family: monospace;
         }
 
-        /* Pure Dynamic Session Clock Formats (Warmup / Cooldown) */
         .timer-dashboard-panel {
             background: #111a2e;
             border: 1px solid var(--border-color);
@@ -138,7 +137,7 @@
         .tabs {
             display: flex;
             gap: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             position: sticky;
             top: 0;
             background-color: var(--bg-color);
@@ -161,6 +160,22 @@
             color: #000;
             border-color: var(--accent-color);
         }
+
+        /* Continuous Day Tracking Dashboard Widget below Day Selectors */
+        .day-tracking-scoreboard {
+            background: linear-gradient(90deg, #131e36, #0b1324);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        .day-score-block { display: flex; flex-direction: column; }
+        .day-score-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;}
+        .day-score-data { font-size: 1.1rem; font-weight: bold; margin-top: 2px; }
 
         .workout-section { display: none; }
         .workout-section.active { display: block; }
@@ -321,15 +336,6 @@
             flex-direction: column;
             gap: 10px;
         }
-        .live-day-efficiency {
-            background: rgba(56, 189, 248, 0.08);
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
         .finish-btn {
             width: 100%;
             background: var(--success-color);
@@ -363,6 +369,38 @@
             line-height: 1.4;
         }
         .analytics-title { color: var(--accent-color); font-weight: bold; font-size: 0.9rem; margin-bottom: 6px; }
+
+        .routine-selector-pills {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .pill-btn {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .pill-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .deep-exercise-card {
+            background: #161e2e;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .deep-exercise-title { font-weight: bold; font-size: 0.85rem; color: #fff; margin-bottom: 4px;}
+        .deep-exercise-meta { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; line-height: 1.4;}
 
         .history-section {
             background: var(--card-bg);
@@ -406,7 +444,7 @@
 <body>
 
     <header>
-        <h1>Functional Path v9</h1>
+        <h1>Functional Path v10</h1>
         <div style="display:flex; gap:6px; align-items:center;">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div class="bodyweight-box">
@@ -458,6 +496,19 @@
         <button class="tab-btn" id="tab-view-history" onclick="switchWorkout('view-history')">📊 Analytics</button>
     </div>
 
+    <!-- Live vs Past Overall Day Score Tracking Banner -->
+    <div id="day-scoreboard-widget" class="day-tracking-scoreboard">
+        <div class="day-score-block">
+            <span class="day-score-title">Live Session Score</span>
+            <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
+        </div>
+        <div style="font-size: 1.2rem; color: var(--border-color); font-weight: bold;">/</div>
+        <div class="day-score-block" style="text-align: right;">
+            <span class="day-score-title">All-Time Best Day Score</span>
+            <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
+        </div>
+    </div>
+
     <div id="workout-a" class="workout-section active"></div>
     <div id="workout-b" class="workout-section"></div>
     <div id="workout-c" class="workout-section"></div>
@@ -465,6 +516,17 @@
     <div id="view-history" class="workout-section">
         <div id="weekly-analytics-panel"></div>
         
+        <!-- Deep Drill Workout Routine Analyzer Grid -->
+        <div class="analytics-block" style="border-color: var(--accent-color);">
+            <div class="analytics-title" style="margin-bottom:10px;">🔍 Historic Single-Day Combined Exercise Best Analyzer</div>
+            <div class="routine-selector-pills">
+                <button id="pill-a" class="pill-btn active" onclick="changeAnalyticsPill('Workout A')">Workout A</button>
+                <button id="pill-b" class="pill-btn" onclick="changeAnalyticsPill('Workout B')">Workout B</button>
+                <button id="pill-c" class="pill-btn" onclick="changeAnalyticsPill('Workout C')">Workout C</button>
+            </div>
+            <div id="deep-pill-results-box"></div>
+        </div>
+
         <div class="history-section">
             <h3>Logged Training Performance History</h3>
             <div id="history-stream">No training sessions recorded yet.</div>
@@ -495,9 +557,6 @@
     </div>
 
     <div id="footer-actions" class="action-tray">
-        <div class="live-day-efficiency">
-            Session Efficiency Load: <span id="live-day-score" style="color:var(--accent-color)">0.0x</span> BW Multiplier
-        </div>
         <button class="finish-btn" onclick="finishWorkout()">✓ Complete Workout & Save Metrics</button>
         <button class="reset-day-btn" onclick="resetCurrentSessionInputs()">🔄 Reset Day Data</button>
     </div>
@@ -537,6 +596,7 @@
         };
 
         let activeTabId = 'workout-a';
+        let currentSelectedAnalyticsPill = 'Workout A';
         let sessionIsRunning = false;
         let globalTimeElapsed = 0;
         let globalTimerInterval = null;
@@ -554,14 +614,16 @@
             const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
             document.getElementById('global-bw').value = userBw;
 
+            // Generate/Extract Deep Historical Day-Bound Exercise PBs directly from log data stream
+            const calculatedExercisePBs = parseDayBoundExercisePBs();
+
             for (const [dayId, data] of Object.entries(routines)) {
                 const container = document.getElementById(dayId);
                 let html = '';
 
                 data.exercises.forEach(ex => {
-                    let peakHistoricalWeight = localStorage.getItem(`pb-w-${dayId}-${ex.id}`) || '0';
-                    let peakHistoricalReps = localStorage.getItem(`pb-r-${dayId}-${ex.id}`) || '0';
-                    let peakPersonalBestScore = parseFloat(localStorage.getItem(`pb-score-${dayId}-${ex.id}`)) || 0.0;
+                    const exPbData = calculatedExercisePBs[ex.id];
+                    let peakPersonalBestScore = exPbData ? exPbData.score : 0.0;
                     const elapsedSavedClock = localStorage.getItem(`ex-clock-time-${ex.id}`) || '00:00';
 
                     html += `
@@ -578,7 +640,7 @@
                             </div>
                             
                             <div class="metrics-bar">
-                                <span class="alltime-best-badge">🏆 Best Set Score: ${peakPersonalBestScore.toFixed(1)}x BW</span>
+                                <span class="alltime-best-badge">🏆 Peak Day Combo Score: ${peakPersonalBestScore.toFixed(1)}x BW</span>
                                 <div class="efficiency-badge">Live Card: <span id="eff-${ex.id}">0.0x</span> BW</div>
                             </div>
 
@@ -588,7 +650,7 @@
                                         <th>Set</th>
                                         <th>Weight</th>
                                         <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps'}</th>
-                                        <th style="padding-left:4px;">Personal Best</th>
+                                        <th style="padding-left:4px;">Best Single Day Combo Data</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -605,11 +667,12 @@
                         const isChecked = localStorage.getItem(checkKey) === 'true';
 
                         let historicalBestString = '<span style="color:var(--text-muted)">--</span>';
-                        if (parseFloat(peakHistoricalReps) > 0) {
+                        if (exPbData && exPbData.setsBreakdown[s]) {
+                            const pbSet = exPbData.setsBreakdown[s];
                             if (ex.type === 'hold') {
-                                historicalBestString = `<span class="target-group">🥇 <strong>${peakHistoricalReps}s</strong></span>`;
+                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.reps}s</strong></span>`;
                             } else {
-                                historicalBestString = `<span class="target-group">🥇 <strong>${peakHistoricalWeight}kg × ${peakHistoricalReps}</strong></span>`;
+                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.weight}kg × ${pbSet.reps}</strong></span>`;
                             }
                         }
 
@@ -652,6 +715,79 @@
             updateDashboardStats();
             renderHistoryLog();
             updateLiveMetricsOnly();
+            renderPillDeepAnalysis();
+        }
+
+        // Deep parse history stream to grab the absolute best single-day combined profile per exercise
+        function parseDayBoundExercisePBs() {
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            const exercisePBs = {}; 
+
+            // Scan historical log stream from oldest to newest to compile true execution history
+            for (let i = historyList.length - 1; i >= 0; i--) {
+                const session = historyList[i];
+                const rawDetails = session.details || '';
+                
+                // Parse out exercises from details using regex matching
+                // Looks for exercise header blocks formatted as: Name (Time: XX:XX | Score: XX.Xx)
+                const exBlocks = rawDetails.split(/\n(?=[0-9]\.)/);
+                
+                exBlocks.forEach(block => {
+                    const firstLine = block.trim().split('\n')[0];
+                    if (!firstLine) return;
+
+                    // Locate match inside routines map to identify exercise ID
+                    let matchedExId = null;
+                    let currentExType = 'reps';
+                    
+                    Object.keys(routines).forEach(dId => {
+                        routines[dId].exercises.forEach(exObj => {
+                            if (firstLine.includes(exObj.name)) {
+                                matchedExId = exObj.id;
+                                currentExType = exObj.type;
+                            }
+                        });
+                    });
+
+                    if (!matchedExId) return;
+
+                    // Calculate score from this day block line
+                    const scoreMatch = firstLine.match(/Score:\s*([0-9.]+)/);
+                    if (!scoreMatch) return;
+                    const blockDayScore = parseFloat(scoreMatch[1]) || 0;
+
+                    // Parse out set specifics from following text inside block lines
+                    const lines = block.trim().split('\n');
+                    const setsBreakdown = {};
+
+                    lines.forEach(line => {
+                        if (line.trim().startsWith('Set')) {
+                            const setNumMatch = line.match(/Set\s*([0-9]+):/);
+                            if (setNumMatch) {
+                                const sNum = parseInt(setNumMatch[1]);
+                                if (currentExType === 'hold') {
+                                    const secMatch = line.match(/:\s*([0-9.]+)\s*sec/);
+                                    if (secMatch) setsBreakdown[sNum] = { reps: parseInt(secMatch[1]), weight: 0 };
+                                } else {
+                                    const wtRepMatch = line.match(/:\s*([0-9.]+)kg\s*x\s*([0-9.]+)\s*reps/);
+                                    if (wtRepMatch) setsBreakdown[sNum] = { weight: parseFloat(wtRepMatch[1]), reps: parseInt(wtRepMatch[2]) };
+                                }
+                            }
+                        }
+                    });
+
+                    // Evaluate if this specific structural log day beats past combined logs for this singular item
+                    if (!exercisePBs[matchedExId] || blockDayScore >= exercisePBs[matchedExId].score) {
+                        exercisePBs[matchedExId] = {
+                            score: blockDayScore,
+                            date: session.date,
+                            timestamp: session.timestamp,
+                            setsBreakdown: setsBreakdown
+                        };
+                    }
+                });
+            }
+            return exercisePBs;
         }
 
         function startWorkoutSession() {
@@ -662,7 +798,6 @@
             document.getElementById('global-timer-box').style.display = 'block';
             document.getElementById('warmup-dashboard').style.display = 'block';
             document.getElementById('stretching-dashboard').style.display = 'block';
-            document.getElementById('footer-actions').style.display = 'flex';
 
             globalTimerInterval = setInterval(() => {
                 globalTimeElapsed++;
@@ -848,8 +983,17 @@
                 if (exEffBadge) exEffBadge.innerText = calculatedExerciseScore.toFixed(1) + 'x';
             });
 
-            const dayScoreText = document.getElementById('live-day-score');
-            if (dayScoreText) dayScoreText.innerText = dayTotalVolumeScore.toFixed(1) + 'x';
+            // Update persistent header panel metrics widget gauges 
+            document.getElementById('widget-live-score').innerHTML = `${dayTotalVolumeScore.toFixed(1)}x <span style="font-size:0.75rem; color:var(--text-muted)">BW</span>`;
+            
+            // Calculate historical total session score record max for the target routine layout
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            const specificRoutineLogs = historyList.filter(s => s.type === currentRoutine.name);
+            let absoluteBestDayTotalVal = 0;
+            if(specificRoutineLogs.length > 0) {
+                absoluteBestDayTotalVal = Math.max(...specificRoutineLogs.map(l => l.ratio || 0));
+            }
+            document.getElementById('widget-past-best').innerHTML = `${absoluteBestDayTotalVal.toFixed(1)}x <span style="font-size:0.75rem; color:var(--text-muted)">BW</span>`;
         }
 
         function switchWorkout(dayId) {
@@ -860,18 +1004,86 @@
             document.getElementById(dayId).classList.add('active');
             document.getElementById(`tab-${dayId}`).classList.add('active');
 
-            const footerBtn = document.getElementById('footer-actions');
             const stretchingDashboard = document.getElementById('stretching-dashboard');
+            const scoreboardWidget = document.getElementById('day-scoreboard-widget');
             
-            if(sessionIsRunning && dayId !== 'view-history') {
-                footerBtn.style.display = 'flex';
-                stretchingDashboard.style.display = 'block';
+            if(dayId !== 'view-history') {
+                scoreboardWidget.style.display = 'flex';
+                if(sessionIsRunning) {
+                    stretchingDashboard.style.display = 'block';
+                } else {
+                    stretchingDashboard.style.display = 'none';
+                }
                 updateLiveMetricsOnly();
             } else {
-                footerBtn.style.display = 'none';
+                scoreboardWidget.style.display = 'none';
                 stretchingDashboard.style.display = 'none';
             }
             window.scrollTo({top: 0});
+        }
+
+        function changeAnalyticsPill(routineName) {
+            currentSelectedAnalyticsPill = routineName;
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            if(routineName === 'Workout A') document.getElementById('pill-a').classList.add('active');
+            if(routineName === 'Workout B') document.getElementById('pill-b').classList.add('active');
+            if(routineName === 'Workout C') document.getElementById('pill-c').classList.add('active');
+            renderPillDeepAnalysis();
+        }
+
+        function renderPillDeepAnalysis() {
+            const container = document.getElementById('deep-pill-results-box');
+            if(!container) return;
+
+            let associatedWorkoutKey = 'workout-a';
+            if(currentSelectedAnalyticsPill === 'Workout B') associatedWorkoutKey = 'workout-b';
+            if(currentSelectedAnalyticsPill === 'Workout C') associatedWorkoutKey = 'workout-c';
+
+            const targetedRoutine = routines[associatedWorkoutKey];
+            const calculatedPBs = parseDayBoundExercisePBs();
+            const nowTime = Date.now();
+
+            let html = '';
+
+            targetedRoutine.exercises.forEach(ex => {
+                const pbEntry = calculatedPBs[ex.id];
+                if(!pbEntry) {
+                    html += `
+                        <div class="deep-exercise-card">
+                            <div class="deep-exercise-title">${ex.name}</div>
+                            <div class="deep-exercise-meta" style="color:var(--text-muted);">No history logged for this exercise yet.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const elapsedDaysAgo = Math.floor((nowTime - pbEntry.timestamp) / (1000 * 60 * 60 * 24));
+                const daysAgoString = elapsedDaysAgo === 0 ? "Today" : `${elapsedDaysAgo} days ago`;
+
+                let setsListText = [];
+                Object.keys(pbEntry.setsBreakdown).forEach(sNum => {
+                    const info = pbEntry.setsBreakdown[sNum];
+                    if(ex.type === 'hold') {
+                        setsListText.push(`Set ${sNum}: ${info.reps}s`);
+                    } else {
+                        setsListText.push(`Set ${sNum}: ${info.weight}kg x ${info.reps} reps`);
+                    }
+                });
+
+                html += `
+                    <div class="deep-exercise-card">
+                        <div class="deep-exercise-title" style="color:var(--accent-color);">${ex.name}</div>
+                        <div class="deep-exercise-meta">
+                            🔥 Peak Combined Score: <strong style="color:var(--warning-color);">${pbEntry.score.toFixed(1)}x BW</strong><br>
+                            📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
+                            🏋️ Performance Breakdown:<br>
+                            <span style="color:#fff; padding-left:8px; display:inline-block;">${setsListText.join(' | ')}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
         function saveCurrentLive(key, val) {
@@ -922,8 +1134,6 @@
                 let exLines = [];
                 let exerciseVolumeLoad = 0;
                 let holdsTotalSeconds = 0;
-                let topWeightThisSession = 0;
-                let topRepsThisSession = 0;
                 const trackingClockText = document.getElementById(`clock-${ex.id}`).innerText;
                 
                 for (let s = 1; s <= ex.sets; s++) {
@@ -934,14 +1144,9 @@
                         exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : weight + 'kg x '}${reps} ${ex.type === 'hold' ? 'sec' : 'reps'}`);
                         if (ex.type === 'hold') {
                             holdsTotalSeconds += parseInt(reps);
-                            if (parseInt(reps) > topRepsThisSession) topRepsThisSession = parseInt(reps);
                         } else {
                             exerciseVolumeLoad += (parseFloat(weight) * parseInt(reps));
                             rawAbsoluteWeightVolumeSum += (parseFloat(weight) * parseInt(reps));
-                            if (parseFloat(weight) > topWeightThisSession || (parseFloat(weight) === topWeightThisSession && parseInt(reps) > topRepsThisSession)) {
-                                topWeightThisSession = parseFloat(weight);
-                                topRepsThisSession = parseInt(reps);
-                            }
                         }
                         loggedCount++;
                     }
@@ -950,14 +1155,6 @@
                 if (exLines.length > 0) {
                     let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / userBw);
                     parsedSessionScoreTotal += finalExScore;
-
-                    let pastPb = parseFloat(localStorage.getItem(`pb-score-${activeTabId}-${ex.id}`)) || 0;
-                    if (finalExScore > pastPb) {
-                        localStorage.setItem(`pb-score-${activeTabId}-${ex.id}`, finalExScore.toFixed(1));
-                        localStorage.setItem(`pb-w-${activeTabId}-${ex.id}`, topWeightThisSession);
-                        localStorage.setItem(`pb-r-${activeTabId}-${ex.id}`, topRepsThisSession);
-                    }
-
                     logDetails += `${ex.name} (Time: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x)\n${exLines.join('\n')}\n\n`;
                 }
             });
@@ -1067,7 +1264,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v9_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v10_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
