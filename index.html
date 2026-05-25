@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v7</title>
+    <title>Functional Path Overload v8</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -89,6 +89,35 @@
             border-radius: 6px;
             font-family: monospace;
         }
+
+        /* Warmup Dashboard Box */
+        .warmup-panel {
+            background: #111a2e;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+        .warmup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .warmup-title { font-size: 0.9rem; font-weight: bold; color: var(--accent-color); text-transform: uppercase;}
+        .warmup-timer { font-family: monospace; font-size: 1.1rem; font-weight: bold; color: var(--warning-color); }
+        .warmup-btn-group { display: flex; gap: 6px; }
+        .warmup-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .warmup-btn.active-timer { background: #ef4444; border-color: #ef4444; color: white; }
 
         .stats-panel {
             background: #0f172a;
@@ -245,20 +274,19 @@
         }
         .stopwatch-btn.running { background: #ef4444; color: white; }
 
-        /* Strict phone line-wrap protection box structures */
+        /* Strict Phone Wrap Block Rules */
         .target-cell { 
             width: 36%; 
-            font-size: 0.72rem; 
+            font-size: 0.75rem; 
             color: var(--text-muted); 
             line-height: 1.2; 
             padding-left: 4px;
         }
         .target-group {
-            display: block;
-            white-space: nowrap; /* Forces layout to stay tight on one mobile line */
+            white-space: nowrap; /* Keeps strings grouped neatly without breaking on phones */
+            display: inline-block;
         }
-        .target-cell strong { color: var(--accent-color); }
-        .target-cell span { color: var(--warning-color); display: block; font-size: 0.65rem; margin-top: 2px; white-space: nowrap;}
+        .target-cell strong { color: var(--warning-color); }
 
         .checkbox-cell {
             width: 8%;
@@ -285,6 +313,27 @@
             border-color: var(--success-color);
             color: #000000;
         }
+
+        /* Cooldown Stretching Panels */
+        .stretching-card {
+            background: linear-gradient(180deg, #111827, #0b0f19);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        .stretching-title { font-size: 0.95rem; font-weight: bold; color: #a78bfa; margin: 0 0 10px 0; display:flex; align-items:center; gap:6px;}
+        .stretch-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .stretch-item:last-child { border-bottom: none; }
+        .stretch-name { font-size: 0.85rem; color: var(--text-main); }
+        .stretch-target { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
 
         .action-tray {
             margin: 20px 0;
@@ -377,7 +426,7 @@
 <body>
 
     <header>
-        <h1>Functional Path v7</h1>
+        <h1>Functional Path v8</h1>
         <div style="display:flex; gap:6px; align-items:center;">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div class="bodyweight-box">
@@ -391,6 +440,20 @@
     <div id="session-gate" class="session-gate-panel">
         <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Confirm body weight, then open training view dashboards.</p>
         <button class="start-session-btn" onclick="startWorkoutSession()">▶ Start Training Session</button>
+    </div>
+
+    <!-- Pre-Workout Warmup Dashboard Box -->
+    <div id="warmup-dashboard" class="warmup-panel" style="display: none;">
+        <div class="warmup-header">
+            <span class="warmup-title">🔥 Dynamic Warmup Clock</span>
+            <span id="warmup-timer-text" class="warmup-timer">00:00</span>
+        </div>
+        <div class="warmup-btn-group">
+            <button id="warmup-toggle" class="warmup-btn" onclick="toggleWarmupClock()">▶ Start Warmup</button>
+            <button class="warmup-btn" onclick="adjustWarmupTime(60)">+1 Min</button>
+            <button class="warmup-btn" onclick="adjustWarmupTime(300)">+5 Min</button>
+            <button class="warmup-btn" onclick="resetWarmupClock()" style="color: #ef4444;">🔄 Reset</button>
+        </div>
     </div>
 
     <div class="stats-panel">
@@ -455,6 +518,11 @@
                     { id: 'a3', name: '3. Dumbbell Bench Press', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
                     { id: 'a4', name: '4. Cable Face Pulls', sets: 3, repsRange: '15', unit: 'kg', type: 'reps' },
                     { id: 'a5', name: '5. RKC Plank or Dead Bug', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold' }
+                ],
+                stretches: [
+                    { name: 'Couch Stretch (Hip Flexors)', target: '2 sets × 45s / side' },
+                    { name: 'Doorway Chest & Pec Stretch', target: '2 sets × 30s' },
+                    { name: 'Lat Foam Rolling / Puppy Pose', target: '60 seconds' }
                 ]
             },
             'workout-b': {
@@ -465,6 +533,11 @@
                     { id: 'b3', name: '3. DB Overhead Shoulder Press', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
                     { id: 'b4', name: '4. Bulgarian Split Squat', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
                     { id: 'b5', name: '5. Farmer’s Walks / Carries', sets: 3, repsRange: '40m', unit: 'kg', type: 'hold' }
+                ],
+                stretches: [
+                    { name: 'Single-Leg Hamstring Stretch', target: '2 sets × 45s / side' },
+                    { name: '90/90 Hip Mobility Flow', target: '60 seconds / side' },
+                    { name: 'Child’s Pose Upper Back Opener', target: '90 seconds' }
                 ]
             },
             'workout-c': {
@@ -475,6 +548,11 @@
                     { id: 'c3', name: '3. Incline Dumbbell Press', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
                     { id: 'c4', name: '4. Cable Woodchoppers', sets: 3, repsRange: '12', unit: 'kg', type: 'reps' },
                     { id: 'c5', name: '5. Hanging Knee Raises', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps' }
+                ],
+                stretches: [
+                    { name: 'World’s Greatest Stretch', target: '5 reps / side' },
+                    { name: 'Thoracic Spine Rotation Stretch', target: '10 reps / side' },
+                    { name: 'Deep Squat Hold Cooldown', target: '60 seconds' }
                 ]
             }
         };
@@ -484,6 +562,9 @@
         let globalTimeElapsed = 0;
         let globalTimerInterval = null;
         
+        let warmupTimeElapsed = 0;
+        let warmupRunning = false;
+
         let exerciseClockStates = {}; 
         let holdTimers = {};
 
@@ -499,13 +580,12 @@
                     let peakHistoricalWeight = localStorage.getItem(`pb-w-${dayId}-${ex.id}`) || '0';
                     let peakHistoricalReps = localStorage.getItem(`pb-r-${dayId}-${ex.id}`) || '0';
                     let peakPersonalBestScore = parseFloat(localStorage.getItem(`pb-score-${dayId}-${ex.id}`)) || 0.0;
-
                     const elapsedSavedClock = localStorage.getItem(`ex-clock-time-${ex.id}`) || '00:00';
 
                     html += `
                         <div class="exercise-card" id="card-${ex.id}">
                             <div class="exercise-header">
-                                <h2 class="exercise-title">${ex.name}</h2>
+                                <h2 class="exercise-title">${ex.name} <span style="color:var(--accent-color); font-size:0.8rem; margin-left:4px;">(Goal: ${ex.repsRange})</span></h2>
                                 <div class="ex-controls">
                                     <div class="ex-clock-badge" id="clock-${ex.id}">${elapsedSavedClock}</div>
                                     <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" 
@@ -516,8 +596,8 @@
                             </div>
                             
                             <div class="metrics-bar">
-                                <span class="alltime-best-badge">🏆 Target Tracker Best: ${peakPersonalBestScore.toFixed(1)}x BW</span>
-                                <div class="efficiency-badge">Live: <span id="eff-${ex.id}">0.0x</span> BW</div>
+                                <span class="alltime-best-badge">🏆 Best Set Score: ${peakPersonalBestScore.toFixed(1)}x BW</span>
+                                <div class="efficiency-badge">Live Card: <span id="eff-${ex.id}">0.0x</span> BW</div>
                             </div>
 
                             <table class="log-table">
@@ -526,7 +606,7 @@
                                         <th>Set</th>
                                         <th>Weight</th>
                                         <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps'}</th>
-                                        <th style="padding-left:4px;">Overload Context Target</th>
+                                        <th style="padding-left:4px;">Personal Best</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -542,21 +622,12 @@
                         const rVal = localStorage.getItem(repKey) || '';
                         const isChecked = localStorage.getItem(checkKey) === 'true';
 
-                        let setTargetDisplay = '<span style="color:var(--text-muted)">No contextual baseline</span>';
+                        let historicalBestString = '<span style="color:var(--text-muted)">--</span>';
                         if (parseFloat(peakHistoricalReps) > 0) {
-                            const pastW = parseFloat(peakHistoricalWeight);
-                            const pastR = parseInt(peakHistoricalReps);
-                            const nextR = pastR + 1;
-                            
-                            let scoreTarget = "";
                             if (ex.type === 'hold') {
-                                scoreTarget = ((pastR + 5) / 10).toFixed(1);
-                                setTargetDisplay = `<div class="target-group">Best: <strong>${pastR}s</strong></div>
-                                                    <span>Target: ${pastR + 5}s (+5s Overload)</span>`;
+                                historicalBestString = `<span class="target-group">🥇 <strong>${peakHistoricalReps}s</strong></span>`;
                             } else {
-                                scoreTarget = ((pastW * nextR) / userBw).toFixed(1);
-                                setTargetDisplay = `<div class="target-group">Best: <strong>${pastW}kg x ${pastR}</strong></div>
-                                                    <span>Target: ${pastW}kg x ${nextR} (+1 Rep)</span>`;
+                                historicalBestString = `<span class="target-group">🥇 <strong>${peakHistoricalWeight}kg × ${peakHistoricalReps}</strong></span>`;
                             }
                         }
 
@@ -582,7 +653,7 @@
                                     `}
                                     </div>
                                 </td>
-                                <td class="target-cell">${setTargetDisplay}</td>
+                                <td class="target-cell">${historicalBestString}</td>
                                 <td class="checkbox-cell">
                                     <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})" ${!sessionIsRunning ? 'disabled' : ''}>
                                         ${isChecked ? '✓' : ''}
@@ -592,6 +663,31 @@
                         `;
                     }
                     html += `</tbody></table></div>`;
+
+                // Post-Workout Posture & Stretching Layout Render Block
+                if(data.stretches && data.stretches.length > 0) {
+                    html += `
+                        <div class="stretching-card">
+                            <h3 class="stretching-title">🧘 Post-Workout Posture Cooldown Stretches</h3>
+                    `;
+                    data.stretches.forEach((stretch, idx) => {
+                        const stretchCheckKey = `cur-stretch-${dayId}-${idx}`;
+                        const stretchIsChecked = localStorage.getItem(stretchCheckKey) === 'true';
+                        html += `
+                            <div class="stretch-item">
+                                <span class="stretch-name" style="${stretchIsChecked ? 'text-decoration: line-through; color: var(--text-muted);' : ''}">${stretch.name}</span>
+                                <div style="display: flex; align-items:center; gap: 8px;">
+                                    <span class="stretch-target">${stretch.target}</span>
+                                    <button class="manual-check-btn" onclick="toggleStretchCheck('${dayId}', ${idx})" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        ${stretchIsChecked ? '✓' : ''}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
                 });
                 container.innerHTML = html;
             }
@@ -606,6 +702,7 @@
             
             document.getElementById('session-gate').style.display = 'none';
             document.getElementById('global-timer-box').style.display = 'block';
+            document.getElementById('warmup-dashboard').style.display = 'block';
             document.getElementById('footer-actions').style.display = 'flex';
 
             globalTimerInterval = setInterval(() => {
@@ -613,6 +710,14 @@
                 const gMin = Math.floor(globalTimeElapsed / 60).toString().padStart(2, '0');
                 const gSec = (globalTimeElapsed % 60).toString().padStart(2, '0');
                 document.getElementById('global-timer-box').innerText = `${gMin}:${gSec}`;
+
+                // Global Warmup clock operational runner tracking check loop
+                if (warmupRunning) {
+                    warmupTimeElapsed++;
+                    const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+                    const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
+                }
 
                 Object.keys(exerciseClockStates).forEach(exId => {
                     if (exerciseClockStates[exId].running) {
@@ -632,6 +737,35 @@
             renderApp();
         }
 
+        function toggleWarmupClock() {
+            const btn = document.getElementById('warmup-toggle');
+            if (warmupRunning) {
+                warmupRunning = false;
+                btn.innerText = "▶ Resume Warmup";
+                btn.classList.remove('active-run');
+            } else {
+                warmupRunning = true;
+                btn.innerText = "⏸ Pause Warmup";
+                btn.classList.add('active-run');
+            }
+        }
+
+        function adjustWarmupTime(seconds) {
+            warmupTimeElapsed += seconds;
+            if(warmupTimeElapsed < 0) warmupTimeElapsed = 0;
+            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
+        }
+
+        function resetWarmupClock() {
+            warmupRunning = false;
+            warmupTimeElapsed = 0;
+            document.getElementById('warmup-timer-text').innerText = "00:00";
+            document.getElementById('warmup-toggle').innerText = "▶ Start Warmup";
+            document.getElementById('warmup-toggle').classList.remove('active-run');
+        }
+
         function toggleManualRowCheck(exId, setNum) {
             const rowElement = document.getElementById(`row-${exId}-${setNum}`);
             const checkKey = `cur-check-${exId}-${setNum}`;
@@ -643,6 +777,13 @@
                 rowElement.classList.add('row-filled');
                 localStorage.setItem(checkKey, 'true');
             }
+            renderApp();
+        }
+
+        function toggleStretchCheck(dayId, idx) {
+            const stretchCheckKey = `cur-stretch-${dayId}-${idx}`;
+            const isChecked = localStorage.getItem(stretchCheckKey) === 'true';
+            localStorage.setItem(stretchCheckKey, isChecked ? 'false' : 'true');
             renderApp();
         }
 
@@ -749,6 +890,10 @@
         function resetCurrentSessionInputs() {
             if (!confirm("Clear current tracking grid workspace row sets?")) return;
             const currentRoutine = routines[activeTabId];
+            
+            // Clean up warmup space states too
+            resetWarmupClock();
+
             currentRoutine.exercises.forEach(ex => {
                 localStorage.removeItem(`ex-clock-time-${ex.id}`);
                 exerciseClockStates[ex.id] = { time: 0, running: false };
@@ -758,6 +903,13 @@
                     localStorage.removeItem(`cur-check-${ex.id}-${s}`);
                 }
             });
+
+            if (currentRoutine.stretches) {
+                currentRoutine.stretches.forEach((_, idx) => {
+                    localStorage.removeItem(`cur-stretch-${activeTabId}-${idx}`);
+                });
+            }
+
             renderApp();
         }
 
@@ -771,7 +923,11 @@
             let rawAbsoluteWeightVolumeSum = 0;
             let loggedCount = 0;
 
-            logDetails += `Session Total Duration: ${document.getElementById('global-timer-box').innerText}\n\n`;
+            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+
+            logDetails += `Warmup Preparation Duration: ${wMin}:${wSec}\n`;
+            logDetails += `Session Active Lift Duration: ${document.getElementById('global-timer-box').innerText}\n\n`;
 
             currentRoutine.exercises.forEach(ex => {
                 let exLines = [];
@@ -806,7 +962,7 @@
                     let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / userBw);
                     parsedSessionScoreTotal += finalExScore;
 
-                    // Contextual Performance Routine Ceiling Update Logic
+                    // Routine order ceiling metrics record logic tracker updates
                     let pastPb = parseFloat(localStorage.getItem(`pb-score-${activeTabId}-${ex.id}`)) || 0;
                     if (finalExScore > pastPb) {
                         localStorage.setItem(`pb-score-${activeTabId}-${ex.id}`, finalExScore.toFixed(1));
@@ -814,13 +970,26 @@
                         localStorage.setItem(`pb-r-${activeTabId}-${ex.id}`, topRepsThisSession);
                     }
 
-                    logDetails += `${ex.name} (Duration: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x BW)\n${exLines.join('\n')}\n\n`;
+                    logDetails += `${ex.name} (Time: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x)\n${exLines.join('\n')}\n\n`;
                 }
             });
 
             if (loggedCount === 0) {
-                alert("Please click checking indicators before tracking close.");
+                alert("Please check rows off manually to verify workspace sets before submitting.");
                 return;
+            }
+
+            // Note down stretches if checked
+            let checkedStretches = [];
+            if(currentRoutine.stretches) {
+                currentRoutine.stretches.forEach((stretch, idx) => {
+                    if(localStorage.getItem(`cur-stretch-${activeTabId}-${idx}`) === 'true') {
+                        checkedStretches.push(`✓ ${stretch.name}`);
+                    }
+                });
+            }
+            if(checkedStretches.length > 0) {
+                logDetails += `Completed Posture Cooldown Stretches:\n${checkedStretches.join('\n')}\n`;
             }
 
             const finalRecordedDayRatio = parsedSessionScoreTotal.toFixed(1);
@@ -840,6 +1009,8 @@
             historyList.unshift(sessionRecord);
             localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
 
+            // Purge and sanitize local instances
+            resetWarmupClock();
             currentRoutine.exercises.forEach(ex => {
                 localStorage.removeItem(`ex-clock-time-${ex.id}`);
                 delete exerciseClockStates[ex.id];
@@ -849,10 +1020,16 @@
                     localStorage.removeItem(`cur-check-${ex.id}-${s}`);
                 }
             });
+            if (currentRoutine.stretches) {
+                currentRoutine.stretches.forEach((_, idx) => {
+                    localStorage.removeItem(`cur-stretch-${activeTabId}-${idx}`);
+                });
+            }
 
             sessionIsRunning = false;
             document.getElementById('session-gate').style.display = 'block';
             document.getElementById('global-timer-box').style.display = 'none';
+            document.getElementById('warmup-dashboard').style.display = 'none';
             
             alert(`Logged! Context Multiplier Performance: ${finalRecordedDayRatio}x BW.`);
             renderApp();
@@ -918,7 +1095,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v7_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v8_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
