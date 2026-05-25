@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Tracker v2</title>
+    <title>Functional Path Tracker v3</title>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -14,7 +14,6 @@
             --border-color: #22314d;
             --success-color: #10b981;
             --warning-color: #f59e0b;
-            --score-up: #10b981;
         }
 
         body {
@@ -58,7 +57,6 @@
             outline: none;
         }
 
-        /* Stats Dashboard Panel */
         .stats-panel {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 1px solid var(--border-color);
@@ -74,7 +72,6 @@
         .stat-num { font-size: 1.3rem; font-weight: bold; color: var(--accent-color); }
         .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;}
 
-        /* Navigation Menu tabs */
         .tabs {
             display: flex;
             gap: 6px;
@@ -107,28 +104,35 @@
         .workout-section { display: none; }
         .workout-section.active { display: block; }
 
-        /* Exercise Design Card */
         .exercise-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 12px;
+            position: relative;
         }
 
         .exercise-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
-        .exercise-title { font-size: 0.95rem; font-weight: bold; margin: 0; }
+        .exercise-title { font-size: 0.95rem; font-weight: bold; margin: 0; padding-right: 70px; }
         
-        .meta-row {
-            display: flex;
-            gap: 6px;
-            margin-top: 4px;
+        .ex-timer {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.7rem;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-color);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
         }
 
         .tag {
@@ -136,31 +140,18 @@
             background: rgba(255,255,255,0.05);
             padding: 2px 6px;
             border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
         }
         .target-tag { color: var(--warning-color); font-weight: bold; }
 
-        /* Gamified HUD Box */
-        .hud-box {
-            background: rgba(0,0,0,0.25);
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 10px;
-            font-size: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            border-left: 3px solid var(--accent-color);
-        }
-        .hud-block span { display: block; color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;}
-        .hud-block strong { color: var(--text-main); font-size: 0.85rem;}
-
-        /* Input Grid Elements */
         .log-table { width: 100%; border-collapse: collapse; }
-        .log-table th { font-size: 0.65rem; color: var(--text-muted); text-align: left; padding-bottom: 4px; text-transform: uppercase;}
+        .log-table th { font-size: 0.65rem; color: var(--text-muted); text-align: left; padding-bottom: 6px; text-transform: uppercase;}
         .log-row { border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .log-row td { padding: 6px 0; vertical-align: middle; }
+        .log-row td { padding: 8px 0; vertical-align: middle; }
         
         .set-num { font-weight: bold; color: var(--text-muted); width: 8%; font-size: 0.8rem;}
-        .input-cell { width: 28%; padding-right: 6px; }
+        .input-cell { width: 26%; padding-right: 6px; }
         
         .log-input {
             width: 100%;
@@ -176,34 +167,27 @@
         }
         .log-input:focus { border-color: var(--accent-color); outline: none; }
 
-        /* Intelligent Tracker Button Counters */
-        .tracker-btn {
+        /* HOLD TIMER BUTTON DESIGN */
+        .stopwatch-btn {
             width: 100%;
             background: #1e293b;
             border: 1px solid var(--border-color);
-            color: var(--accent-color);
+            color: var(--warning-color);
             padding: 8px 2px;
             border-radius: 6px;
             font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
-        .tracker-btn.running {
+        .stopwatch-btn.running {
             background: #ef4444;
             color: white;
-            animation: pulse 1s infinite alternate;
         }
 
-        @keyframes pulse {
-            from { opacity: 1; }
-            to { opacity: 0.7; }
-        }
+        .target-cell { width: 40%; font-size: 0.75rem; color: var(--text-muted); padding-left: 4px; }
+        .target-cell strong { color: var(--accent-color); }
+        .target-cell span { color: var(--warning-color); display: block; font-size: 0.65rem; margin-top: 1px;}
 
-        .score-cell { width: 20%; text-align: right; font-size: 0.75rem; font-weight: bold; color: var(--text-muted); }
-        .score-up { color: var(--success-color); }
-
-        /* Finish Session Footer Action */
         .finish-container { margin: 20px 0; }
         .finish-btn {
             width: 100%;
@@ -217,7 +201,6 @@
             cursor: pointer;
         }
 
-        /* History Stream Logs */
         .history-section {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -260,9 +243,9 @@
 <body>
 
     <header>
-        <h1>Functional Path v2</h1>
+        <h1>Functional Path v3</h1>
         <div class="bodyweight-box">
-            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Bodyweight:</span>
+            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">BW:</span>
             <input type="number" id="global-bw" pattern="[0-9]*" inputmode="decimal" placeholder="0.0" oninput="localStorage.setItem('user_bodyweight', this.value)">
             <span style="font-size: 0.7rem; color: var(--text-muted);">kg</span>
         </div>
@@ -279,15 +262,15 @@
         </div>
         <div class="stat-box">
             <div id="stat-streak" class="stat-num">-</div>
-            <div class="stat-label">Last Workout</div>
+            <div class="stat-label">Last Session</div>
         </div>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchWorkout('workout-a')">A: Push/Pull</button>
-        <button class="tab-btn" onclick="switchWorkout('workout-b')">B: Hinge/Mobility</button>
-        <button class="tab-btn" onclick="switchWorkout('workout-c')">C: Rotation</button>
-        <button class="tab-btn" onclick="switchWorkout('view-history')">📜 Analytics</button>
+        <button class="tab-btn active" id="tab-workout-a" onclick="switchWorkout('workout-a')">A: Push/Pull</button>
+        <button class="tab-btn" id="tab-workout-b" onclick="switchWorkout('workout-b')">B: Hinge</button>
+        <button class="tab-btn" id="tab-workout-c" onclick="switchWorkout('workout-c')">C: Rotation</button>
+        <button class="tab-btn" id="tab-view-history" onclick="switchWorkout('view-history')">📜 Analytics</button>
     </div>
 
     <div id="workout-a" class="workout-section active"></div>
@@ -297,7 +280,7 @@
     <div id="view-history" class="workout-section">
         <div class="history-section">
             <h3>Logged Training Performance History</h3>
-            <div id="history-stream">No training sessions recorded yet. Complete a session to map metrics!</div>
+            <div id="history-stream">No training sessions recorded yet.</div>
             
             <div class="backup-controls">
                 <button class="btn-backup" onclick="exportDataData()">📤 Export Backup File</button>
@@ -311,7 +294,7 @@
     </div>
 
     <div id="footer-actions" class="finish-container">
-        <button class="finish-btn" onclick="finishWorkout()">✓ Complete Workout & Calculate Load</button>
+        <button class="finish-btn" onclick="finishWorkout()">✓ Complete Workout & Save Metrics</button>
     </div>
 
     <script>
@@ -319,101 +302,92 @@
             'workout-a': {
                 name: 'Workout A',
                 exercises: [
-                    { id: 'a1', name: '1. Goblet Squat or Box Squat', sets: 3, repsRange: '8-10', unit: 'kg' },
-                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', sets: 3, repsRange: '10-12', unit: 'kg' },
-                    { id: 'a3', name: '3. Dumbbell Bench Press', sets: 3, repsRange: '8-10', unit: 'kg' },
-                    { id: 'a4', name: '4. Cable Face Pulls', sets: 3, repsRange: '15', unit: 'kg' },
-                    { id: 'a5', name: '5. RKC Plank or Dead Bug', sets: 3, repsRange: 'Hold', unit: 'Sec' }
+                    { id: 'a1', name: '1. Goblet Squat or Box Squat', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
+                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
+                    { id: 'a3', name: '3. Dumbbell Bench Press', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
+                    { id: 'a4', name: '4. Cable Face Pulls', sets: 3, repsRange: '15', unit: 'kg', type: 'reps' },
+                    { id: 'a5', name: '5. RKC Plank or Dead Bug', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold' }
                 ]
             },
             'workout-b': {
                 name: 'Workout B',
                 exercises: [
-                    { id: 'b1', name: '1. Romanian Deadlift', sets: 3, repsRange: '8-10', unit: 'kg' },
-                    { id: 'b2', name: '2. Seated Cable Row (Wide)', sets: 3, repsRange: '10-12', unit: 'kg' },
-                    { id: 'b3', name: '3. DB Overhead Shoulder Press', sets: 3, repsRange: '8', unit: 'kg' },
-                    { id: 'b4', name: '4. Bulgarian Split Squat', sets: 3, repsRange: '8', unit: 'kg' },
-                    { id: 'b5', name: '5. Farmer’s Walks / Carries', sets: 3, repsRange: '40m', unit: 'kg' }
+                    { id: 'b1', name: '1. Romanian Deadlift', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
+                    { id: 'b2', name: '2. Seated Cable Row (Wide)', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
+                    { id: 'b3', name: '3. DB Overhead Shoulder Press', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
+                    { id: 'b4', name: '4. Bulgarian Split Squat', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
+                    { id: 'b5', name: '5. Farmer’s Walks / Carries', sets: 3, repsRange: '40m', unit: 'kg', type: 'hold' }
                 ]
             },
             'workout-c': {
                 name: 'Workout C',
                 exercises: [
-                    { id: 'c1', name: '1. Leg Press or Hack Squat', sets: 3, repsRange: '10', unit: 'kg' },
-                    { id: 'c2', name: '2. Chest-Supported DB Row', sets: 3, repsRange: '10', unit: 'kg' },
-                    { id: 'c3', name: '3. Incline Dumbbell Press', sets: 3, repsRange: '10', unit: 'kg' },
-                    { id: 'c4', name: '4. Cable Woodchoppers', sets: 3, repsRange: '12', unit: 'kg' },
-                    { id: 'c5', name: '5. Hanging Knee Raises', sets: 3, repsRange: '12', unit: 'Reps' }
+                    { id: 'c1', name: '1. Leg Press or Hack Squat', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
+                    { id: 'c2', name: '2. Chest-Supported DB Row', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
+                    { id: 'c3', name: '3. Incline Dumbbell Press', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
+                    { id: 'c4', name: '4. Cable Woodchoppers', sets: 3, repsRange: '12', unit: 'kg', type: 'reps' },
+                    { id: 'c5', name: '5. Hanging Knee Raises', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps' }
                 ]
             }
         };
 
         let activeTabId = 'workout-a';
-        let activeTimers = {};
+        let holdTimers = {};
+        let exerciseTimeTrackers = {};
+        let operationalInterval = null;
 
         function renderApp() {
-            // Restore bodyweight value
             if(localStorage.getItem('user_bodyweight')) {
                 document.getElementById('global-bw').value = localStorage.getItem('user_bodyweight');
             }
+
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
 
             for (const [dayId, data] of Object.entries(routines)) {
                 const container = document.getElementById(dayId);
                 let html = '';
 
                 data.exercises.forEach(ex => {
-                    // Extract historical bests & averages for the HUD
-                    const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-                    let pastWeights = [];
-                    let pastReps = [];
-                    let bestVol = 0;
+                    // Match previous historical session data specifically set-by-set
+                    let pastSetRecords = {};
+                    const parsedRoutineName = data.name;
 
-                    historyList.forEach(session => {
+                    // Locate the last time this specific routine type was executed
+                    const lastMatchingSession = historyList.find(s => s.type === parsedRoutineName);
+                    if (lastMatchingSession) {
                         const regex = new RegExp(`${ex.name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\s*\\n(?:\\s*Set\\s*\\d+:\\s*(\\d+(?:\\.\\d+)?)\\s*x\\s*(\\d+)\\s*reps\\s*\\n?)+`, 'g');
-                        let match;
-                        while ((match = regex.exec(session.details)) !== null) {
-                            // Secondary internal parsing loop
+                        const match = lastMatchingSession.details.match(regex);
+                        if (match) {
                             const setLines = match[0].split('\n').slice(1);
-                            let exerciseVol = 0;
                             setLines.forEach(line => {
-                                const parts = line.match(/Set\s*\d+:\s*(\d+(?:\.\d+)?)\s*x\s*(\d+)/);
+                                const parts = line.match(/Set\s*(\d+):\s*(\d+(?:\.\d+)?)\s*x\s*(\d+)/);
                                 if(parts) {
-                                    const w = parseFloat(parts[1]);
-                                    const r = parseInt(parts[2]);
-                                    pastWeights.push(w);
-                                    pastReps.push(r);
-                                    exerciseVol += (w * r);
+                                    pastSetRecords[parts[1]] = { weight: parts[2], reps: parts[3] };
                                 }
                             });
-                            if (exerciseVol > bestVol) bestVol = exerciseVol;
                         }
-                    });
+                    }
 
-                    const avgWeight = pastWeights.length ? (pastWeights.reduce((a,b)=>a+b,0)/pastWeights.length).toFixed(1) : '0';
-                    const avgReps = pastReps.length ? Math.round(pastReps.reduce((a,b)=>a+b,0)/pastReps.length) : '0';
-                    const targetWeight = pastWeights.length ? Math.max(...pastWeights) : '0';
-                    const targetReps = pastReps.length ? Math.max(...pastReps) + 1 : parseInt(ex.repsRange) || 10;
+                    // Setup time engine counters for this block
+                    if(!exerciseTimeTrackers[ex.id]) {
+                        exerciseTimeTrackers[ex.id] = 0;
+                    }
 
                     html += `
-                        <div class="exercise-card">
+                        <div class="exercise-card" id="card-${ex.id}">
                             <div class="exercise-header">
                                 <h2 class="exercise-title">${ex.name}</h2>
-                                <span class="tag target-tag">🎯 Goal: ${ex.repsRange}</span>
+                                <div class="ex-timer" id="timer-${ex.id}">00:00</div>
                             </div>
-                            
-                            <div class="hud-box">
-                                <div class="hud-block"><span>Past Avg</span><strong>${avgWeight}${ex.unit} x ${avgReps}</strong></div>
-                                <div class="hud-block"><span>Personal Best Vol</span><strong>${bestVol.toLocaleString()} kg</strong></div>
-                                <div class="hud-block"><span style="color:var(--warning-color)">Aim to Beat</span><strong style="color:var(--warning-color)">${targetWeight}${ex.unit} x ${targetReps}</strong></div>
-                            </div>
+                            <span class="tag target-tag">🎯 Routine Range: ${ex.repsRange}</span>
 
                             <table class="log-table">
                                 <thead>
                                     <tr>
                                         <th>Set</th>
                                         <th>Weight (${ex.unit})</th>
-                                        <th>Smart Counter</th>
-                                        <th style="text-align:right">Score Load</th>
+                                        <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps Done'}</th>
+                                        <th style="text-align:left; padding-left:10px;">Set Match Target</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -426,31 +400,33 @@
                         const wVal = localStorage.getItem(weightKey) || '';
                         const rVal = localStorage.getItem(repKey) || '';
                         
-                        // Dynamic live display calculation logic
-                        let currentSetScore = '-';
-                        let scoreClass = '';
-                        if (wVal && rVal) {
-                            const curVol = parseFloat(wVal) * parseInt(rVal);
-                            currentSetScore = `${curVol} kg`;
-                            if(pastWeights.length && curVol > (avgWeight * avgReps)) {
-                                scoreClass = 'score-up';
-                                currentSetScore = `🔥 ${curVol} kg`;
-                            }
+                        // Set Match Display Logic
+                        let setTargetDisplay = '<em>No history</em>';
+                        if (pastSetRecords[s]) {
+                            const pastW = pastSetRecords[s].weight;
+                            const pastR = pastSetRecords[s].reps;
+                            const nextR = parseInt(pastR) + 1;
+                            setTargetDisplay = `Last: <strong>${pastW}${ex.unit} x ${pastR}</strong>
+                                                <span>Target: ${pastW}${ex.unit} x ${nextR} (+1 Overload)</span>`;
                         }
 
                         html += `
                             <tr class="log-row">
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
-                                    <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); evaluateLiveGrid();">
+                                    <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value)">
                                 </td>
                                 <td class="input-cell">
-                                    <button id="btn-${ex.id}-${s}" class="tracker-btn" onclick="toggleSmartRepCounter('${ex.id}', ${s}, '${repKey}')">
-                                        ${rVal ? 'Reps: ' + rVal : '⏱️ Start Set'}
-                                    </button>
-                                    <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
+                                    ${ex.type === 'hold' ? `
+                                        <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')">
+                                            ${rVal ? rVal + ' Sec' : '⏱️ Start'}
+                                        </button>
+                                        <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
+                                    ` : `
+                                        <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value)">
+                                    `}
                                 </td>
-                                <td id="score-${ex.id}-${s}" class="score-cell ${scoreClass}">${currentSetScore}</td>
+                                <td class="target-cell">${setTargetDisplay}</td>
                             </tr>
                         `;
                     }
@@ -460,61 +436,53 @@
             }
             updateDashboardStats();
             renderHistoryLog();
+            initiateExerciseClockEngine();
         }
 
-        // SMART TIMER BUTTON CONTROLLER
-        function toggleSmartRepCounter(exId, setNum, repKey) {
+        // GENERIC TIME SPENT ENGINE
+        function initiateExerciseClockEngine() {
+            if (operationalInterval) clearInterval(operationalInterval);
+            operationalInterval = setInterval(() => {
+                if (activeTabId === 'view-history') return;
+                
+                const currentRoutine = routines[activeTabId];
+                if (!currentRoutine) return;
+
+                currentRoutine.exercises.forEach(ex => {
+                    exerciseTimeTrackers[ex.id]++;
+                    const minutes = Math.floor(exerciseTimeTrackers[ex.id] / 60).toString().padStart(2, '0');
+                    const seconds = (exerciseTimeTrackers[ex.id] % 60).toString().padStart(2, '0');
+                    const clockLabel = document.getElementById(`timer-${ex.id}`);
+                    if (clockLabel) {
+                        clockLabel.innerText = `${minutes}:${seconds}`;
+                    }
+                });
+            }, 1000);
+        }
+
+        // SMART STOPWATCH FOR PLANK STYLE EXERCISES ONLY
+        function toggleHoldStopwatch(exId, setNum, repKey) {
             const btn = document.getElementById(`btn-${exId}-${setNum}`);
             const timerId = `${exId}-${setNum}`;
 
-            if (activeTimers[timerId]) {
-                // STOP TIMER & CALCULATE APPROXIMATED REPS BASED ON TIME SPENT UNDER TENSION
-                clearInterval(activeTimers[timerId].interval);
-                const secondsElapsed = Math.round((Date.now() - activeTimers[timerId].start) / 1000);
+            if (holdTimers[timerId]) {
+                clearInterval(holdTimers[timerId].interval);
+                const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
                 
-                // Average functional rep under tension takes roughly 3 seconds (1.5s up, 1.5s down)
-                let calculatedReps = Math.max(1, Math.round(secondsElapsed / 3));
-                
-                // Prompt user instantly so they can confirm or adjust manually
-                let finalReps = prompt(`Set completed! Detected Time: ${secondsElapsed}s.\nEstimated Reps achieved:`, calculatedReps);
-                if (finalReps === null) finalReps = calculatedReps; // Fallback to calculation if cancel clicked
-                
-                localStorage.setItem(repKey, finalReps);
-                btn.innerText = `Reps: ${finalReps}`;
+                localStorage.setItem(repKey, totalSeconds);
+                btn.innerText = `${totalSeconds} Sec`;
                 btn.classList.remove('running');
-                delete activeTimers[timerId];
-                
-                evaluateLiveGrid();
+                delete holdTimers[timerId];
             } else {
-                // START TIMER
-                btn.innerText = "⏱️ Counting...";
+                btn.innerText = "⏱️ Holding...";
                 btn.classList.add('running');
-                activeTimers[timerId] = {
+                holdTimers[timerId] = {
                     start: Date.now(),
                     interval: setInterval(() => {
-                        const elapsed = Math.round((Date.now() - activeTimers[timerId].start) / 1000);
-                        btn.innerText = `⏱️ Reps ~${Math.max(1, Math.round(elapsed / 3))} (${elapsed}s)`;
+                        const elapsed = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
+                        btn.innerText = `⏱️ ${elapsed}s`;
                     }, 1000)
                 };
-            }
-        }
-
-        function evaluateLiveGrid() {
-            // Real-time structural grid calculation update loop without rendering the entire app view
-            for (const [dayId, data] of Object.entries(routines)) {
-                data.exercises.forEach(ex => {
-                    for (let s = 1; s <= ex.sets; s++) {
-                        const w = document.getElementById(`cur-${ex.id}-w-${s}`)?.value;
-                        const r = localStorage.getItem(`cur-${ex.id}-r-${s}`);
-                        const cell = document.getElementById(`score-${ex.id}-${s}`);
-                        
-                        if (w && r && cell) {
-                            const v = parseFloat(w) * parseInt(r);
-                            cell.innerText = `🔥 ${v} kg`;
-                            cell.classList.add('score-up');
-                        }
-                    }
-                });
             }
         }
 
@@ -524,7 +492,7 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             
             document.getElementById(dayId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            document.getElementById(`tab-${dayId}`).classList.add('active');
 
             const footerBtn = document.getElementById('footer-actions');
             footerBtn.style.display = (dayId === 'view-history') ? 'none' : 'block';
@@ -547,11 +515,11 @@
                 let exLines = [];
                 for (let s = 1; s <= ex.sets; s++) {
                     const weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
-                    const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
+                    const reps = document.getElementById(`cur-${ex.id}-r-${s}`)?.value || localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
                     
-                    if (parseFloat(weight) > 0 && parseInt(reps) > 0) {
-                        exLines.push(`  Set ${s}: ${weight} x ${reps} reps`);
-                        sessionVolume += (parseFloat(weight) * parseInt(reps));
+                    if (parseInt(reps) > 0) {
+                        exLines.push(`  Set ${s}: ${weight || 0} x ${reps} reps`);
+                        sessionVolume += (parseFloat(weight || 0) * parseInt(reps));
                         loggedCount++;
                     }
                 }
@@ -561,7 +529,7 @@
             });
 
             if (loggedCount === 0) {
-                alert("Please complete at least one set via the Smart Counter before finalizing data output!");
+                alert("Please track at least one set before processing metrics!");
                 return;
             }
 
@@ -579,21 +547,20 @@
             historyList.unshift(sessionRecord);
             localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
 
-            // Accumulate global statistics variables
-            let totalAllTimeVolume = historyList.reduce((acc, curr) => acc + (curr.volume || 0), 0);
             localStorage.setItem('stat_total_count', historyList.length);
-            localStorage.setItem('stat_total_volume', totalAllTimeVolume);
+            localStorage.setItem('stat_total_volume', historyList.reduce((acc, curr) => acc + (curr.volume || 0), 0));
             localStorage.setItem('stat_last_type', currentRoutine.name);
 
-            // Wipe setup fields cleanly
+            // Clean working cache parameters
             currentRoutine.exercises.forEach(ex => {
+                exerciseTimeTrackers[ex.id] = 0; // reset individual clock timers
                 for (let s = 1; s <= ex.sets; s++) {
                     localStorage.removeItem(`cur-${ex.id}-w-${s}`);
                     localStorage.removeItem(`cur-${ex.id}-r-${s}`);
                 }
             });
 
-            alert(`Workout Tracked Successfully!\nTotal Session Load: ${sessionVolume.toLocaleString()} kg raised.`);
+            alert(`Workout Tracked Successfully!`);
             renderApp();
             switchWorkout('view-history');
         }
@@ -610,7 +577,7 @@
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
 
             if (historyList.length === 0) {
-                historyStream.innerHTML = "No training sessions recorded yet. Complete a session to map metrics!";
+                historyStream.innerHTML = "No training sessions recorded yet.";
                 return;
             }
 
@@ -636,7 +603,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v2_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v3_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
