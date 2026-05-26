@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path V15</title>
+    <title>Functional Path V15 - Restored</title>
     <style>
         :root {
             --bg-main: #0b132b;
@@ -47,7 +47,7 @@
         .modal-content { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; }
         .close-modal { position: absolute; top: 12px; right: 15px; color: var(--text-dim); cursor: pointer; font-size: 1.2rem; }
         
-        /* Calendar Structural Elements */
+        /* Calendar Layout Mechanics */
         .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: rgba(11,19,43,0.5); padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 0.75rem; }
         .cal-day-lbl { font-weight: bold; color: var(--text-dim); padding-bottom: 4px; }
@@ -60,7 +60,7 @@
         .badge-B { background: rgba(255,183,3,0.25); color: var(--warning); border: 1px solid var(--warning); }
         .badge-C { background: rgba(42,157,143,0.25); color: var(--success); border: 1px solid var(--success); }
         
-        /* Mobile Inspector Protection Sizing */
+        /* Mobile Safety Rules For Form Layouts */
         .inspector-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
         .inspector-col { flex: 1; min-width: 90px; }
         .inspector-col-lg { flex: 2; min-width: 140px; }
@@ -94,8 +94,115 @@
     </div>
 
     <div id="workoutWorkspace">
-        <h2 id="routineTitle" style="font-size: 1.25rem; margin-top: 5px;">Workout Routine</h2>
-        <div id="exerciseContainer"></div>
+        
+        <div id="routineBlock_A">
+            <h2>Workout A: Upper Push / Lower Pull Focus</h2>
+            <div class="exercise-card" data-exercise-name="Goblet Squat or Box Squat" data-bw="false">
+                <div class="ex-header">
+                    <span>1. Goblet Squat or Box Squat <span class="info-icon" onclick="triggerInfoModalPopup('Goblet Squat or Box Squat')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Lat Pulldown / Assisted Pull-up" data-bw="true">
+                <div class="ex-header">
+                    <span>2. Lat Pulldown / Assisted Pull-up <span class="info-icon" onclick="triggerInfoModalPopup('Lat Pulldown / Assisted Pull-up')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Incline Dumbbell Press" data-bw="false">
+                <div class="ex-header">
+                    <span>3. Incline Dumbbell Press <span class="info-icon" onclick="triggerInfoModalPopup('Incline Dumbbell Press')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Dumbbell Shoulder Press" data-bw="false">
+                <div class="ex-header">
+                    <span>4. Dumbbell Shoulder Press <span class="info-icon" onclick="triggerInfoModalPopup('Dumbbell Shoulder Press')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+        </div>
+
+        <div id="routineBlock_B" style="display:none;">
+            <h2>Workout B: Lower Posterior Hinge / Accessory</h2>
+            <div class="exercise-card" data-exercise-name="Deadlift (Conventional/Sumo)" data-bw="false">
+                <div class="ex-header">
+                    <span>1. Deadlift (Conventional/Sumo) <span class="info-icon" onclick="triggerInfoModalPopup('Deadlift (Conventional/Sumo)')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Lying Leg Curl" data-bw="false">
+                <div class="ex-header">
+                    <span>2. Lying Leg Curl <span class="info-icon" onclick="triggerInfoModalPopup('Lying Leg Curl')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Dumbbell Hammer Curl" data-bw="false">
+                <div class="ex-header">
+                    <span>3. Dumbbell Hammer Curl <span class="info-icon" onclick="triggerInfoModalPopup('Dumbbell Hammer Curl')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Triceps Overhead Extension" data-bw="false">
+                <div class="ex-header">
+                    <span>4. Triceps Overhead Extension <span class="info-icon" onclick="triggerInfoModalPopup('Triceps Overhead Extension')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+        </div>
+
+        <div id="routineBlock_C" style="display:none;">
+            <h2>Workout C: Rotational Core / Static Stability</h2>
+            <div class="exercise-card" data-exercise-name="Pallof Press" data-bw="false">
+                <div class="ex-header">
+                    <span>1. Pallof Press <span class="info-icon" onclick="triggerInfoModalPopup('Pallof Press')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Woodchopper (High-to-Low)" data-bw="false">
+                <div class="ex-header">
+                    <span>2. Woodchopper (High-to-Low) <span class="info-icon" onclick="triggerInfoModalPopup('Woodchopper (High-to-Low)')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Carries (Farmer / Suitcase)" data-bw="false">
+                <div class="ex-header">
+                    <span>3. Carries (Farmer / Suitcase) <span class="info-icon" onclick="triggerInfoModalPopup('Carries (Farmer / Suitcase)')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+            <div class="exercise-card" data-exercise-name="Reverse Crunch" data-bw="true">
+                <div class="ex-header">
+                    <span>4. Reverse Crunch <span class="info-icon" onclick="triggerInfoModalPopup('Reverse Crunch')">i</span></span>
+                    <span class="ex-rli-label" style="font-size:0.75rem; color: var(--text-dim);">RLI: 0.00</span>
+                </div>
+                <div class="set-rows-list"></div>
+                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addExplicitRowFieldLine(this)">+ Add Target Set Line</button>
+            </div>
+        </div>
+
         <button class="btn btn-success" style="margin-top: 15px;" onclick="commitWorkoutSession()">💾 Complete Workout & Save Metrics</button>
     </div>
 
@@ -137,7 +244,7 @@
             <div id="historyLogList" style="max-height: 160px; overflow-y: auto; font-size: 0.8rem; margin-bottom: 12px; border: 1px dashed var(--border); padding: 6px; border-radius: 6px;"></div>
             <div class="flex-row">
                 <button class="btn btn-sec" style="font-size: 0.8rem; padding: 8px;" onclick="exportDataBackup()">📥 Export Backup File</button>
-                <button class="btn btn-sec" style="font-size: 0.8rem; padding: 8px;" onclick="triggerImportSelection()">📤 Import Backup File</button>
+                <button class="btn btn-sec; font-size: 0.8rem; padding: 8px;" onclick="triggerImportSelection()">📤 Import Backup File</button>
             </div>
             <input type="file" id="importFileInput" style="display: none;" onchange="importDataBackup(event)">
             <button class="btn btn-danger" style="margin-top: 10px; padding: 6px; font-size: 0.75rem; background: transparent; color: var(--danger); border: 1px solid var(--danger);" onclick="wipeApplicationData()">⚠ Wipe App Data</button>
@@ -176,13 +283,12 @@
 </div>
 
 <script>
-    // Local Core State Framework Parameters definitions
+    // State Framework Blueprint Variables
     let userBiometrics = { weight: 78.0, fat: 14.0, muscle: 44.0 };
     let loggedWorkoutsHistory = [];
     let currentActiveTab = 'A';
     let referenceCalendarDate = new Date();
 
-    // Contextual Library Containing Cues for Strategy Reference
     const exerciseRemindersData = {
         "Goblet Squat or Box Squat": "Keep chest proud, descend until thighs match knee horizontal line. Drive up balancing pressure across entire foot sole.",
         "Lat Pulldown / Assisted Pull-up": "Pull handles toward upper chest base. Retract shoulder scapulas fully downward; avoid swinging momentum.",
@@ -198,23 +304,7 @@
         "Reverse Crunch": "Roll tailbone smoothly upward off flooring surface using lower abs contraction; control return path without rocking legs."
     };
 
-    // System Routine Configurations Mapping Table Blueprint Structures
-    const workoutRoutinesDatabase = {
-        'A': {
-            name: "Workout A: Upper Push / Lower Pull Focus",
-            exercises: ["Goblet Squat or Box Squat", "Lat Pulldown / Assisted Pull-up", "Incline Dumbbell Press", "Dumbbell Shoulder Press"]
-        },
-        'B': {
-            name: "Workout B: Lower Posterior Hinge / Accessory",
-            exercises: ["Deadlift (Conventional/Sumo)", "Lying Leg Curl", "Dumbbell Hammer Curl", "Triceps Overhead Extension"]
-        },
-        'C': {
-            name: "Workout C: Rotational Core / Static Stability",
-            exercises: ["Pallof Press", "Woodchopper (High-to-Low)", "Carries (Farmer / Suitcase)", "Reverse Crunch"]
-        }
-    };
-
-    // Core Calculation Logic Generator Logic ($RLI$)
+    // Core Calculation Logic Generator
     function calculateSetRLI(reps, weightKg, isBodyweightEx = false) {
         const W = parseFloat(weightKg) || 0;
         const R = parseFloat(reps) || 0;
@@ -230,10 +320,11 @@
         return (effectiveMassLoad * R) / SMM;
     }
 
-    // Main Thread Initialization Hook
+    // Explicit Startup Lifecycle Initializer Engine
     window.onload = function() {
         loadDataFromDeviceLocalStorage();
-        switchTab('A'); 
+        initializeExplicitInputRows();
+        switchTab('A');
         refreshGlobalStatisticsPanels();
     };
 
@@ -242,9 +333,7 @@
         userBiometrics.fat = parseFloat(document.getElementById('biomFat').value) || 14;
         userBiometrics.muscle = parseFloat(document.getElementById('biomMuscle').value) || 44;
         localStorage.setItem('FP_biometrics', JSON.stringify(userBiometrics));
-        if (currentActiveTab !== 'Analytics') {
-            evaluateActiveWorkspaceRLIScores();
-        }
+        evaluateAllWorkspaceRLIScores();
     }
 
     function loadDataFromDeviceLocalStorage() {
@@ -268,130 +357,118 @@
         }
     }
 
-    // Router State Controller Engine
+    // Rebuild Explicit Initialization Track
+    function initializeExplicitInputRows() {
+        document.querySelectorAll('.exercise-card').forEach(card => {
+            const isBw = card.getAttribute('data-bw') === 'true';
+            const list = card.querySelector('.set-rows-list');
+            list.innerHTML = '';
+            
+            // Build rock-solid base entries
+            createSingleInputRowNode(list, 1, 12, isBw ? 0 : 20, isBw);
+            createSingleInputRowNode(list, 2, 10, isBw ? 0 : 25, isBw);
+            createSingleInputRowNode(list, 3, 10, isBw ? 0 : 25, isBw);
+        });
+        evaluateAllWorkspaceRLIScores();
+    }
+
+    function createSingleInputRowNode(targetListContainer, setNum, defaultReps, defaultWt, isBw) {
+        let row = document.createElement('div');
+        row.className = 'set-row';
+        row.innerHTML = `
+            <span style="color: var(--text-dim)">Set ${setNum}:</span>
+            <input type="number" class="rep-input" value="${defaultReps}" oninput="evaluateAllWorkspaceRLIScores()">
+            <span style="color: var(--border); text-align:center;">×</span>
+            <input type="number" class="wt-input" value="${defaultWt}" oninput="evaluateAllWorkspaceRLIScores()">
+            <span style="color: var(--text-dim); text-align: left; padding-left: 3px;">${isBw ? '±kg' : 'kg'}</span>
+        `;
+        targetListContainer.appendChild(row);
+    }
+
+    function addExplicitRowFieldLine(buttonElement) {
+        const card = buttonElement.closest('.exercise-card');
+        const list = card.querySelector('.set-rows-list');
+        const isBw = card.getAttribute('data-bw') === 'true';
+        const nextSetNum = list.children.length + 1;
+        createSingleInputRowNode(list, nextSetNum, 10, isBw ? 0 : 25, isBw);
+        evaluateAllWorkspaceRLIScores();
+    }
+
+    function evaluateAllWorkspaceRLIScores() {
+        document.querySelectorAll('.exercise-card').forEach(card => {
+            const isBw = card.getAttribute('data-bw') === 'true';
+            let totalExRLI = 0;
+            
+            card.querySelectorAll('.set-row').forEach(row => {
+                const reps = parseFloat(row.querySelector('.rep-input').value) || 0;
+                const wt = parseFloat(row.querySelector('.wt-input').value) || 0;
+                totalExRLI += calculateSetRLI(reps, wt, isBw);
+            });
+            
+            card.querySelector('.ex-rli-label').innerText = `RLI: ${totalExRLI.toFixed(2)}`;
+        });
+    }
+
+    // Tab Switching Navigator Controls
     function switchTab(tabKey) {
         currentActiveTab = tabKey;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         
+        document.getElementById('routineBlock_A').style.display = 'none';
+        document.getElementById('routineBlock_B').style.display = 'none';
+        document.getElementById('routineBlock_C').style.display = 'none';
+        document.getElementById('analyticsWorkspace').style.display = 'none';
+        document.getElementById('workoutWorkspace').style.display = 'block';
+
         if (tabKey === 'Analytics') {
             document.getElementById('tabAnalytics').classList.add('active');
             document.getElementById('workoutWorkspace').style.display = 'none';
             document.getElementById('analyticsWorkspace').style.display = 'block';
             closeInspectorPanel();
-            renderAnalyticsCalendarSystem(); 
+            renderAnalyticsCalendarSystem();
             renderRawHistoryBackupLogList();
             document.getElementById('prDisplayContainer').innerHTML = "<p style='color: var(--text-dim); text-align:center;'>Select a routine standard button above to analyze records.</p>";
         } else {
             document.getElementById(`tab${tabKey}`).classList.add('active');
-            document.getElementById('workoutWorkspace').style.display = 'block';
-            document.getElementById('analyticsWorkspace').style.display = 'none';
-            refreshWorkspaceRoutineCards();
+            document.getElementById(`routineBlock_${tabKey}`).style.display = 'block';
+            evaluateAllWorkspaceRLIScores();
         }
     }
 
     function triggerInfoModalPopup(exerciseName) {
         document.getElementById('infoModalTitle').innerText = exerciseName;
-        document.getElementById('infoModalBody').innerText = exerciseRemindersData[exerciseName] || "No technique cues logged for this exercise entry.";
+        document.getElementById('infoModalBody').innerText = exerciseRemindersData[exerciseName] || "No notes logged for this tracking item.";
         openModal('infoModal');
     }
 
-    // UI Workspace Generator Logic
-    function refreshWorkspaceRoutineCards() {
-        const config = workoutRoutinesDatabase[currentActiveTab];
-        document.getElementById('routineTitle').innerText = config.name;
-        const container = document.getElementById('exerciseContainer');
-        container.innerHTML = '';
-
-        config.exercises.forEach((exName, index) => {
-            const isBodyweight = (exName === "Reverse Crunch" || exName === "Lat Pulldown / Assisted Pull-up");
-            
-            let card = document.createElement('div');
-            card.className = 'exercise-card';
-            card.innerHTML = `
-                <div class="ex-header">
-                    <span>${index + 1}. ${exName}
-                        <span class="info-icon" onclick="triggerInfoModalPopup('${exName}')">i</span>
-                    </span>
-                    <span style="font-size:0.75rem; color: var(--text-dim);" id="exTotalRLI_${index}">RLI: 0.00</span>
-                </div>
-                <div id="setRowsContainer_${index}"></div>
-                <button class="btn btn-sec" style="padding: 6px; font-size: 0.75rem; margin-top: 5px;" onclick="addInputSetRowToWorkspaceCard(${index}, ${isBodyweight})">+ Add Target Set Line</button>
-            `;
-            container.appendChild(card);
-            
-            // Generate distinct default layout starting tracker tracks
-            addInputSetRowToWorkspaceCard(index, isBodyweight, 12, isBodyweight ? 0 : 20);
-            addInputSetRowToWorkspaceCard(index, isBodyweight, 10, isBodyweight ? 0 : 25);
-            addInputSetRowToWorkspaceCard(index, isBodyweight, 10, isBodyweight ? 0 : 25);
-        });
-        evaluateActiveWorkspaceRLIScores();
-    }
-
-    function addInputSetRowToWorkspaceCard(exIndex, isBodyweight, defaultReps = 10, defaultWt = 0) {
-        const container = document.getElementById(`setRowsContainer_${exIndex}`);
-        if (!container) return;
-        const setNum = container.children.length + 1;
-        
-        let row = document.createElement('div');
-        row.className = 'set-row';
-        row.innerHTML = `
-            <span style="color: var(--text-dim)">Set ${setNum}:</span>
-            <input type="number" class="rep-input" value="${defaultReps}" oninput="evaluateActiveWorkspaceRLIScores()">
-            <span style="color: var(--border); text-align:center;">×</span>
-            <input type="number" class="wt-input" value="${defaultWt}" oninput="evaluateActiveWorkspaceRLIScores()">
-            <span style="color: var(--text-dim); text-align: left; padding-left: 3px;">${isBodyweight ? '±kg' : 'kg'}</span>
-        `;
-        container.appendChild(row);
-        evaluateActiveWorkspaceRLIScores();
-    }
-
-    function evaluateActiveWorkspaceRLIScores() {
-        const config = workoutRoutinesDatabase[currentActiveTab];
-        if (!config || !config.exercises) return;
-        
-        config.exercises.forEach((exName, exIndex) => {
-            const container = document.getElementById(`setRowsContainer_${exIndex}`);
-            if (!container) return;
-            const isBodyweight = (exName === "Reverse Crunch" || exName === "Lat Pulldown / Assisted Pull-up");
-            let exerciseTotalRLI = 0;
-
-            Array.from(container.children).forEach(row => {
-                const reps = parseFloat(row.querySelector('.rep-input').value) || 0;
-                const weight = parseFloat(row.querySelector('.wt-input').value) || 0;
-                exerciseTotalRLI += calculateSetRLI(reps, weight, isBodyweight);
-            });
-
-            const label = document.getElementById(`exTotalRLI_${exIndex}`);
-            if (label) label.innerText = `RLI: ${exerciseTotalRLI.toFixed(2)}`;
-        });
-    }
-
-    // Write Active Workspace Entry to Persistent Ledger Arrays
+    // Save Logic Engine Snapshot
     function commitWorkoutSession() {
-        const config = workoutRoutinesDatabase[currentActiveTab];
+        let blockId = `routineBlock_${currentActiveTab}`;
+        let blockContainer = document.getElementById(blockId);
+        let routineTitleText = blockContainer.querySelector('h2').innerText;
+        
         let today = new Date();
         let timestampKey = today.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
         
         let sessionLogItem = {
             id: Date.now().toString(),
             date: timestampKey,
-            routine: config.name,
+            routine: routineTitleText,
             biometricsSnapshot: { ...userBiometrics },
             exercises: [],
             totalRLI: 0
         };
 
-        config.exercises.forEach((exName, exIndex) => {
-            const container = document.getElementById(`setRowsContainer_${exIndex}`);
-            if (!container) return;
-            const isBodyweight = (exName === "Reverse Crunch" || exName === "Lat Pulldown / Assisted Pull-up");
+        blockContainer.querySelectorAll('.exercise-card').forEach(card => {
+            const exName = card.getAttribute('data-exercise-name');
+            const isBw = card.getAttribute('data-bw') === 'true';
             let exPayload = { name: exName, sets: [] };
 
-            Array.from(container.children).forEach(row => {
+            card.querySelectorAll('.set-row').forEach(row => {
                 const reps = parseFloat(row.querySelector('.rep-input').value) || 0;
                 const weight = parseFloat(row.querySelector('.wt-input').value) || 0;
                 if (reps > 0) {
-                    let rliVal = calculateSetRLI(reps, weight, isBodyweight);
+                    let rliVal = calculateSetRLI(reps, weight, isBw);
                     exPayload.sets.push({ reps, weight, rli: rliVal });
                     sessionLogItem.totalRLI += rliVal;
                 }
@@ -400,19 +477,18 @@
         });
 
         if (sessionLogItem.exercises.length === 0) {
-            alert("Cannot commit an empty workout card configuration matrix.");
+            alert("Please fill your sets logs before clicking save.");
             return;
         }
 
         loggedWorkoutsHistory.unshift(sessionLogItem);
         syncHistoryToDeviceStorage();
-        alert(`Workout logged successfully! Total Computed Day RLI Score: ${sessionLogItem.totalRLI.toFixed(2)}`);
+        alert(`Workout saved! Day total score: ${sessionLogItem.totalRLI.toFixed(2)}`);
         switchTab('Analytics');
     }
 
     function refreshGlobalStatisticsPanels() {
         document.getElementById('statLogs').innerText = loggedWorkoutsHistory.length;
-        
         if (loggedWorkoutsHistory.length > 0) {
             document.getElementById('statLast').innerText = `${loggedWorkoutsHistory[0].totalRLI.toFixed(1)}x`;
         } else {
@@ -428,7 +504,7 @@
         document.getElementById('statWeekly').innerText = `${rollingSum.toFixed(1)}x`;
     }
 
-    // Calendar Engine Controllers
+    // Calendar Display Logic Systems
     function changeMonth(direction) {
         referenceCalendarDate.setMonth(referenceCalendarDate.getMonth() + direction);
         renderAnalyticsCalendarSystem();
@@ -466,7 +542,7 @@
             dayCell.onclick = () => openDayInspectorPanel(loopStringKey);
             grid.appendChild(dayCell);
 
-            // Correct mapping lookup algorithm matching letter flags on the layout days
+            // Cross reference lookup matching session letters on calendar days
             let matches = loggedWorkoutsHistory.filter(x => {
                 let dParsed = new Date(x.date);
                 return dParsed.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) === loopStringKey;
@@ -487,7 +563,7 @@
         }
     }
 
-    // Historical Inspection Management Engines
+    // Historical Inline Editor Box Sizing Repairs
     function openDayInspectorPanel(dateStringKey) {
         const panel = document.getElementById('dayInspectorPanel');
         const title = document.getElementById('inspectorPanelTitle');
@@ -607,7 +683,7 @@
         closeInspectorPanel();
     }
 
-    // Records Tracker Analytics Modules
+    // Records Analysis Matrix Modules
     function renderPersonalRecords(routineFilterKey) {
         const container = document.getElementById('prDisplayContainer');
         container.innerHTML = '';
@@ -662,7 +738,7 @@
         container.innerHTML = htmlString;
     }
 
-    // System Backups Ledger Renderers
+    // Ledger Render Systems
     function renderRawHistoryBackupLogList() {
         const container = document.getElementById('historyLogList');
         container.innerHTML = '';
@@ -694,7 +770,7 @@
         let url = URL.createObjectURL(blob);
         let anchor = document.createElement('a');
         anchor.href = url;
-        anchor.download = `FP_V15_BACKUP_${new Date().toISOString().slice(0,10)}.json`;
+        anchor.download = `FP_V15_RESTORED_${new Date().toISOString().slice(0,10)}.json`;
         anchor.click();
     }
 
@@ -723,8 +799,8 @@
                     loggedWorkoutsHistory = parsed;
                 }
                 syncHistoryToDeviceStorage();
-                alert("Backup data packet restored successfully.");
-            } catch(err) { alert("Invalid backup structure format."); }
+                alert("Backup restored successfully.");
+            } catch(err) { alert("Invalid backup structure."); }
         };
         reader.readAsText(file);
     }
@@ -741,7 +817,7 @@
 
     function startActiveRoutine() {
         switchTab('A');
-        window.scrollTo({ top: document.getElementById('routineTitle').offsetTop - 20, behavior: 'smooth' });
+        window.scrollTo({ top: document.getElementById('workoutWorkspace').offsetTop - 20, behavior: 'smooth' });
     }
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
