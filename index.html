@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v11</title>
+    <title>Functional Path Overload v12</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -17,6 +17,7 @@
             --cooldown-color: #a78bfa;
             --row-complete-border: #10b981;
             --row-complete-bg: rgba(16, 185, 129, 0.08);
+            --danger-color: #ef4444;
         }
 
         body {
@@ -104,7 +105,7 @@
             align-items: center;
             margin-bottom: 8px;
         }
-        .timer-dashboard-title { font-size: 0.9rem; font-weight: bold; text-transform: uppercase;}
+        .timer-dashboard-title { font-size: 0.8rem; font-weight: bold; text-transform: uppercase;}
         .timer-dashboard-digits { font-family: monospace; font-size: 1.1rem; font-weight: bold; }
         .timer-dashboard-btn-group { display: flex; gap: 6px; }
         
@@ -118,7 +119,7 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .timer-dashboard-btn.active-run { background: #ef4444; border-color: #ef4444; color: white; }
+        .timer-dashboard-btn.active-run { background: var(--danger-color); border-color: var(--danger-color); color: white; }
 
         .stats-panel {
             background: #0f172a;
@@ -161,7 +162,6 @@
             border-color: var(--accent-color);
         }
 
-        /* Continuous Day Tracking Dashboard Widget - NOW INVERTED */
         .day-tracking-scoreboard {
             background: linear-gradient(90deg, #131e36, #0b1324);
             border: 1px solid var(--border-color);
@@ -174,8 +174,8 @@
             font-size: 0.85rem;
         }
         .day-score-block { display: flex; flex-direction: column; }
-        .day-score-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;}
-        .day-score-data { font-size: 1.1rem; font-weight: bold; margin-top: 2px; }
+        .day-score-title { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;}
+        .day-score-data { font-size: 1.05rem; font-weight: bold; margin-top: 2px; }
 
         .workout-section { display: none; }
         .workout-section.active { display: block; }
@@ -218,9 +218,8 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .clock-toggle-btn.active-run { background: #ef4444; color: white; }
+        .clock-toggle-btn.active-run { background: var(--danger-color); color: white; }
 
-        /* Neater, Multi-line Metrics Display Layout */
         .metrics-bar {
             display: flex;
             justify-content: space-between;
@@ -304,7 +303,7 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .stopwatch-btn.running { background: #ef4444; color: white; }
+        .stopwatch-btn.running { background: var(--danger-color); color: white; }
 
         .target-cell { 
             width: 36%; 
@@ -365,8 +364,8 @@
         .reset-day-btn {
             width: 100%;
             background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid #ef4444;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
             padding: 8px;
             border-radius: 6px;
             font-size: 0.8rem;
@@ -417,7 +416,7 @@
         .deep-exercise-title { font-weight: bold; font-size: 0.85rem; color: #fff; margin-bottom: 4px;}
         .deep-exercise-meta { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; line-height: 1.4;}
 
-        /* Embedded Interactive Calendar Layout Engine Styles */
+        /* Embedded Interactive Calendar Engine */
         .calendar-container {
             background: #0f172a;
             border: 1px solid var(--border-color);
@@ -502,12 +501,59 @@
         .badge-b { background: var(--warning-color); color: #000; }
         .badge-c { background: var(--cooldown-color); color: #000; }
 
+        /* Session Editor Node Styles */
         .focused-day-inspector {
             background: #111a2e;
             border: 1px solid var(--warning-color);
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 15px;
+        }
+        .editable-session-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+        .editable-session-card textarea {
+            width: 100%;
+            height: 110px;
+            background: #060913;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.8rem;
+            padding: 6px;
+            box-sizing: border-box;
+            border-radius: 4px;
+            resize: vertical;
+            margin-top: 5px;
+        }
+        .editor-action-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+        }
+        .editor-btn-save {
+            background: var(--success-color);
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .editor-btn-delete {
+            background: var(--danger-color);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         .history-section {
@@ -546,13 +592,13 @@
             cursor: pointer;
             text-align: center;
         }
-        .btn-danger { background: none; border: none; color: #ef4444; font-size: 0.75rem; cursor: pointer; padding: 0; margin-top: 15px; display: block;}
+        .btn-danger { background: none; border: none; color: var(--danger-color); font-size: 0.75rem; cursor: pointer; padding: 0; margin-top: 15px; display: block;}
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Functional Path v11</h1>
+        <h1>Functional Path v12</h1>
         <div style="display:flex; gap:6px; align-items:center;">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div class="bodyweight-box">
@@ -568,28 +614,27 @@
         <button class="start-session-btn" onclick="startWorkoutSession()">▶ Start Training Session</button>
     </div>
 
-    <!-- Singular Pre-Workout Warmup Dashboard Box -->
     <div id="warmup-dashboard" class="timer-dashboard-panel" style="display: none; border-color: var(--warning-color);">
         <div class="timer-dashboard-header">
-            <span class="timer-dashboard-title" style="color: var(--warning-color);">🔥 Pre-Workout Warmup (Cardio / Dynamic Shoulders)</span>
+            <span class="timer-dashboard-title" style="color: var(--warning-color);">🔥 Pre-Workout Warmup</span>
             <span id="warmup-timer-text" class="timer-dashboard-digits" style="color: var(--warning-color);">00:00</span>
         </div>
         <div class="timer-dashboard-btn-group">
             <button id="warmup-toggle" class="timer-dashboard-btn" onclick="toggleWarmupClock()">▶ Start Warmup</button>
             <button class="timer-dashboard-btn" onclick="adjustWarmupTime(60)">+1 Min</button>
             <button class="timer-dashboard-btn" onclick="adjustWarmupTime(300)">+5 Min</button>
-            <button class="timer-dashboard-btn" onclick="resetWarmupClock()" style="color: #ef4444;">🔄 Reset</button>
+            <button class="timer-dashboard-btn" onclick="resetWarmupClock()" style="color: var(--danger-color);">🔄 Reset</button>
         </div>
     </div>
 
     <div class="stats-panel">
         <div class="stat-box">
             <div id="stat-week-ratio" class="stat-num">0.0x</div>
-            <div class="stat-label">Weekly Score</div>
+            <div class="stat-label">Weekly RLI</div>
         </div>
         <div class="stat-box" style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
             <div id="stat-last-ratio" class="stat-num">0.0x</div>
-            <div class="stat-label">Last Session</div>
+            <div class="stat-label">Last RLI</div>
         </div>
         <div class="stat-box">
             <div id="stat-count" class="stat-num">0</div>
@@ -604,16 +649,16 @@
         <button class="tab-btn" id="tab-view-history" onclick="switchWorkout('view-history')">📊 Analytics</button>
     </div>
 
-    <!-- Inverted Scoreboard Banner: Best Score Left, Live Score Right -->
+    <!-- Unified Dashboard Scoreboard Layout Framework -->
     <div id="day-scoreboard-widget" class="day-tracking-scoreboard">
         <div class="day-score-block">
-            <span class="day-score-title">All-Time Best Day Score</span>
-            <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
+            <span class="day-score-title">All-Time Best Day RLI</span>
+            <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">RLI: 0.0x BW</span>
         </div>
         <div style="font-size: 1.2rem; color: var(--border-color); font-weight: bold;">/</div>
         <div class="day-score-block" style="text-align: right;">
-            <span class="day-score-title">Live Session Score</span>
-            <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">0.0x <span style="font-size:0.75rem; color:var(--text-muted);">BW</span></span>
+            <span class="day-score-title">Live Session RLI</span>
+            <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">RLI: 0.0x BW</span>
         </div>
     </div>
 
@@ -624,7 +669,7 @@
     <div id="view-history" class="workout-section">
         <div id="weekly-analytics-panel"></div>
 
-        <!-- Training Microcycle Month Grid Calendar Module -->
+        <!-- Training Month Grid Calendar -->
         <div class="calendar-container">
             <div class="calendar-navbar">
                 <button class="calendar-nav-btn" onclick="shiftCalendarMonth(-1)">◀ Previous</button>
@@ -634,16 +679,16 @@
             <div class="calendar-grid" id="calendar-render-grid"></div>
         </div>
 
-        <!-- Dedicated Calendar Inspection Node Panel -->
+        <!-- Interactive Dynamic Session Editor/Trashing Panel Matrix -->
         <div id="calendar-inspector-panel" class="focused-day-inspector" style="display:none;">
-            <div style="display:flex; justify-content:between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span id="inspector-date-title" style="font-weight:bold; color:var(--warning-color); font-size:0.85rem;">Date Selected</span>
                 <button style="background:transparent; border:none; color:var(--text-muted); font-size:0.75rem; cursor:pointer;" onclick="document.getElementById('calendar-inspector-panel').style.display='none';">✕ Close</button>
             </div>
-            <div id="inspector-output-content" style="font-family:monospace; font-size:0.8rem; color:#fff; white-space:pre-wrap; max-height:220px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px; border:1px solid var(--border-color);"></div>
+            <div id="inspector-output-content"></div>
         </div>
         
-        <!-- Deep Drill Workout Routine Analyzer Grid -->
+        <!-- Combined Routine Analyzer Grid -->
         <div class="analytics-block" style="border-color: var(--accent-color);">
             <div class="analytics-title" style="margin-bottom:10px;">🔍 Historic Single-Day Combined Exercise Best Analyzer</div>
             <div class="routine-selector-pills">
@@ -669,17 +714,16 @@
         </div>
     </div>
 
-    <!-- Singular Post-Workout Stretching Dashboard Box -->
     <div id="stretching-dashboard" class="timer-dashboard-panel" style="display: none; border-color: var(--cooldown-color); margin-top:15px;">
         <div class="timer-dashboard-header">
-            <span class="timer-dashboard-title" style="color: var(--cooldown-color);">🧘 Post-Workout Freestyle Stretching & Cooldown</span>
+            <span class="timer-dashboard-title" style="color: var(--cooldown-color);">🧘 Post-Workout Freestyle Stretching</span>
             <span id="stretch-timer-text" class="timer-dashboard-digits" style="color: var(--cooldown-color);">00:00</span>
         </div>
         <div class="timer-dashboard-btn-group">
             <button id="stretch-toggle" class="timer-dashboard-btn" onclick="toggleStretchClock()">▶ Start Stretching</button>
             <button class="timer-dashboard-btn" onclick="adjustStretchTime(60)">+1 Min</button>
             <button class="timer-dashboard-btn" onclick="adjustStretchTime(300)">+5 Min</button>
-            <button class="timer-dashboard-btn" onclick="resetStretchClock()" style="color: #ef4444;">🔄 Reset</button>
+            <button class="timer-dashboard-btn" onclick="resetStretchClock()" style="color: var(--danger-color);">🔄 Reset</button>
         </div>
     </div>
 
@@ -724,7 +768,7 @@
 
         let activeTabId = 'workout-a';
         let currentSelectedAnalyticsPill = 'Workout A';
-        let calendarFocusDate = new Date(); // Tracks the currently browsed calendar month view
+        let calendarFocusDate = new Date(); 
         let sessionIsRunning = false;
         let globalTimeElapsed = 0;
         let globalTimerInterval = null;
@@ -766,15 +810,14 @@
                                 </div>
                             </div>
                             
-                            <!-- Compressed multi-line values after colons -->
                             <div class="metrics-bar">
                                 <div class="metric-cell-vertical">
                                     <span class="m-lbl">Peak Day Score:</span>
-                                    <span class="m-val-pb">${peakPersonalBestScore.toFixed(1)}x BW</span>
+                                    <span class="m-val-pb">RLI: ${peakPersonalBestScore.toFixed(1)}x BW</span>
                                 </div>
                                 <div class="metric-cell-vertical" style="text-align: right;">
                                     <span class="m-lbl">Live Card:</span>
-                                    <span class="m-val-live" id="eff-${ex.id}">0.0x BW</span>
+                                    <span class="m-val-live" id="eff-${ex.id}">RLI: 0.0x BW</span>
                                 </div>
                             </div>
 
@@ -834,7 +877,7 @@
                                 </td>
                                 <td class="target-cell">${historicalBestString}</td>
                                 <td class="checkbox-cell">
-                                    <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})" ${!sessionIsRunning ? 'disabled' : ''}>
+                                    <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})">
                                         ${isChecked ? '✓' : ''}
                                     </button>
                                 </td>
@@ -916,7 +959,7 @@
             return exercisePBs;
         }
 
-        /* Monthly Calendar Generator Logic with Embedded Click Interception */
+        /* Monthly Training Microcycle Log Grid View Engine */
         function renderCalendarWorkspace() {
             const gridContainer = document.getElementById('calendar-render-grid');
             const headerTitle = document.getElementById('calendar-header-title');
@@ -930,7 +973,6 @@
 
             gridContainer.innerHTML = '';
 
-            // Render Week Day Headers
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             daysOfWeek.forEach(d => {
                 const el = document.createElement('div');
@@ -942,13 +984,11 @@
             const firstDayIndex = new Date(year, month, 1).getDay();
             const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
 
-            // Padding blank cells for calendar alignment
             for (let i = 0; i < firstDayIndex; i++) {
                 const emptyCell = document.createElement('div');
                 gridContainer.appendChild(emptyCell);
             }
 
-            // Extract completed historical records mapping 
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
 
             for (let day = 1; day <= totalDaysInMonth; day++) {
@@ -963,13 +1003,11 @@
                 numLabel.innerText = day;
                 cell.appendChild(numLabel);
 
-                // Find matching log records for this individual date string
                 const matchingLogs = historyList.filter(l => l.date === cellLocaleString);
 
                 if (matchingLogs.length > 0) {
                     cell.classList.add('has-log');
                     
-                    // Display workout badges inside the day block
                     matchingLogs.forEach(log => {
                         const badge = document.createElement('div');
                         badge.className = 'calendar-badge';
@@ -983,28 +1021,78 @@
                         cell.appendChild(badge);
                     });
 
-                    // Interactive click binding to load deep historical summary performance logs
                     cell.onclick = () => {
+                        openDayInspectorPanel(cellLocaleString);
                         document.querySelectorAll('.calendar-day-cell').forEach(c => c.classList.remove('selected-day'));
                         cell.classList.add('selected-day');
-
-                        const inspectorPanel = document.getElementById('calendar-inspector-panel');
-                        const inspectorTitle = document.getElementById('inspector-date-title');
-                        const inspectorContent = document.getElementById('inspector-output-content');
-
-                        inspectorPanel.style.display = 'block';
-                        inspectorTitle.innerText = `🔍 Inspection Node: ${cellLocaleString}`;
-
-                        let fullInspectDetails = '';
-                        matchingLogs.forEach((l, idx) => {
-                            fullInspectDetails += `== SESSION #${matchingLogs.length - idx} (${l.type}) ==\nScore: ${l.ratio.toFixed(1)}x BW\n\n${l.details}\n\n`;
-                        });
-                        inspectorContent.innerText = fullInspectDetails.trim();
                     };
                 }
 
                 gridContainer.appendChild(cell);
             }
+        }
+
+        /* Active Day Session Editor Panel Engine */
+        function openDayInspectorPanel(targetDateString) {
+            const inspectorPanel = document.getElementById('calendar-inspector-panel');
+            const inspectorTitle = document.getElementById('inspector-date-title');
+            const inspectorContent = document.getElementById('inspector-output-content');
+
+            inspectorPanel.style.display = 'block';
+            inspectorTitle.innerText = `🔍 Training Node: ${targetDateString}`;
+            inspectorContent.innerHTML = '';
+
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            
+            // Loop and render explicit nodes for modification/trashing
+            historyList.forEach((log, index) => {
+                if(log.date === targetDateString) {
+                    const sessionCard = document.createElement('div');
+                    sessionCard.className = 'editable-session-card';
+                    sessionCard.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-weight:bold; color:var(--accent-color);">
+                            <span>Routine: ${log.type} | RLI: ${log.ratio.toFixed(1)}x</span>
+                        </div>
+                        <textarea id="edit-textarea-${index}">${log.details}</textarea>
+                        <div class="editor-action-row">
+                            <button class="editor-btn-save" onclick="saveInspectedLogEdits(${index})">💾 Save Changes</button>
+                            <button class="editor-btn-delete" onclick="deleteInspectedLogNode(${index})">🗑️ Delete Session</button>
+                        </div>
+                    `;
+                    inspectorContent.appendChild(sessionCard);
+                }
+            });
+        }
+
+        function saveInspectedLogEdits(globalIndex) {
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            const textContent = document.getElementById(`edit-textarea-${globalIndex}`).value;
+            
+            historyList[globalIndex].details = textContent;
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
+            
+            alert("Changes saved to session logs.");
+            renderApp();
+        }
+
+        function deleteInspectedLogNode(globalIndex) {
+            if(!confirm("Permanently wipe this workout session from your historical logs?")) return;
+            
+            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            const targetedDate = historyList[globalIndex].date;
+            
+            historyList.splice(globalIndex, 1);
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
+            
+            // Hide preview if day becomes completely empty
+            const remaining = historyList.filter(l => l.date === targetedDate);
+            if(remaining.length === 0) {
+                document.getElementById('calendar-inspector-panel').style.display = 'none';
+            } else {
+                openDayInspectorPanel(targetedDate);
+            }
+            
+            renderApp();
         }
 
         function shiftCalendarMonth(direction) {
@@ -1117,10 +1205,17 @@
             document.getElementById('stretch-toggle').classList.remove('active-run');
         }
 
+        /* Structural patch preventing row inputs from zeroing out when toggled */
         function toggleManualRowCheck(exId, setNum) {
             const rowElement = document.getElementById(`row-${exId}-${setNum}`);
             const checkKey = `cur-check-${exId}-${setNum}`;
             
+            // Push values straight to localStorage before any processing runs
+            const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
+            const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
+            if(wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
+            if(rpIn && rpIn.style.display !== 'none') localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
+
             if (rowElement.classList.contains('row-filled')) {
                 rowElement.classList.remove('row-filled');
                 localStorage.setItem(checkKey, 'false');
@@ -1128,7 +1223,7 @@
                 rowElement.classList.add('row-filled');
                 localStorage.setItem(checkKey, 'true');
             }
-            renderApp();
+            updateLiveMetricsOnly();
         }
 
         function toggleExerciseClock(exId) {
@@ -1186,8 +1281,10 @@
                 
                 for (let s = 1; s <= ex.sets; s++) {
                     const wInput = document.getElementById(`cur-${ex.id}-w-${s}`);
-                    const wVal = wInput ? wInput.value : '';
-                    const rVal = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '';
+                    const rInput = document.getElementById(`cur-${ex.id}-r-${s}`);
+                    
+                    const wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
+                    const rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
 
                     if (rVal !== '') {
                         if (ex.type === 'hold') {
@@ -1202,11 +1299,10 @@
                 dayTotalVolumeScore += calculatedExerciseScore;
                 
                 const exEffBadge = document.getElementById(`eff-${ex.id}`);
-                if (exEffBadge) exEffBadge.innerText = calculatedExerciseScore.toFixed(1) + 'x BW';
+                if (exEffBadge) exEffBadge.innerText = 'RLI: ' + calculatedExerciseScore.toFixed(1) + 'x BW';
             });
 
-            // Update header widgets
-            document.getElementById('widget-live-score').innerHTML = `${dayTotalVolumeScore.toFixed(1)}x <span style="font-size:0.75rem; color:var(--text-muted)">BW</span>`;
+            document.getElementById('widget-live-score').innerHTML = `RLI: ${dayTotalVolumeScore.toFixed(1)}x <span style="font-size:0.7rem; color:var(--text-muted)">BW</span>`;
             
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             const specificRoutineLogs = historyList.filter(s => s.type === currentRoutine.name);
@@ -1214,7 +1310,7 @@
             if(specificRoutineLogs.length > 0) {
                 absoluteBestDayTotalVal = Math.max(...specificRoutineLogs.map(l => l.ratio || 0));
             }
-            document.getElementById('widget-past-best').innerHTML = `${absoluteBestDayTotalVal.toFixed(1)}x <span style="font-size:0.75rem; color:var(--text-muted)">BW</span>`;
+            document.getElementById('widget-past-best').innerHTML = `RLI: ${absoluteBestDayTotalVal.toFixed(1)}x <span style="font-size:0.7rem; color:var(--text-muted)">BW</span>`;
         }
 
         function switchWorkout(dayId) {
@@ -1296,7 +1392,7 @@
                     <div class="deep-exercise-card">
                         <div class="deep-exercise-title" style="color:var(--accent-color);">${ex.name}</div>
                         <div class="deep-exercise-meta">
-                            🔥 Peak Day Combo Score: <strong style="color:var(--warning-color);">${pbEntry.score.toFixed(1)}x BW</strong><br>
+                            🔥 Peak Day Score:<br><strong style="color:var(--warning-color);">RLI: ${pbEntry.score.toFixed(1)}x BW</strong><br>
                             📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
                             🏋️ Performance Breakdown:<br>
                             <span style="color:#fff; padding-left:4px; display:inline-block; margin-top:2px;">${setsListText.join(' | ')}</span>
@@ -1382,7 +1478,7 @@
             });
 
             if (loggedCount === 0) {
-                alert("Please check rows off manually to verify workspace sets before submitting.");
+                alert("Please complete at least one set before finalizing.");
                 return;
             }
 
@@ -1422,7 +1518,7 @@
             document.getElementById('warmup-dashboard').style.display = 'none';
             document.getElementById('stretching-dashboard').style.display = 'none';
             
-            alert(`Logged! Context Multiplier Performance: ${finalRecordedDayRatio}x BW.`);
+            alert(`Logged! Context Multiplier Performance RLI: ${finalRecordedDayRatio}x BW.`);
             renderApp();
             switchWorkout('view-history');
         }
@@ -1447,9 +1543,9 @@
             if(analyticsBox) {
                 analyticsBox.innerHTML = `
                     <div class="analytics-block">
-                        <div class="analytics-title">📊 Rolling 7-Day Cumulative Microcycle Efficiency</div>
+                        <div class="analytics-title">📊 Rolling 7-Day Cumulative RLI Efficiency Profile</div>
                         Completed Workouts: <strong>${recentSessions.length}</strong><br>
-                        Total Weekly Combined Efficiency Profile: <strong>${weeklyScoreSum.toFixed(1)}x</strong> your body weight cleared this week.
+                        Total RLI Capacity: <strong>${weeklyScoreSum.toFixed(1)}x</strong> bodyweight cleared.
                     </div>
                 `;
             }
@@ -1469,7 +1565,7 @@
                 html += `
                     <div class="history-item">
                         <span class="history-date">${item.date}</span> - <span style="color: var(--accent-color); font-weight:bold;">${item.type}</span> 
-                        <span style="color: var(--success-color); font-weight:bold; margin-left:10px;">(Efficiency Score: ${item.ratio.toFixed(1)}x BW)</span>
+                        <span style="color: var(--success-color); font-weight:bold; margin-left:10px;">(RLI: ${item.ratio.toFixed(1)}x BW)</span>
                         <div class="history-details">${item.details}</div>
                     </div>
                 `;
@@ -1486,7 +1582,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v11_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v12_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
