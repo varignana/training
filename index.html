@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v12</title>
+    <title>Functional Path Overload v13</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -18,6 +18,7 @@
             --row-complete-border: #10b981;
             --row-complete-bg: rgba(16, 185, 129, 0.08);
             --danger-color: #ef4444;
+            --info-color: #3b82f6;
         }
 
         body {
@@ -39,29 +40,140 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        h1 { margin: 0; font-size: 1.2rem; color: var(--accent-color); }
+        h1 { margin: 0; font-size: 1.1rem; color: var(--accent-color); }
 
-        .bodyweight-box {
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .global-timer-display {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--warning-color);
+            background: rgba(245, 158, 11, 0.15);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+
+        /* Biometrics Trigger Pill */
+        .biometrics-pill {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             gap: 6px;
-            background: var(--card-bg);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-        .bodyweight-box span { color: var(--text-main); font-weight: bold; }
-        .bodyweight-box input {
-            width: 55px;
-            background: transparent;
-            border: none;
-            color: var(--warning-color);
+            cursor: pointer;
+            font-size: 0.8rem;
             font-weight: bold;
-            font-size: 1rem;
-            text-align: center;
-            outline: none;
+            transition: border-color 0.2s;
+        }
+        .biometrics-pill:hover {
+            border-color: var(--accent-color);
+        }
+        .biometrics-pill .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+        .biometrics-pill.active-bio .dot {
+            background: var(--success-color);
+            box-shadow: 0 0 6px var(--success-color);
         }
 
+        /* Modal Architecture */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        .modal-box {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            box-sizing: border-box;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        .modal-title { font-weight: bold; font-size: 1.1rem; color: var(--accent-color); }
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* Inputs Inside Biometrics Panel */
+        .bio-form-group {
+            margin-bottom: 12px;
+        }
+        .bio-form-group label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+        .bio-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 4px 10px;
+        }
+        .bio-input-wrapper input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            outline: none;
+            padding: 6px 0;
+        }
+        .bio-input-wrapper .unit {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .science-info-trigger {
+            background: transparent;
+            border: none;
+            color: var(--info-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        /* Rest of Dashboard UI Layouts */
         .session-gate-panel {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 2px dashed var(--accent-color);
@@ -80,16 +192,6 @@
             border-radius: 8px;
             cursor: pointer;
             text-transform: uppercase;
-        }
-
-        .global-timer-display {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--warning-color);
-            background: rgba(245, 158, 11, 0.15);
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-family: monospace;
         }
 
         .timer-dashboard-panel {
@@ -416,7 +518,7 @@
         .deep-exercise-title { font-weight: bold; font-size: 0.85rem; color: #fff; margin-bottom: 4px;}
         .deep-exercise-meta { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; line-height: 1.4;}
 
-        /* Embedded Interactive Calendar Engine */
+        /* Interactive Calendar Design Grid */
         .calendar-container {
             background: #0f172a;
             border: 1px solid var(--border-color);
@@ -501,7 +603,7 @@
         .badge-b { background: var(--warning-color); color: #000; }
         .badge-c { background: var(--cooldown-color); color: #000; }
 
-        /* Session Editor Node Styles */
+        /* Session Editor Panel Formats */
         .focused-day-inspector {
             background: #111a2e;
             border: 1px solid var(--warning-color);
@@ -593,24 +695,107 @@
             text-align: center;
         }
         .btn-danger { background: none; border: none; color: var(--danger-color); font-size: 0.75rem; cursor: pointer; padding: 0; margin-top: 15px; display: block;}
+        
+        .science-text-block p {
+            margin: 0 0 10px 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #cbd5e1;
+        }
+        .science-text-block ul {
+            margin: 0 0 10px 0;
+            padding-left: 20px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+        .science-text-block li { margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Functional Path v12</h1>
-        <div style="display:flex; gap:6px; align-items:center;">
+        <h1>Functional Path v13</h1>
+        <div class="header-controls">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
-            <div class="bodyweight-box">
-                <span style="font-size: 0.75rem; text-transform: uppercase; margin-right:2px;">BW:</span>
-                <input type="number" id="global-bw" pattern="[0-9]*" inputmode="decimal" placeholder="80" oninput="localStorage.setItem('user_bodyweight', this.value); updateLiveMetricsOnly();">
-                <span style="font-size: 0.75rem; color: var(--text-muted);">kg</span>
+            <div id="bio-pill-widget" class="biometrics-pill" onclick="openBiometricsModal()">
+                <div class="dot"></div>
+                <span id="bio-pill-text">BW: 80.0kg</span>
             </div>
         </div>
     </header>
 
+    <div id="biometrics-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">🧬 Biometric Profiling</span>
+                <button class="modal-close-btn" onclick="closeBiometricsModal()">✕</button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin: 0 0 12px 0; font-weight:bold; text-transform:uppercase;">
+                💡 Suggested: Update metrics once a week from your scale (e.g. Withings)
+            </p>
+            
+            <div class="bio-form-group">
+                <label>Total Bodyweight</label>
+                <div class="bio-input-wrapper">
+                    <input type="number" id="input-bio-weight" pattern="[0-9]*" inputmode="decimal" placeholder="80.0" oninput="saveBiometricsToMemory()">
+                    <span class="unit">kg</span>
+                </div>
+            </div>
+
+            <div class="bio-form-group">
+                <label>Body Fat Percentage (Optional)</label>
+                <div class="bio-input-wrapper">
+                    <input type="number" id="input-bio-fat" pattern="[0-9]*" inputmode="decimal" placeholder="Leave blank if unknown" oninput="saveBiometricsToMemory()">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+
+            <div class="bio-form-group">
+                <label>Muscle Mass Percentage (Optional)</label>
+                <div class="bio-input-wrapper">
+                    <input type="number" id="input-bio-muscle" pattern="[0-9]*" inputmode="decimal" placeholder="Unlocks Advanced Muscle RLI" oninput="saveBiometricsToMemory()">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+
+            <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                <button class="timer-dashboard-btn" style="background:var(--accent-color); color:#000; width:100%; padding:10px;" onclick="closeBiometricsModal()">
+                    Apply Baseline Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="science-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <span class="modal-title">🔬 The Science Behind RLI</span>
+                <button class="modal-close-btn" onclick="closeScienceModal()">✕</button>
+            </div>
+            <div class="science-text-block" style="max-height:65vh; overflow-y:auto; padding-right:4px;">
+                <p><strong>1. The Flaw of Traditional "Volume"</strong></p>
+                <p>Standard training models track total volume (Weight × Reps × Sets). However, volume is completely blind to personal structure. If a 60kg athlete and a 100kg athlete both clear 100kg, volume treats them identically, hiding the higher neurological and mechanical stress placed on the lighter athlete.</p>
+                
+                <p><strong>2. Relative Load Intensity (RLI)</strong></p>
+                <p>RLI bridges mechanical workload with structural reality. It calculates how hard your moving mass has to work to complete an action:</p>
+                <ul>
+                    <li><strong>Dynamic Lifts:</strong> Volume normalized across biological frames.</li>
+                    <li><strong>Static/Isometric holds:</strong> Integrated seamlessly via Time Under Tension (Seconds ÷ 10).</li>
+                </ul>
+
+                <p><strong>3. Advanced Level: Muscle-Isolated RLI</strong></p>
+                <p>When you input your scale's <strong>Muscle %</strong> data, the calculation instantly scales your raw load exclusively against force-generating active tissue rather than non-functional fat weight.</p>
+                <p style="background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; font-family:monospace; font-size:0.75rem; text-align:center; color:var(--accent-color);">
+                    Muscle RLI = Total Lifted Volume ÷ Pure Muscle Mass (kg)
+                </p>
+                
+                <p><strong>The Recomposition Paradox:</strong> If you build muscle and shed fat, your Muscle RLI score might drop slightly for the same lifted weights. This is not structural loss—it shows your active engine has become highly efficient, clearing the same load with less strain per muscle unit. Your goal is to increase weight to match this new structural capability.</p>
+            </div>
+        </div>
+    </div>
+
     <div id="session-gate" class="session-gate-panel">
-        <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Confirm body weight, then click below to launch workout.</p>
+        <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Configure biometrics from your scale, then initiate training.</p>
         <button class="start-session-btn" onclick="startWorkoutSession()">▶ Start Training Session</button>
     </div>
 
@@ -630,11 +815,11 @@
     <div class="stats-panel">
         <div class="stat-box">
             <div id="stat-week-ratio" class="stat-num">0.0x</div>
-            <div class="stat-label">Weekly RLI</div>
+            <div id="stat-label-week" class="stat-label">Weekly RLI</div>
         </div>
         <div class="stat-box" style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
             <div id="stat-last-ratio" class="stat-num">0.0x</div>
-            <div class="stat-label">Last RLI</div>
+            <div id="stat-label-last" class="stat-label">Last RLI</div>
         </div>
         <div class="stat-box">
             <div id="stat-count" class="stat-num">0</div>
@@ -649,16 +834,15 @@
         <button class="tab-btn" id="tab-view-history" onclick="switchWorkout('view-history')">📊 Analytics</button>
     </div>
 
-    <!-- Unified Dashboard Scoreboard Layout Framework -->
     <div id="day-scoreboard-widget" class="day-tracking-scoreboard">
         <div class="day-score-block">
-            <span class="day-score-title">All-Time Best Day RLI</span>
-            <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">RLI: 0.0x BW</span>
+            <span id="widget-title-past-best" class="day-score-title">All-Time Best Day RLI</span>
+            <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">RLI: 0.0x</span>
         </div>
-        <div style="font-size: 1.2rem; color: var(--border-color); font-weight: bold;">/</div>
+        <button class="science-info-trigger" onclick="openScienceModal()" title="View Scientific Methodology Documentation">ℹ️</button>
         <div class="day-score-block" style="text-align: right;">
-            <span class="day-score-title">Live Session RLI</span>
-            <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">RLI: 0.0x BW</span>
+            <span id="widget-title-live" class="day-score-title">Live Session RLI</span>
+            <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">RLI: 0.0x</span>
         </div>
     </div>
 
@@ -669,7 +853,6 @@
     <div id="view-history" class="workout-section">
         <div id="weekly-analytics-panel"></div>
 
-        <!-- Training Month Grid Calendar -->
         <div class="calendar-container">
             <div class="calendar-navbar">
                 <button class="calendar-nav-btn" onclick="shiftCalendarMonth(-1)">◀ Previous</button>
@@ -679,7 +862,6 @@
             <div class="calendar-grid" id="calendar-render-grid"></div>
         </div>
 
-        <!-- Interactive Dynamic Session Editor/Trashing Panel Matrix -->
         <div id="calendar-inspector-panel" class="focused-day-inspector" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span id="inspector-date-title" style="font-weight:bold; color:var(--warning-color); font-size:0.85rem;">Date Selected</span>
@@ -688,7 +870,6 @@
             <div id="inspector-output-content"></div>
         </div>
         
-        <!-- Combined Routine Analyzer Grid -->
         <div class="analytics-block" style="border-color: var(--accent-color);">
             <div class="analytics-title" style="margin-bottom:10px;">🔍 Historic Single-Day Combined Exercise Best Analyzer</div>
             <div class="routine-selector-pills">
@@ -782,9 +963,43 @@
         let exerciseClockStates = {}; 
         let holdTimers = {};
 
+        function openBiometricsModal() { document.getElementById('biometrics-modal').style.display = 'flex'; }
+        function closeBiometricsModal() { document.getElementById('biometrics-modal').style.display = 'none'; renderApp(); }
+        function openScienceModal() { document.getElementById('science-modal').style.display = 'flex'; }
+        function closeScienceModal() { document.getElementById('science-modal').style.display = 'none'; }
+
+        function saveBiometricsToMemory() {
+            const weightVal = document.getElementById('input-bio-weight').value;
+            const fatVal = document.getElementById('input-bio-fat').value;
+            const muscleVal = document.getElementById('input-bio-muscle').value;
+
+            if (weightVal) localStorage.setItem('user_bodyweight', weightVal);
+            localStorage.setItem('user_bodyfat_pct', fatVal);
+            localStorage.setItem('user_muscle_pct', muscleVal);
+            
+            updateLiveMetricsOnly();
+        }
+
         function renderApp() {
-            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
-            document.getElementById('global-bw').value = userBw;
+            // Load biometrics states safely from storage matrix
+            const savedWeight = localStorage.getItem('user_bodyweight') || '80';
+            const savedFat = localStorage.getItem('user_bodyfat_pct') || '';
+            const savedMuscle = localStorage.getItem('user_muscle_pct') || '';
+
+            document.getElementById('input-bio-weight').value = savedWeight;
+            document.getElementById('input-bio-fat').value = savedFat;
+            document.getElementById('input-bio-muscle').value = savedMuscle;
+
+            const pillWidget = document.getElementById('bio-pill-widget');
+            const pillText = document.getElementById('bio-pill-text');
+
+            if(savedMuscle && parseFloat(savedMuscle) > 0) {
+                pillWidget.classList.add('active-bio');
+                pillText.innerText = `Engine Loaded: ${savedWeight}kg (${savedMuscle}%)`;
+            } else {
+                pillWidget.classList.remove('active-bio');
+                pillText.innerText = `BW: ${savedWeight}kg`;
+            }
 
             const calculatedExercisePBs = parseDayBoundExercisePBs();
 
@@ -796,11 +1011,12 @@
                     const exPbData = calculatedExercisePBs[ex.id];
                     let peakPersonalBestScore = exPbData ? exPbData.score : 0.0;
                     const elapsedSavedClock = localStorage.getItem(`ex-clock-time-${ex.id}`) || '00:00';
+                    const scoreLabelStr = (savedMuscle && parseFloat(savedMuscle) > 0) ? 'Muscle RLI' : 'RLI';
 
                     html += `
                         <div class="exercise-card" id="card-${ex.id}">
                             <div class="exercise-header">
-                                <h2 class="exercise-title">${ex.name} <span style="color:var(--accent-color); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span></h2>
+                                <h2 class="exercise-title">${ex.name} <span style="color:var(--text-muted); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span></h2>
                                 <div class="ex-controls">
                                     <div class="ex-clock-badge" id="clock-${ex.id}">${elapsedSavedClock}</div>
                                     <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" 
@@ -812,12 +1028,12 @@
                             
                             <div class="metrics-bar">
                                 <div class="metric-cell-vertical">
-                                    <span class="m-lbl">Peak Day Score:</span>
-                                    <span class="m-val-pb">RLI: ${peakPersonalBestScore.toFixed(1)}x BW</span>
+                                    <span class="m-lbl">Peak Day Combo:</span>
+                                    <span class="m-val-pb">${scoreLabelStr}: ${peakPersonalBestScore.toFixed(1)}x</span>
                                 </div>
                                 <div class="metric-cell-vertical" style="text-align: right;">
                                     <span class="m-lbl">Live Card:</span>
-                                    <span class="m-val-live" id="eff-${ex.id}">RLI: 0.0x BW</span>
+                                    <span class="m-val-live" id="eff-${ex.id}">${scoreLabelStr}: 0.0x</span>
                                 </div>
                             </div>
 
@@ -959,7 +1175,6 @@
             return exercisePBs;
         }
 
-        /* Monthly Training Microcycle Log Grid View Engine */
         function renderCalendarWorkspace() {
             const gridContainer = document.getElementById('calendar-render-grid');
             const headerTitle = document.getElementById('calendar-header-title');
@@ -967,14 +1182,12 @@
 
             const year = calendarFocusDate.getFullYear();
             const month = calendarFocusDate.getMonth();
-
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
             headerTitle.innerText = `${monthNames[month]} ${year}`;
-
             gridContainer.innerHTML = '';
 
-            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            daysOfWeek.forEach(d => {
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
                 const el = document.createElement('div');
                 el.className = 'calendar-weekday-hdr';
                 el.innerText = d;
@@ -985,8 +1198,7 @@
             const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
 
             for (let i = 0; i < firstDayIndex; i++) {
-                const emptyCell = document.createElement('div');
-                gridContainer.appendChild(emptyCell);
+                gridContainer.appendChild(document.createElement('div'));
             }
 
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
@@ -1027,12 +1239,10 @@
                         cell.classList.add('selected-day');
                     };
                 }
-
                 gridContainer.appendChild(cell);
             }
         }
 
-        /* Active Day Session Editor Panel Engine */
         function openDayInspectorPanel(targetDateString) {
             const inspectorPanel = document.getElementById('calendar-inspector-panel');
             const inspectorTitle = document.getElementById('inspector-date-title');
@@ -1044,7 +1254,6 @@
 
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             
-            // Loop and render explicit nodes for modification/trashing
             historyList.forEach((log, index) => {
                 if(log.date === targetDateString) {
                     const sessionCard = document.createElement('div');
@@ -1066,32 +1275,25 @@
 
         function saveInspectedLogEdits(globalIndex) {
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const textContent = document.getElementById(`edit-textarea-${globalIndex}`).value;
-            
-            historyList[globalIndex].details = textContent;
+            historyList[globalIndex].details = document.getElementById(`edit-textarea-${globalIndex}`).value;
             localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
-            
-            alert("Changes saved to session logs.");
+            alert("Changes saved directly to history entry.");
             renderApp();
         }
 
         function deleteInspectedLogNode(globalIndex) {
-            if(!confirm("Permanently wipe this workout session from your historical logs?")) return;
-            
+            if(!confirm("Wipe this training block from history?")) return;
             let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             const targetedDate = historyList[globalIndex].date;
             
             historyList.splice(globalIndex, 1);
             localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
             
-            // Hide preview if day becomes completely empty
-            const remaining = historyList.filter(l => l.date === targetedDate);
-            if(remaining.length === 0) {
+            if(historyList.filter(l => l.date === targetedDate).length === 0) {
                 document.getElementById('calendar-inspector-panel').style.display = 'none';
             } else {
                 openDayInspectorPanel(targetedDate);
             }
-            
             renderApp();
         }
 
@@ -1108,6 +1310,7 @@
             document.getElementById('global-timer-box').style.display = 'block';
             document.getElementById('warmup-dashboard').style.display = 'block';
             document.getElementById('stretching-dashboard').style.display = 'block';
+            document.getElementById('footer-actions').style.display = 'flex';
 
             globalTimerInterval = setInterval(() => {
                 globalTimeElapsed++;
@@ -1134,10 +1337,8 @@
                         exerciseClockStates[exId].time++;
                         const eMin = Math.floor(exerciseClockStates[exId].time / 60).toString().padStart(2, '0');
                         const eSec = (exerciseClockStates[exId].time % 60).toString().padStart(2, '0');
-                        
                         const clockText = `${eMin}:${eSec}`;
                         localStorage.setItem(`ex-clock-time-${exId}`, clockText);
-                        
                         const badge = document.getElementById(`clock-${exId}`);
                         if (badge) badge.innerText = clockText;
                     }
@@ -1205,12 +1406,10 @@
             document.getElementById('stretch-toggle').classList.remove('active-run');
         }
 
-        /* Structural patch preventing row inputs from zeroing out when toggled */
         function toggleManualRowCheck(exId, setNum) {
             const rowElement = document.getElementById(`row-${exId}-${setNum}`);
             const checkKey = `cur-check-${exId}-${setNum}`;
             
-            // Push values straight to localStorage before any processing runs
             const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
             const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
             if(wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
@@ -1269,48 +1468,61 @@
         }
 
         function updateLiveMetricsOnly() {
-            const userBw = parseFloat(document.getElementById('global-bw').value) || 80;
+            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
+            const musclePct = parseFloat(localStorage.getItem('user_muscle_pct')) || 0;
+            const isAdvanced = musclePct > 0;
+
+            // Isolate engine mass scale if biometrics exist
+            const scalingDenominator = isAdvanced ? (userBw * (musclePct / 100)) : userBw;
+
+            const labelStr = isAdvanced ? 'Muscle RLI' : 'RLI';
+            
+            document.getElementById('widget-title-past-best').innerText = `All-Time Best Day ${labelStr}`;
+            document.getElementById('widget-title-live').innerText = `Live Session ${labelStr}`;
+            document.getElementById('stat-label-week').innerText = `Weekly ${labelStr}`;
+            document.getElementById('stat-label-last').innerText = `Last ${labelStr}`;
+
             const currentRoutine = routines[activeTabId];
             let dayTotalVolumeScore = 0;
 
-            if (!currentRoutine) return;
-
-            currentRoutine.exercises.forEach(ex => {
-                let exerciseVolumeLoad = 0;
-                let holdsTotalSeconds = 0;
-                
-                for (let s = 1; s <= ex.sets; s++) {
-                    const wInput = document.getElementById(`cur-${ex.id}-w-${s}`);
-                    const rInput = document.getElementById(`cur-${ex.id}-r-${s}`);
+            if (currentRoutine) {
+                currentRoutine.exercises.forEach(ex => {
+                    let exerciseVolumeLoad = 0;
+                    let holdsTotalSeconds = 0;
                     
-                    const wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
-                    const rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
+                    for (let s = 1; s <= ex.sets; s++) {
+                        const wInput = document.getElementById(`cur-${ex.id}-w-${s}`);
+                        const rInput = document.getElementById(`cur-${ex.id}-r-${s}`);
+                        
+                        const wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
+                        const rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
 
-                    if (rVal !== '') {
-                        if (ex.type === 'hold') {
-                            holdsTotalSeconds += parseInt(rVal) || 0;
-                        } else if (wVal !== '') {
-                            exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
+                        if (rVal !== '') {
+                            if (ex.type === 'hold') {
+                                holdsTotalSeconds += parseInt(rVal) || 0;
+                            } else if (wVal !== '') {
+                                exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
+                            }
                         }
                     }
-                }
 
-                let calculatedExerciseScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / userBw);
-                dayTotalVolumeScore += calculatedExerciseScore;
-                
-                const exEffBadge = document.getElementById(`eff-${ex.id}`);
-                if (exEffBadge) exEffBadge.innerText = 'RLI: ' + calculatedExerciseScore.toFixed(1) + 'x BW';
-            });
+                    let calculatedExerciseScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
+                    dayTotalVolumeScore += calculatedExerciseScore;
+                    
+                    const exEffBadge = document.getElementById(`eff-${ex.id}`);
+                    if (exEffBadge) exEffBadge.innerText = `${labelStr}: ${calculatedExerciseScore.toFixed(1)}x`;
+                });
+            }
 
-            document.getElementById('widget-live-score').innerHTML = `RLI: ${dayTotalVolumeScore.toFixed(1)}x <span style="font-size:0.7rem; color:var(--text-muted)">BW</span>`;
+            document.getElementById('widget-live-score').innerText = dayTotalVolumeScore.toFixed(1) + 'x';
             
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const specificRoutineLogs = historyList.filter(s => s.type === currentRoutine.name);
+            const specificRoutineLogs = historyList.filter(s => s.type === currentRoutine?.name);
             let absoluteBestDayTotalVal = 0;
             if(specificRoutineLogs.length > 0) {
                 absoluteBestDayTotalVal = Math.max(...specificRoutineLogs.map(l => l.ratio || 0));
             }
-            document.getElementById('widget-past-best').innerHTML = `RLI: ${absoluteBestDayTotalVal.toFixed(1)}x <span style="font-size:0.7rem; color:var(--text-muted)">BW</span>`;
+            document.getElementById('widget-past-best').innerText = absoluteBestDayTotalVal.toFixed(1) + 'x';
         }
 
         function switchWorkout(dayId) {
@@ -1326,11 +1538,7 @@
             
             if(dayId !== 'view-history') {
                 scoreboardWidget.style.display = 'flex';
-                if(sessionIsRunning) {
-                    stretchingDashboard.style.display = 'block';
-                } else {
-                    stretchingDashboard.style.display = 'none';
-                }
+                stretchingDashboard.style.display = sessionIsRunning ? 'block' : 'none';
                 updateLiveMetricsOnly();
             } else {
                 scoreboardWidget.style.display = 'none';
@@ -1360,6 +1568,7 @@
             const targetedRoutine = routines[associatedWorkoutKey];
             const calculatedPBs = parseDayBoundExercisePBs();
             const nowTime = Date.now();
+            const labelStr = (parseFloat(localStorage.getItem('user_muscle_pct')) > 0) ? 'Muscle RLI' : 'RLI';
 
             let html = '';
 
@@ -1392,7 +1601,7 @@
                     <div class="deep-exercise-card">
                         <div class="deep-exercise-title" style="color:var(--accent-color);">${ex.name}</div>
                         <div class="deep-exercise-meta">
-                            🔥 Peak Day Score:<br><strong style="color:var(--warning-color);">RLI: ${pbEntry.score.toFixed(1)}x BW</strong><br>
+                            🔥 Peak Day Score:<br><strong style="color:var(--warning-color);">${labelStr}: ${pbEntry.score.toFixed(1)}x</strong><br>
                             📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
                             🏋️ Performance Breakdown:<br>
                             <span style="color:#fff; padding-left:4px; display:inline-block; margin-top:2px;">${setsListText.join(' | ')}</span>
@@ -1404,9 +1613,7 @@
             container.innerHTML = html;
         }
 
-        function saveCurrentLive(key, val) {
-            localStorage.setItem(key, val);
-        }
+        function saveCurrentLive(key, val) { localStorage.setItem(key, val); }
 
         function resetCurrentSessionInputs() {
             if (!confirm("Clear current tracking grid workspace row sets?")) return;
@@ -1432,6 +1639,9 @@
             clearInterval(globalTimerInterval);
             const currentRoutine = routines[activeTabId];
             const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
+            const musclePct = parseFloat(localStorage.getItem('user_muscle_pct')) || 0;
+            const isAdvanced = musclePct > 0;
+            const scalingDenominator = isAdvanced ? (userBw * (musclePct / 100)) : userBw;
 
             let logDetails = '';
             let parsedSessionScoreTotal = 0;
@@ -1440,7 +1650,6 @@
 
             const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
             const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-
             const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
             const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
 
@@ -1471,14 +1680,14 @@
                 }
                 
                 if (exLines.length > 0) {
-                    let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / userBw);
+                    let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
                     parsedSessionScoreTotal += finalExScore;
                     logDetails += `${ex.name} (Time: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x)\n${exLines.join('\n')}\n\n`;
                 }
             });
 
             if (loggedCount === 0) {
-                alert("Please complete at least one set before finalizing.");
+                alert("Please track at least one completed set before ending session.");
                 return;
             }
 
@@ -1517,8 +1726,9 @@
             document.getElementById('global-timer-box').style.display = 'none';
             document.getElementById('warmup-dashboard').style.display = 'none';
             document.getElementById('stretching-dashboard').style.display = 'none';
+            document.getElementById('footer-actions').style.display = 'none';
             
-            alert(`Logged! Context Multiplier Performance RLI: ${finalRecordedDayRatio}x BW.`);
+            alert(`Logged successfully! Score: ${finalRecordedDayRatio}x.`);
             renderApp();
             switchWorkout('view-history');
         }
@@ -1541,11 +1751,12 @@
 
             const analyticsBox = document.getElementById('weekly-analytics-panel');
             if(analyticsBox) {
+                const labelStr = (parseFloat(localStorage.getItem('user_muscle_pct')) > 0) ? 'Muscle RLI' : 'RLI';
                 analyticsBox.innerHTML = `
                     <div class="analytics-block">
-                        <div class="analytics-title">📊 Rolling 7-Day Cumulative RLI Efficiency Profile</div>
+                        <div class="analytics-title">📊 Rolling 7-Day Cumulative ${labelStr} Efficiency Profile</div>
                         Completed Workouts: <strong>${recentSessions.length}</strong><br>
-                        Total RLI Capacity: <strong>${weeklyScoreSum.toFixed(1)}x</strong> bodyweight cleared.
+                        Total Capacity Cleared: <strong>${weeklyScoreSum.toFixed(1)}x</strong>
                     </div>
                 `;
             }
@@ -1565,7 +1776,7 @@
                 html += `
                     <div class="history-item">
                         <span class="history-date">${item.date}</span> - <span style="color: var(--accent-color); font-weight:bold;">${item.type}</span> 
-                        <span style="color: var(--success-color); font-weight:bold; margin-left:10px;">(RLI: ${item.ratio.toFixed(1)}x BW)</span>
+                        <span style="color: var(--success-color); font-weight:bold; margin-left:10px;">(Score: ${item.ratio.toFixed(1)}x)</span>
                         <div class="history-details">${item.details}</div>
                     </div>
                 `;
@@ -1582,7 +1793,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v12_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v13_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
@@ -1595,14 +1806,14 @@
             reader.onload = function(e) {
                 const parsed = JSON.parse(e.target.result);
                 Object.keys(parsed).forEach(k => { localStorage.setItem(k, parsed[k]); });
-                alert("Analytics restored seamlessly!");
+                alert("Analytics data synchronized successfully!");
                 renderApp();
             };
             reader.readAsText(fileElement);
         }
 
         function resetAllHistory() {
-            if (confirm("Reset everything?")) {
+            if (confirm("Permanently clear application local memory space?")) {
                 localStorage.clear();
                 location.reload();
             }
