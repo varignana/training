@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path V14.1</title>
+    <title>Functional Path V15</title>
     <style>
         :root {
             --bg-main: #0b132b;
@@ -46,22 +46,24 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
         .modal-content { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; }
         .close-modal { position: absolute; top: 12px; right: 15px; color: var(--text-dim); cursor: pointer; font-size: 1.2rem; }
-        /* Calendar CSS fixes for Image 1 & 2 layout alignment */
+        
+        /* Calendar Structural Elements */
         .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: rgba(11,19,43,0.5); padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 0.75rem; }
         .cal-day-lbl { font-weight: bold; color: var(--text-dim); padding-bottom: 4px; }
-        .cal-cell { background: var(--bg-main); border: 1px solid var(--border); border-radius: 4px; min-height: 42px; display: flex; flex-direction: column; justify-content: space-between; padding: 3px; cursor: pointer; position: relative; }
+        .cal-cell { background: var(--bg-main); border: 1px solid var(--border); border-radius: 4px; min-height: 44px; display: flex; flex-direction: column; justify-content: space-between; padding: 4px; cursor: pointer; position: relative; }
         .cal-cell.empty { background: transparent; border: none; cursor: default; }
         .cal-cell.today { border-color: var(--warning); box-shadow: inset 0 0 4px var(--warning); }
         .cal-cell .day-num { font-weight: bold; text-align: left; font-size: 0.75rem; }
-        .cal-badge { font-size: 0.6rem; font-weight: bold; padding: 1px 2px; border-radius: 3px; text-align: center; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cal-badge { font-size: 0.6rem; font-weight: bold; padding: 1px 2px; border-radius: 3px; text-align: center; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
         .badge-A { background: rgba(72,202,228,0.25); color: var(--primary); border: 1px solid var(--primary); }
         .badge-B { background: rgba(255,183,3,0.25); color: var(--warning); border: 1px solid var(--warning); }
         .badge-C { background: rgba(42,157,143,0.25); color: var(--success); border: 1px solid var(--success); }
-        /* Image 2 Responsive Inspector Fixing */
+        
+        /* Mobile Inspector Protection Sizing */
         .inspector-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
-        .inspector-col { flex: 1; min-width: 100px; }
-        .inspector-col-lg { flex: 2; min-width: 150px; }
+        .inspector-col { flex: 1; min-width: 90px; }
+        .inspector-col-lg { flex: 2; min-width: 140px; }
         .footer-tag { text-align: center; font-size: 0.7rem; color: var(--border); margin-top: 25px; letter-spacing: 1px; }
     </style>
 </head>
@@ -69,24 +71,21 @@
 
 <div class="container">
     <div class="flex-row" style="margin-bottom: 12px;">
-        <span style="font-weight: bold; font-size: 1.1rem; color: var(--primary);">Functional Path <span style="font-size: 0.75rem; color: var(--text-dim)">v14.1</span></span>
+        <span style="font-weight: bold; font-size: 1.1rem; color: var(--primary);">Functional Path <span style="font-size: 0.75rem; color: var(--text-dim)">v15</span></span>
         <button class="btn btn-sec" style="width: auto; padding: 6px 12px; font-size: 0.8rem;" onclick="openModal('profileModal')">⚙️ Biometrics</button>
     </div>
 
-    <!-- Scale Metrics Reminder Panel -->
     <div class="card" style="border-style: dashed; border-color: var(--accent); padding: 12px; text-align: center; margin-bottom: 15px;">
         <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px;">Configure biometrics from your scale, then initiate training.</p>
         <button class="btn" id="masterTrainBtn" onclick="startActiveRoutine()">▶ START TRAINING SESSION</button>
     </div>
 
-    <!-- Core Statistics -->
     <div class="card grid-3" style="padding: 10px 5px;">
         <div><div class="stat-val" id="statWeekly">0.0x</div><div class="stat-lbl">Weekly RLI</div></div>
         <div><div class="stat-val" id="statLast">0.0x</div><div class="stat-lbl">Last RLI</div></div>
         <div><div class="stat-val" id="statLogs">0</div><div class="stat-lbl">Total Logs</div></div>
     </div>
 
-    <!-- Application Tabs -->
     <div class="tab-group">
         <button class="tab-btn active" id="tabA" onclick="switchTab('A')">A:<br>Push/Pull</button>
         <button class="tab-btn" id="tabB" onclick="switchTab('B')">B:<br>Hinge</button>
@@ -94,16 +93,13 @@
         <button class="tab-btn" id="tabAnalytics" onclick="switchTab('Analytics')">📊<br>Analytics</button>
     </div>
 
-    <!-- Workspace Area -->
     <div id="workoutWorkspace">
-        <h2 id="routineTitle">Workout Routine</h2>
+        <h2 id="routineTitle" style="font-size: 1.25rem; margin-top: 5px;">Workout Routine</h2>
         <div id="exerciseContainer"></div>
-        <button class="btn btn-success" style="margin-top: 10px;" onclick="commitWorkoutSession()">💾 Complete Workout & Save Metrics</button>
+        <button class="btn btn-success" style="margin-top: 15px;" onclick="commitWorkoutSession()">💾 Complete Workout & Save Metrics</button>
     </div>
 
-    <!-- Analytics Dashboard Workspace -->
     <div id="analyticsWorkspace" style="display: none;">
-        <!-- Calendar System Panel -->
         <div class="card">
             <div class="cal-header">
                 <button class="btn btn-sec" style="width: auto; padding: 4px 10px; font-size: 0.75rem;" onclick="changeMonth(-1)">◀ Previous</button>
@@ -118,27 +114,24 @@
             <div class="cal-grid" id="calendarGrid" style="margin-top: 5px;"></div>
         </div>
 
-        <!-- Training Node History Day Inspector Panel (Fixed Layout Breaks from image_2.png) -->
         <div class="card" id="dayInspectorPanel" style="display: none; border-color: var(--warning);">
             <div class="flex-row" style="margin-bottom: 12px;">
-                <h3 style="margin: 0; font-size: 1rem; color: var(--warning);" id="inspectorPanelTitle">🔍 Training Node: Inspect Day</h3>
+                <h3 style="margin: 0; font-size: 1rem; color: var(--warning);" id="inspectorPanelTitle">🔍 Training Node</h3>
                 <span class="close-modal" style="position: static;" onclick="closeInspectorPanel()">× Close</span>
             </div>
             <div id="inspectorWorkoutsList"></div>
         </div>
 
-        <!-- Personal Records System View -->
         <div class="card">
             <h3>🔍 Historic Single-Day Combined Exercise Best Analyzer</h3>
-            <div class="grid-3" style="margin-bottom: 10px;">
-                <button class="btn btn-sec" style="padding: 6px;" onclick="renderPersonalRecords('Workout A')">Workout A</button>
-                <button class="btn btn-sec" style="padding: 6px;" onclick="renderPersonalRecords('Workout B')">Workout B</button>
-                <button class="btn btn-sec" style="padding: 6px;" onclick="renderPersonalRecords('Workout C')">Workout C</button>
+            <div class="grid-3" style="margin-bottom: 12px;">
+                <button class="btn btn-sec" style="padding: 6px; font-size: 0.8rem;" onclick="renderPersonalRecords('Workout A')">Workout A</button>
+                <button class="btn btn-sec" style="padding: 6px; font-size: 0.8rem;" onclick="renderPersonalRecords('Workout B')">Workout B</button>
+                <button class="btn btn-sec" style="padding: 6px; font-size: 0.8rem;" onclick="renderPersonalRecords('Workout C')">Workout C</button>
             </div>
             <div id="prDisplayContainer" style="font-size: 0.85rem; line-height: 1.4;"></div>
         </div>
 
-        <!-- Data Backups Console -->
         <div class="card">
             <h3>Logged Training Performance History</h3>
             <div id="historyLogList" style="max-height: 160px; overflow-y: auto; font-size: 0.8rem; margin-bottom: 12px; border: 1px dashed var(--border); padding: 6px; border-radius: 6px;"></div>
@@ -154,7 +147,6 @@
     <div class="footer-tag">varignana.github.io</div>
 </div>
 
-<!-- Scale Biometrics Modal Configuration Panel -->
 <div class="modal" id="profileModal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal('profileModal')">×</span>
@@ -175,7 +167,6 @@
     </div>
 </div>
 
-<!-- Exercise Information & Form Check Description Box Modal -->
 <div id="infoModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal('infoModal')">×</span>
@@ -185,13 +176,13 @@
 </div>
 
 <script>
-    // System Master Database Storage Blueprint
+    // Local Core State Framework Parameters definitions
     let userBiometrics = { weight: 78.0, fat: 14.0, muscle: 44.0 };
     let loggedWorkoutsHistory = [];
     let currentActiveTab = 'A';
     let referenceCalendarDate = new Date();
 
-    // Contextual Library Containing Guides for Every Routine Variant
+    // Contextual Library Containing Cues for Strategy Reference
     const exerciseRemindersData = {
         "Goblet Squat or Box Squat": "Keep chest proud, descend until thighs match knee horizontal line. Drive up balancing pressure across entire foot sole.",
         "Lat Pulldown / Assisted Pull-up": "Pull handles toward upper chest base. Retract shoulder scapulas fully downward; avoid swinging momentum.",
@@ -207,7 +198,7 @@
         "Reverse Crunch": "Roll tailbone smoothly upward off flooring surface using lower abs contraction; control return path without rocking legs."
     };
 
-    // System Routine Configurations Mapping Table
+    // System Routine Configurations Mapping Table Blueprint Structures
     const workoutRoutinesDatabase = {
         'A': {
             name: "Workout A: Upper Push / Lower Pull Focus",
@@ -223,7 +214,7 @@
         }
     };
 
-    // Core Calculation Logic ($RLI$)
+    // Core Calculation Logic Generator Logic ($RLI$)
     function calculateSetRLI(reps, weightKg, isBodyweightEx = false) {
         const W = parseFloat(weightKg) || 0;
         const R = parseFloat(reps) || 0;
@@ -232,31 +223,27 @@
         const BM = parseFloat(userBiometrics.weight) || 75;
         const MM = parseFloat(userBiometrics.muscle) || 40;
         
-        // Skeletal Muscle Mass Base Scalar Formula: $SMM = BM \times \frac{MM}{100}$
         const SMM = BM * (MM / 100);
-        
-        // Effective Session Resistance Calculation Engine Matrix Base
         const effectiveMassLoad = isBodyweightEx ? (BM * 0.65) + W : W;
         
-        // Performance RLI Output Generator: $RLI = \frac{\text{effectiveMassLoad} \times R}{SMM}$
         if (SMM <= 0) return 0;
         return (effectiveMassLoad * R) / SMM;
     }
 
-    // Application Lifecycle Initializer Engine
+    // Main Thread Initialization Hook
     window.onload = function() {
         loadDataFromDeviceLocalStorage();
-        switchTab('A'); // This triggers dynamic views layout setup
+        switchTab('A'); 
         refreshGlobalStatisticsPanels();
     };
 
     function saveBiometrics() {
-        userBiometrics.weight = parseFloat(document.getElementById('biomWeight').value) || 75;
-        userBiometrics.fat = parseFloat(document.getElementById('biomFat').value) || 15;
-        userBiometrics.muscle = parseFloat(document.getElementById('biomMuscle').value) || 40;
+        userBiometrics.weight = parseFloat(document.getElementById('biomWeight').value) || 78;
+        userBiometrics.fat = parseFloat(document.getElementById('biomFat').value) || 14;
+        userBiometrics.muscle = parseFloat(document.getElementById('biomMuscle').value) || 44;
         localStorage.setItem('FP_biometrics', JSON.stringify(userBiometrics));
         if (currentActiveTab !== 'Analytics') {
-            refreshWorkspaceRoutineCards();
+            evaluateActiveWorkspaceRLIScores();
         }
     }
 
@@ -268,7 +255,7 @@
             document.getElementById('biomFat').value = userBiometrics.fat;
             document.getElementById('biomMuscle').value = userBiometrics.muscle;
         }
-        const h = localStorage.getItem('FP_history_v14');
+        const h = localStorage.getItem('FP_history_v14') || localStorage.getItem('FP_history');
         if (h) { loggedWorkoutsHistory = JSON.parse(h); }
     }
 
@@ -281,7 +268,7 @@
         }
     }
 
-    // Tab Switching Navigator Router Control
+    // Router State Controller Engine
     function switchTab(tabKey) {
         currentActiveTab = tabKey;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -291,7 +278,7 @@
             document.getElementById('workoutWorkspace').style.display = 'none';
             document.getElementById('analyticsWorkspace').style.display = 'block';
             closeInspectorPanel();
-            renderAnalyticsCalendarSystem(); // Instant Load Trigger Re-established Here
+            renderAnalyticsCalendarSystem(); 
             renderRawHistoryBackupLogList();
             document.getElementById('prDisplayContainer').innerHTML = "<p style='color: var(--text-dim); text-align:center;'>Select a routine standard button above to analyze records.</p>";
         } else {
@@ -302,14 +289,13 @@
         }
     }
 
-    // Informational Modal System Controller
     function triggerInfoModalPopup(exerciseName) {
         document.getElementById('infoModalTitle').innerText = exerciseName;
         document.getElementById('infoModalBody').innerText = exerciseRemindersData[exerciseName] || "No technique cues logged for this exercise entry.";
         openModal('infoModal');
     }
 
-    // Workspace View Generation Engine
+    // UI Workspace Generator Logic
     function refreshWorkspaceRoutineCards() {
         const config = workoutRoutinesDatabase[currentActiveTab];
         document.getElementById('routineTitle').innerText = config.name;
@@ -329,19 +315,21 @@
                     <span style="font-size:0.75rem; color: var(--text-dim);" id="exTotalRLI_${index}">RLI: 0.00</span>
                 </div>
                 <div id="setRowsContainer_${index}"></div>
-                <button class="btn btn-sec" style="padding: 4px; font-size: 0.75rem; margin-top: 5px;" onclick="addInputSetRowToWorkspaceCard(${index}, ${isBodyweight})">+ Add Target Set Line</button>
+                <button class="btn btn-sec" style="padding: 6px; font-size: 0.75rem; margin-top: 5px;" onclick="addInputSetRowToWorkspaceCard(${index}, ${isBodyweight})">+ Add Target Set Line</button>
             `;
             container.appendChild(card);
             
-            // Generate standard structural default starting configuration lines
+            // Generate distinct default layout starting tracker tracks
             addInputSetRowToWorkspaceCard(index, isBodyweight, 12, isBodyweight ? 0 : 20);
             addInputSetRowToWorkspaceCard(index, isBodyweight, 10, isBodyweight ? 0 : 25);
             addInputSetRowToWorkspaceCard(index, isBodyweight, 10, isBodyweight ? 0 : 25);
         });
+        evaluateActiveWorkspaceRLIScores();
     }
 
     function addInputSetRowToWorkspaceCard(exIndex, isBodyweight, defaultReps = 10, defaultWt = 0) {
         const container = document.getElementById(`setRowsContainer_${exIndex}`);
+        if (!container) return;
         const setNum = container.children.length + 1;
         
         let row = document.createElement('div');
@@ -359,8 +347,11 @@
 
     function evaluateActiveWorkspaceRLIScores() {
         const config = workoutRoutinesDatabase[currentActiveTab];
+        if (!config || !config.exercises) return;
+        
         config.exercises.forEach((exName, exIndex) => {
             const container = document.getElementById(`setRowsContainer_${exIndex}`);
+            if (!container) return;
             const isBodyweight = (exName === "Reverse Crunch" || exName === "Lat Pulldown / Assisted Pull-up");
             let exerciseTotalRLI = 0;
 
@@ -370,11 +361,12 @@
                 exerciseTotalRLI += calculateSetRLI(reps, weight, isBodyweight);
             });
 
-            document.getElementById(`exTotalRLI_${exIndex}`).innerText = `RLI: ${exerciseTotalRLI.toFixed(2)}`;
+            const label = document.getElementById(`exTotalRLI_${exIndex}`);
+            if (label) label.innerText = `RLI: ${exerciseTotalRLI.toFixed(2)}`;
         });
     }
 
-    // Save Active Performance Workspace Session Record
+    // Write Active Workspace Entry to Persistent Ledger Arrays
     function commitWorkoutSession() {
         const config = workoutRoutinesDatabase[currentActiveTab];
         let today = new Date();
@@ -391,6 +383,7 @@
 
         config.exercises.forEach((exName, exIndex) => {
             const container = document.getElementById(`setRowsContainer_${exIndex}`);
+            if (!container) return;
             const isBodyweight = (exName === "Reverse Crunch" || exName === "Lat Pulldown / Assisted Pull-up");
             let exPayload = { name: exName, sets: [] };
 
@@ -407,7 +400,7 @@
         });
 
         if (sessionLogItem.exercises.length === 0) {
-            alert("Cannot commit empty session layout grids. Please fill values.");
+            alert("Cannot commit an empty workout card configuration matrix.");
             return;
         }
 
@@ -417,7 +410,6 @@
         switchTab('Analytics');
     }
 
-    // Analytics Calculation Dashboards Systems Engine
     function refreshGlobalStatisticsPanels() {
         document.getElementById('statLogs').innerText = loggedWorkoutsHistory.length;
         
@@ -427,7 +419,6 @@
             document.getElementById('statLast').innerText = "0.0x";
         }
 
-        // Rolling 7-Day Window Cumulative Tracker Matrix
         let rollingSum = 0;
         let boundaryTime = Date.now() - (7 * 24 * 60 * 60 * 1000);
         loggedWorkoutsHistory.forEach(item => {
@@ -437,7 +428,7 @@
         document.getElementById('statWeekly').innerText = `${rollingSum.toFixed(1)}x`;
     }
 
-    // Calendar Engine Implementation
+    // Calendar Engine Controllers
     function changeMonth(direction) {
         referenceCalendarDate.setMonth(referenceCalendarDate.getMonth() + direction);
         renderAnalyticsCalendarSystem();
@@ -455,7 +446,6 @@
         let initialDayPosition = new Date(trackingYear, trackingMonth, 1).getDay();
         let totalDaysInMonth = new Date(trackingYear, trackingMonth + 1, 0).getDate();
 
-        // Render leading blank filler cell units
         for (let i = 0; i < initialDayPosition; i++) {
             let emptyCell = document.createElement('div');
             emptyCell.className = 'cal-cell empty';
@@ -464,7 +454,6 @@
 
         let todayObj = new Date();
 
-        // Populate days loop
         for (let day = 1; day <= totalDaysInMonth; day++) {
             let currentLoopDate = new Date(trackingYear, trackingMonth, day);
             let loopStringKey = currentLoopDate.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -474,23 +463,31 @@
             if (currentLoopDate.toDateString() === todayObj.toDateString()) dayCell.classList.add('today');
 
             dayCell.innerHTML = `<div class="day-num">${day}</div><div style="display:flex; flex-direction:column; gap:2px;" id="cellBadges_${day}"></div>`;
-            
-            // Attach day click listener to inspect logs for that specific day
             dayCell.onclick = () => openDayInspectorPanel(loopStringKey);
             grid.appendChild(dayCell);
 
-            // Fetch any session instances intersecting with this calendar node coordinate
-            let matches = loggedWorkoutsHistory.filter(x => x.date === loopStringKey);
+            // Correct mapping lookup algorithm matching letter flags on the layout days
+            let matches = loggedWorkoutsHistory.filter(x => {
+                let dParsed = new Date(x.date);
+                return dParsed.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) === loopStringKey;
+            });
+
             matches.forEach(m => {
                 let badge = document.createElement('span');
-                badge.className = `cal-badge badge-${m.routine.includes('Workout A') ? 'A' : m.routine.includes('Workout B') ? 'B' : 'C'}`;
-                badge.innerText = m.routine.includes('Workout A') ? 'A' : m.routine.includes('Workout B') ? 'B' : 'C';
-                document.getElementById(`cellBadges_${day}`).appendChild(badge);
+                let letter = 'A';
+                if (m.routine.includes('Workout B') || m.routine.startsWith('B')) letter = 'B';
+                if (m.routine.includes('Workout C') || m.routine.startsWith('C')) letter = 'C';
+                
+                badge.className = `cal-badge badge-${letter}`;
+                badge.innerText = letter;
+                
+                const targetContainer = document.getElementById(`cellBadges_${day}`);
+                if (targetContainer) targetContainer.appendChild(badge);
             });
         }
     }
 
-    // Dynamic History Inspector & Inline Text Area Editor Block (Fixed Flex-Wrap Layout from image_2.png)
+    // Historical Inspection Management Engines
     function openDayInspectorPanel(dateStringKey) {
         const panel = document.getElementById('dayInspectorPanel');
         const title = document.getElementById('inspectorPanelTitle');
@@ -499,7 +496,10 @@
         title.innerText = `🔍 Training Node: ${dateStringKey}`;
         listContainer.innerHTML = '';
         
-        let records = loggedWorkoutsHistory.filter(x => x.date === dateStringKey);
+        let records = loggedWorkoutsHistory.filter(x => {
+            let dParsed = new Date(x.date);
+            return dParsed.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) === dateStringKey;
+        });
         
         if (records.length === 0) {
             listContainer.innerHTML = `<p style="color: var(--text-dim); font-size:0.85rem; text-align:center; padding: 10px;">No workouts logged on this date coordinate.</p>`;
@@ -508,21 +508,24 @@
         }
 
         records.forEach((record) => {
-            // Re-compile plaintext log notation data blocks
             let rawLinesText = "";
-            record.exercises.forEach(ex => {
-                rawLinesText += `${ex.name}\n`;
-                ex.sets.forEach((s, idx) => {
-                    rawLinesText += `  Set ${idx + 1}: ${s.weight}kg x ${s.reps} reps\n`;
+            if (record.exercises && Array.isArray(record.exercises)) {
+                record.exercises.forEach(ex => {
+                    rawLinesText += `${ex.name}\n`;
+                    if (ex.sets && Array.isArray(ex.sets)) {
+                        ex.sets.forEach((s, idx) => {
+                            rawLinesText += `  Set ${idx + 1}: ${s.weight}kg x ${s.reps} reps\n`;
+                        });
+                    }
                 });
-            });
+            }
 
             let subCard = document.createElement('div');
             subCard.style.cssText = "border: 1px solid var(--border); padding:10px; border-radius:8px; margin-bottom:10px; background: rgba(0,0,0,0.2);";
             subCard.innerHTML = `
                 <div class="inspector-row">
                     <div class="inspector-col-lg">
-                        <label style="font-size:0.75rem; color:var(--text-dim); display:block; margin-bottom:2px;">LOG DATE (E.G., MAR 25, 2026)</label>
+                        <label style="font-size:0.75rem; color:var(--text-dim); display:block; margin-bottom:2px;">LOG DATE</label>
                         <input type="text" value="${record.date}" id="editDate_${record.id}">
                     </div>
                     <div class="inspector-col">
@@ -562,7 +565,6 @@
         let inputRLI = parseFloat(document.getElementById(`editRLI_${recordId}`).value) || 0;
         let rawText = document.getElementById(`editTextarea_${recordId}`).value;
 
-        // Custom parser converting raw multiline notes back into the application's history framework
         let parsedExercises = [];
         let lines = rawText.split('\n');
         let currentExercise = null;
@@ -572,16 +574,15 @@
             if (!cleaned) return;
 
             if (cleaned.toLowerCase().startsWith("set") && cleaned.includes(":") && currentExercise) {
-                // Parse strings like: "Set 1: 20kg x 12 reps" or "Set 2: 15.5 x 10"
                 try {
-                    let valuesPart = cleaned.split(':')[1]; // " 20kg x 12 reps "
-                    let parts = valuesPart.toLowerCase().split('x'); // [" 20kg ", " 12 reps "]
+                    let valuesPart = cleaned.split(':')[1]; 
+                    let parts = valuesPart.toLowerCase().split('x'); 
                     
                     let weightVal = parseFloat(parts[0].replace(/[^\d.]/g, '')) || 0;
                     let repsVal = parseFloat(parts[1].replace(/[^\d.]/g, '')) || 0;
 
                     currentExercise.sets.push({ weight: weightVal, reps: repsVal, rli: 0 });
-                } catch(e) { console.error("Line parse exception thrown: ", e); }
+                } catch(e) { console.error(e); }
             } else {
                 if (currentExercise) parsedExercises.push(currentExercise);
                 currentExercise = { name: cleaned.replace(/^[\d.\s\-\)]+/, ''), sets: [] };
@@ -589,14 +590,13 @@
         });
         if (currentExercise) parsedExercises.push(currentExercise);
 
-        // Update target historic item block variables
         loggedWorkoutsHistory[index].date = inputDate;
         loggedWorkoutsHistory[index].routine = inputRoutine;
         loggedWorkoutsHistory[index].totalRLI = inputRLI;
         loggedWorkoutsHistory[index].exercises = parsedExercises;
 
         syncHistoryToDeviceStorage();
-        alert("Session changes successfully written to persistent storage.");
+        alert("Session updates saved successfully.");
         closeInspectorPanel();
     }
 
@@ -607,7 +607,7 @@
         closeInspectorPanel();
     }
 
-    // Historical Personal Records Analyzer Engine
+    // Records Tracker Analytics Modules
     function renderPersonalRecords(routineFilterKey) {
         const container = document.getElementById('prDisplayContainer');
         container.innerHTML = '';
@@ -618,26 +618,28 @@
             return;
         }
 
-        // Aggregate record matrices mapping max values
         let absoluteMaxWeightMap = {};
         let absoluteMaxVolumeMap = {};
 
         filteredLogs.forEach(log => {
+            if (!log.exercises) return;
             log.exercises.forEach(ex => {
                 if (!absoluteMaxWeightMap[ex.name]) {
                     absoluteMaxWeightMap[ex.name] = { weight: -1, date: log.date, breakdown: "" };
                     absoluteMaxVolumeMap[ex.name] = { volume: -1, date: log.date, breakdown: "" };
                 }
 
-                ex.sets.forEach(set => {
-                    if (set.weight > absoluteMaxWeightMap[ex.name].weight) {
-                        absoluteMaxWeightMap[ex.name] = { weight: set.weight, date: log.date, breakdown: `${set.weight}kg x ${set.reps} reps` };
-                    }
-                    let calcVol = set.weight * set.reps;
-                    if (calcVol > absoluteMaxVolumeMap[ex.name].volume) {
-                        absoluteMaxVolumeMap[ex.name] = { volume: calcVol, date: log.date, breakdown: `${set.weight}kg x ${set.reps} reps (${calcVol} kg-vol)` };
-                    }
-                });
+                if (ex.sets) {
+                    ex.sets.forEach(set => {
+                        if (set.weight > absoluteMaxWeightMap[ex.name].weight) {
+                            absoluteMaxWeightMap[ex.name] = { weight: set.weight, date: log.date, breakdown: `${set.weight}kg x ${set.reps} reps` };
+                        }
+                        let calcVol = set.weight * set.reps;
+                        if (calcVol > absoluteMaxVolumeMap[ex.name].volume) {
+                            absoluteMaxVolumeMap[ex.name] = { volume: calcVol, date: log.date, breakdown: `${set.weight}kg x ${set.reps} reps (${calcVol} kg-vol)` };
+                        }
+                    });
+                }
             });
         });
 
@@ -660,7 +662,7 @@
         container.innerHTML = htmlString;
     }
 
-    // Backup & Diagnostic Log Rendering Engine
+    // System Backups Ledger Renderers
     function renderRawHistoryBackupLogList() {
         const container = document.getElementById('historyLogList');
         container.innerHTML = '';
@@ -684,7 +686,7 @@
 
     function exportDataBackup() {
         if (loggedWorkoutsHistory.length === 0) {
-            alert("No data available to export.");
+            alert("No logs available to export.");
             return;
         }
         let packet = { biometrics: userBiometrics, history: loggedWorkoutsHistory };
@@ -692,7 +694,7 @@
         let url = URL.createObjectURL(blob);
         let anchor = document.createElement('a');
         anchor.href = url;
-        anchor.download = `FP_V14_BACKUP_${new Date().toISOString().slice(0,10)}.json`;
+        anchor.download = `FP_V15_BACKUP_${new Date().toISOString().slice(0,10)}.json`;
         anchor.click();
     }
 
@@ -721,14 +723,14 @@
                     loggedWorkoutsHistory = parsed;
                 }
                 syncHistoryToDeviceStorage();
-                alert("Data backup file integrated successfully.");
-            } catch(err) { alert("Invalid structural JSON file configuration."); }
+                alert("Backup data packet restored successfully.");
+            } catch(err) { alert("Invalid backup structure format."); }
         };
         reader.readAsText(file);
     }
 
     function wipeApplicationData() {
-        if (confirm("Permanently erase all local biometric settings and historical training logs? This action cannot be undone.")) {
+        if (confirm("Permanently erase your historical files? This action is absolute.")) {
             localStorage.clear();
             userBiometrics = { weight: 78.0, fat: 14.0, muscle: 44.0 };
             loggedWorkoutsHistory = [];
