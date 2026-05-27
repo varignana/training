@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v14</title>
+    <title>Functional Path Overload v16</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -136,7 +136,7 @@
         .tab-btn { flex: 1; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-muted); padding: 10px 4px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
         .tab-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
 
-        .day-tracking-scoreboard { background: linear-gradient(90deg, #131e36, #0b1324); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        .day-tracking-scoreboard { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #131e36, #0b1324); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.85rem; }
         .day-score-block { display: flex; flex-direction: column; }
         .day-score-title { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;}
         .day-score-data { font-size: 1.05rem; font-weight: bold; margin-top: 2px; }
@@ -151,8 +151,8 @@
         
         .ex-controls { display: flex; align-items: center; gap: 6px; }
         
-        /* FIX 1: Expanded tracking clock badge size for mm:ss spacing safety */
-        .ex-clock-badge { font-size: 0.85rem; background: rgba(255,255,255,0.08); color: var(--text-main); padding: 4px 10px; min-width: 48px; text-align: center; border-radius: 6px; font-family: monospace; font-weight: bold; border: 1px solid var(--border-color); }
+        /* FIX 1: Increased minimum width & spacing to ensure mm:ss formats never clip digits */
+        .ex-clock-badge { font-size: 0.85rem; background: rgba(255,255,255,0.08); color: var(--text-main); padding: 4px 10px; min-width: 52px; text-align: center; border-radius: 6px; font-family: monospace; font-weight: bold; border: 1px solid var(--border-color); }
         .clock-toggle-btn { background: var(--border-color); border: 1px solid rgba(255,255,255,0.1); color: var(--accent-color); padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .clock-toggle-btn.active-run { background: var(--danger-color); color: white; }
 
@@ -220,18 +220,18 @@
         .badge-b { background: var(--warning-color); color: #000; }
         .badge-c { background: var(--cooldown-color); color: #000; }
 
-        /* UI/UX UPGRADE: Mobile Responsive Layout fixes for Session Inspector Editor */
+        /* UI/UX UPGRADE: Cleaned up layouts inside the Log Editor Box */
         .focused-day-inspector { background: #111a2e; border: 1px solid var(--warning-color); border-radius: 12px; padding: 14px; margin-bottom: 15px; }
         .editable-session-card { background: #0b1324; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-top: 10px; }
         
-        /* FIX 2: Converted from a squeezed horizontal line to a clean stacked vertical block arrangement on mobile screen spaces */
+        /* FIX 2: Switched cramped horizontal row fields to vertical flex blocks so inputs fit screen bounds perfectly */
         .editor-row-item { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
         .editor-field-group { width: 100%; display: flex; flex-direction: column; }
         .editor-field-group label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
         .editor-field-group input { background: #16223f; border: 1px solid var(--border-color); border-radius: 6px; color: #fff; padding: 8px; font-size: 0.85rem; outline: none; font-weight: bold; width: 100%; box-sizing: border-box; }
         
-        /* FIX 3: Increased text field comfort area height dramatically from 130px to 260px for seamless thumb scrolling/typing */
-        .editable-session-card textarea { width: 100%; height: 260px; background: #060913; border: 1px solid var(--border-color); color: #fff; font-family: monospace; font-size: 0.85rem; padding: 10px; box-sizing: border-box; border-radius: 6px; resize: vertical; margin-top: 5px; outline: none; line-height: 1.4; }
+        /* FIX 3: Increased text field comfort container height to 250px for seamless view/editing scrolling space */
+        .editable-session-card textarea { width: 100%; height: 250px; background: #060913; border: 1px solid var(--border-color); color: #fff; font-family: monospace; font-size: 0.85rem; padding: 10px; box-sizing: border-box; border-radius: 6px; resize: vertical; margin-top: 5px; outline: none; line-height: 1.4; }
         .editor-action-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); }
         .editor-btn-save { background: var(--success-color); color: #000; font-size: 0.8rem; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
         .editor-btn-delete { background: var(--danger-color); color: #fff; font-size: 0.8rem; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
@@ -255,7 +255,7 @@
 <body>
 
     <header>
-        <h1>Functional Path v14</h1>
+        <h1>Functional Path v16</h1>
         <div class="header-controls">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div id="bio-pill-widget" class="biometrics-pill" onclick="openBiometricsModal()">
@@ -1358,7 +1358,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v14_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v16_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
