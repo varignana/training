@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v15</title>
+    <title>Functional Path Overload v14</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -114,7 +114,6 @@
         .bio-input-wrapper .unit { font-size: 0.8rem; color: var(--text-muted); font-weight: bold; }
 
         .science-info-trigger { background: transparent; border: none; color: var(--info-color); cursor: pointer; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; padding: 4px; }
-        .exercise-info-btn { background: transparent; border: none; color: var(--warning-color); cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; padding: 2px 6px; margin-left: 2px; }
 
         .session-gate-panel { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px dashed var(--accent-color); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; }
         .start-session-btn { background: var(--accent-color); color: #000; border: none; padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
@@ -147,11 +146,13 @@
 
         .exercise-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
         .exercise-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px; }
-        .exercise-title { font-size: 1rem; font-weight: bold; margin: 0; color: var(--text-main); flex-grow: 1; display: flex; align-items: center; flex-wrap: wrap; }
+        .exercise-title { font-size: 1rem; font-weight: bold; margin: 0; color: var(--text-main); flex-grow: 1; }
         .muscle-badge-header { font-size: 0.7rem; color: var(--accent-color); font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; }
         
         .ex-controls { display: flex; align-items: center; gap: 6px; }
-        .ex-clock-badge { font-size: 0.8rem; background: rgba(255,255,255,0.08); color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-family: monospace; font-weight: bold; border: 1px solid var(--border-color); }
+        
+        /* FIX 1: Expanded tracking clock badge size for mm:ss spacing safety */
+        .ex-clock-badge { font-size: 0.85rem; background: rgba(255,255,255,0.08); color: var(--text-main); padding: 4px 10px; min-width: 48px; text-align: center; border-radius: 6px; font-family: monospace; font-weight: bold; border: 1px solid var(--border-color); }
         .clock-toggle-btn { background: var(--border-color); border: 1px solid rgba(255,255,255,0.1); color: var(--accent-color); padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .clock-toggle-btn.active-run { background: var(--danger-color); color: white; }
 
@@ -176,9 +177,8 @@
 
         .log-input { width: 100%; background: transparent; border: none; color: var(--text-main); padding: 6px 2px; text-align: center; font-size: 0.9rem; font-weight: bold; outline: none; }
         .log-input:disabled { opacity: 0.2; }
-        .log-input.manual-override-disabled { opacity: 0.6; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: normal; }
 
-        .stopwatch-btn { background: #1e293b; border: none; color: var(--warning-color); padding: 7px 4px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer; white-space: nowrap; margin-right: 4px; }
+        .stopwatch-btn { width: 100%; background: #1e293b; border: none; color: var(--warning-color); padding: 7px 2px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
         .stopwatch-btn.running { background: var(--danger-color); color: white; }
 
         .target-cell { width: 36%; font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; padding-left: 4px; }
@@ -220,17 +220,21 @@
         .badge-b { background: var(--warning-color); color: #000; }
         .badge-c { background: var(--cooldown-color); color: #000; }
 
-        /* UI/UX Upgraded Interactive Session Editor Inspector */
+        /* UI/UX UPGRADE: Mobile Responsive Layout fixes for Session Inspector Editor */
         .focused-day-inspector { background: #111a2e; border: 1px solid var(--warning-color); border-radius: 12px; padding: 14px; margin-bottom: 15px; }
         .editable-session-card { background: #0b1324; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-top: 10px; }
-        .editor-row-item { display: flex; gap: 8px; margin-bottom: 8px; }
-        .editor-field-group { flex: 1; display: flex; flex-direction: column; }
-        .editor-field-group label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 3px; }
-        .editor-field-group input { background: #16223f; border: 1px solid var(--border-color); border-radius: 4px; color: #fff; padding: 6px; font-size: 0.8rem; outline: none; font-weight: bold; }
-        .editable-session-card textarea { width: 100%; height: 130px; background: #060913; border: 1px solid var(--border-color); color: #fff; font-family: monospace; font-size: 0.8rem; padding: 8px; box-sizing: border-box; border-radius: 4px; resize: vertical; margin-top: 5px; outline: none; }
-        .editor-action-row { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-color); }
-        .editor-btn-save { background: var(--success-color); color: #000; font-size: 0.75rem; font-weight: bold; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
-        .editor-btn-delete { background: var(--danger-color); color: #fff; font-size: 0.75rem; font-weight: bold; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        
+        /* FIX 2: Converted from a squeezed horizontal line to a clean stacked vertical block arrangement on mobile screen spaces */
+        .editor-row-item { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+        .editor-field-group { width: 100%; display: flex; flex-direction: column; }
+        .editor-field-group label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
+        .editor-field-group input { background: #16223f; border: 1px solid var(--border-color); border-radius: 6px; color: #fff; padding: 8px; font-size: 0.85rem; outline: none; font-weight: bold; width: 100%; box-sizing: border-box; }
+        
+        /* FIX 3: Increased text field comfort area height dramatically from 130px to 260px for seamless thumb scrolling/typing */
+        .editable-session-card textarea { width: 100%; height: 260px; background: #060913; border: 1px solid var(--border-color); color: #fff; font-family: monospace; font-size: 0.85rem; padding: 10px; box-sizing: border-box; border-radius: 6px; resize: vertical; margin-top: 5px; outline: none; line-height: 1.4; }
+        .editor-action-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+        .editor-btn-save { background: var(--success-color); color: #000; font-size: 0.8rem; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        .editor-btn-delete { background: var(--danger-color); color: #fff; font-size: 0.8rem; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
 
         .history-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-top: 15px; }
         .history-section h3 { margin-top: 0; color: var(--accent-color); font-size: 1rem; }
@@ -251,7 +255,7 @@
 <body>
 
     <header>
-        <h1>Functional Path v15</h1>
+        <h1>Functional Path v14</h1>
         <div class="header-controls">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div id="bio-pill-widget" class="biometrics-pill" onclick="openBiometricsModal()">
@@ -300,20 +304,6 @@
                     Apply Baseline Changes
                 </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Generic Exercise Info Modal Popup -->
-    <div id="exercise-tip-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-header">
-                <span class="modal-title" id="ex-tip-title">💡 Exercise Reminder</span>
-                <button class="modal-close-btn" onclick="closeExerciseTipModal()">✕</button>
-            </div>
-            <div id="ex-tip-body" class="science-text-block" style="font-size: 0.9rem; line-height: 1.4; color: #cbd5e1;"></div>
-            <button class="timer-dashboard-btn" style="background:var(--accent-color); color:#000; width:100%; padding:10px; margin-top:15px;" onclick="closeExerciseTipModal()">
-                Got it
-            </button>
         </div>
     </div>
 
@@ -469,31 +459,31 @@
             'workout-a': {
                 name: 'Workout A',
                 exercises: [
-                    { id: 'a1', name: '1. Goblet Squat or Box Squat', muscle: 'Quads / Glutes / Core', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', tip: 'Keep heels pinned flat. Drive knees outward tracking over toes. Maintain an upright brace at bottom depth.' },
-                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', muscle: 'Lats / Upper Back / Biceps', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps', tip: 'Depress shoulders downward before initiating pull. Think about leading down via elbows toward ribs.' },
-                    { id: 'a3', name: '3. Dumbbell Bench Press', muscle: 'Chest / Anterior Delts / Triceps', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', tip: 'Retract shoulder blades back into the bench. Keep elbows tucked around 45 degrees, avoid flaring.' },
-                    { id: 'a4', name: '4. Cable Face Pulls', muscle: 'Rear Delts / Rotator Cuff / Upper Back', sets: 3, repsRange: '15', unit: 'kg', type: 'reps', tip: 'Pull rope directly toward nose/ears. Flare elbows wide and emphasize high external thumb rotation at peak squeeze.' },
-                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold', tip: 'Lock your body weight safely. Brutally pull elbows toward toes and squeeze glutes/quads max effort to smash deep abdominal structures.' }
+                    { id: 'a1', name: '1. Goblet Squat or Box Squat', muscle: 'Quads / Glutes / Core', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
+                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', muscle: 'Lats / Upper Back / Biceps', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
+                    { id: 'a3', name: '3. Dumbbell Bench Press', muscle: 'Chest / Anterior Delts / Triceps', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
+                    { id: 'a4', name: '4. Cable Face Pulls', muscle: 'Rear Delts / Rotator Cuff / Upper Back', sets: 3, repsRange: '15', unit: 'kg', type: 'reps' },
+                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold' }
                 ]
             },
             'workout-b': {
                 name: 'Workout B',
                 exercises: [
-                    { id: 'b1', name: '1. Romanian Deadlift', muscle: 'Hamstrings / Glutes / Lower Back', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', tip: 'Hinge back at the hips as far as possible. Keep bar sliding tight against shins. Do not let lumbar round.' },
-                    { id: 'b2', name: '2. Seated Cable Row (Wide)', muscle: 'Rhomboids / Mid-Traps / Lats', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps', tip: 'Pull toward mid-sternum. Keep posture long and focus on full shoulder blade retraction and squeeze.' },
-                    { id: 'b3', name: '3. DB Overhead Shoulder Press', muscle: 'Deltoids / Triceps / Core Stability', sets: 3, repsRange: '8', unit: 'kg', type: 'reps', tip: 'Brace your abs hard. Press straight overhead until ears line up inside arms. Avoid hyperextending lower back.' },
-                    { id: 'b4', name: '4. Bulgarian Split Squat', muscle: 'Quads / Glutes / Unilateral Balance', sets: 3, repsRange: '8', unit: 'kg', type: 'reps', tip: 'Elevate back foot slightly. Keep lead knee tracked forward while sinking deep into front hip pocket.' },
-                    { id: 'b5', name: '5. Farmer’s Walks / Carries', muscle: 'Grip Strength / Forearms / Full-Body Core', sets: 3, repsRange: '40m', unit: 'kg', type: 'hold', tip: 'Stand tall with shoulders packed down and back. Take smooth, controlled steps without swinging weight.' }
+                    { id: 'b1', name: '1. Romanian Deadlift', muscle: 'Hamstrings / Glutes / Lower Back', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
+                    { id: 'b2', name: '2. Seated Cable Row (Wide)', muscle: 'Rhomboids / Mid-Traps / Lats', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
+                    { id: 'b3', name: '3. DB Overhead Shoulder Press', muscle: 'Deltoids / Triceps / Core Stability', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
+                    { id: 'b4', name: '4. Bulgarian Split Squat', muscle: 'Quads / Glutes / Unilateral Balance', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
+                    { id: 'b5', name: '5. Farmer’s Walks / Carries', muscle: 'Grip Strength / Forearms / Full-Body Core', sets: 3, repsRange: '40m', unit: 'kg', type: 'hold' }
                 ]
             },
             'workout-c': {
                 name: 'Workout C',
                 exercises: [
-                    { id: 'c1', name: '1. Leg Press or Hack Squat', muscle: 'Quads / Glutes / Hamstrings', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', tip: 'Set feet wide enough to prevent pelvis lifting off pad at absolute bottom depth.' },
-                    { id: 'c2', name: '2. Chest-Supported DB Row', muscle: 'Upper Back / Mid-Traps / Biceps', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', tip: 'Rest chest securely on incline bench. Pull hands high past sides without bouncing chest off cushion.' },
-                    { id: 'c3', name: '3. Incline Dumbbell Press', muscle: 'Upper Chest / Anterior Delts', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', tip: 'Set incline to roughly 30 degrees. Control weight down to upper chest area before pressing straight back up.' },
-                    { id: 'c4', name: '4. Cable Woodchoppers', muscle: 'Obliques / Core Rotational Power', sets: 3, repsRange: '12', unit: 'kg', type: 'reps', tip: 'Pivot on back foot, driving rotational velocity forcefully through your trunk core walls.' },
-                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps', tip: 'Avoid swinging momentum. Curl your tailbone forward and upward toward chest at the top peak execution.' }
+                    { id: 'c1', name: '1. Leg Press or Hack Squat', muscle: 'Quads / Glutes / Hamstrings', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
+                    { id: 'c2', name: '2. Chest-Supported DB Row', muscle: 'Upper Back / Mid-Traps / Biceps', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
+                    { id: 'c3', name: '3. Incline Dumbbell Press', muscle: 'Upper Chest / Anterior Delts', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
+                    { id: 'c4', name: '4. Cable Woodchoppers', muscle: 'Obliques / Core Rotational Power', sets: 3, repsRange: '12', unit: 'kg', type: 'reps' },
+                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps' }
                 ]
             }
         };
@@ -518,15 +508,6 @@
         function closeBiometricsModal() { document.getElementById('biometrics-modal').style.display = 'none'; renderApp(); }
         function openScienceModal() { document.getElementById('science-modal').style.display = 'flex'; }
         function closeScienceModal() { document.getElementById('science-modal').style.display = 'none'; }
-
-        function openExerciseTipModal(exName, tipText) {
-            document.getElementById('ex-tip-title').innerText = `💡 Tip: ${exName}`;
-            document.getElementById('ex-tip-body').innerHTML = `<p>${tipText}</p>`;
-            document.getElementById('exercise-tip-modal').style.display = 'flex';
-        }
-        function closeExerciseTipModal() {
-            document.getElementById('exercise-tip-modal').style.display = 'none';
-        }
 
         function saveBiometricsToMemory() {
             const weightVal = document.getElementById('input-bio-weight').value;
@@ -571,18 +552,11 @@
                     let peakPersonalBestScore = exPbData ? exPbData.score : 0.0;
                     const elapsedSavedClock = localStorage.getItem(`ex-clock-time-${ex.id}`) || '00:00';
                     const scoreLabelStr = (savedMuscle && parseFloat(savedMuscle) > 0) ? 'Muscle RLI' : 'RLI';
-                    
-                    // Escaped tip parameter for standard safe execution inside the tag string inline listener 
-                    const safeTipStr = ex.tip.replace(/'/g, "\\'");
 
                     html += `
                         <div class="exercise-card" id="card-${ex.id}">
                             <div class="exercise-header">
-                                <h2 class="exercise-title">
-                                    ${ex.name} 
-                                    <span style="color:var(--text-muted); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span>
-                                    <button class="exercise-info-btn" onclick="openExerciseTipModal('${ex.name.replace(/'/g, "\\'")}', '${safeTipStr}')" title="Form Reminder Checklist">💡</button>
-                                </h2>
+                                <h2 class="exercise-title">${ex.name} <span style="color:var(--text-muted); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span></h2>
                                 <div class="ex-controls">
                                     <div class="ex-clock-badge" id="clock-${ex.id}">${elapsedSavedClock}</div>
                                     <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" 
@@ -609,7 +583,7 @@
                                     <tr>
                                         <th>Set</th>
                                         <th>Weight</th>
-                                        <th>${ex.type === 'hold' ? 'Duration / Manual' : 'Reps'}</th>
+                                        <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps'}</th>
                                         <th style="padding-left:4px;">Best Day Combo</th>
                                         <th></th>
                                     </tr>
@@ -636,30 +610,21 @@
                             }
                         }
 
-                        // Determine if it's RKC Plank specifically to disable weight input and display visual "B.W." indication
-                        const isRkcPlank = (ex.id === 'a5');
-
                         html += `
                             <tr class="log-row ${isChecked ? 'row-filled' : ''}" id="row-${ex.id}-${s}">
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
                                     <div class="input-container-box">
-                                        ${isRkcPlank ? `
-                                            <input type="text" value="B.W." class="log-input manual-override-disabled" disabled>`
-                                        : `
-                                            <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
-                                        `}
+                                        <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
                                     </div>
                                 </td>
                                 <td class="input-cell">
-                                    <div class="input-container-box" style="background:transparent; border:none; width:95%; display:flex; align-items:center;">
+                                    <div class="input-container-box" style="background:transparent; border:none; width:95%;">
                                     ${ex.type === 'hold' ? `
                                         <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
-                                            ⏱️ Start
+                                            ${rVal ? rVal + 's' : '⏱️ Start'}
                                         </button>
-                                        <div class="input-container-box" style="width:100%;">
-                                            <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0s" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
-                                        </div>
+                                        <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
                                     ` : `
                                         <div class="input-container-box" style="width:100%;">
                                             <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
@@ -839,12 +804,12 @@
                                 <label>Log Date (e.g., Mar 25, 2026)</label>
                                 <input type="text" id="edit-date-${index}" value="${log.date}">
                             </div>
-                            <div class="editor-field-group" style="max-width:110px;">
+                            <div class="editor-field-group">
                                 <label>Routine</label>
                                 <input type="text" id="edit-type-${index}" value="${log.type}">
                             </div>
-                            <div class="editor-field-group" style="max-width:80px;">
-                                <label>Total RLI</label>
+                            <div class="editor-field-group">
+                                <label>Total RLI Score</label>
                                 <input type="number" step="0.1" id="edit-ratio-${index}" value="${log.ratio}">
                             </div>
                         </div>
@@ -1014,7 +979,7 @@
             const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
             const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
             if(wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
-            if(rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
+            if(rpIn && rpIn.style.display !== 'none') localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
 
             if (rowElement.classList.contains('row-filled')) {
                 rowElement.classList.remove('row-filled');
@@ -1045,15 +1010,13 @@
 
         function toggleHoldStopwatch(exId, setNum, repKey) {
             const btn = document.getElementById('btn-' + exId + '-' + setNum);
-            const inputField = document.getElementById(repKey);
             const timerId = exId + '-' + setNum;
 
             if (holdTimers[timerId]) {
                 clearInterval(holdTimers[timerId].interval);
                 const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
                 localStorage.setItem(repKey, totalSeconds);
-                if (inputField) inputField.value = totalSeconds;
-                btn.innerText = "⏱️ Start";
+                btn.innerText = totalSeconds + "s";
                 btn.classList.remove('running');
                 delete holdTimers[timerId];
                 updateLiveMetricsOnly();
@@ -1064,7 +1027,7 @@
                     start: Date.now(),
                     interval: setInterval(() => {
                         const elapsed = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
-                        if (inputField) inputField.value = elapsed;
+                        btn.innerText = "⏱️ " + elapsed + "s";
                     }, 1000)
                 };
             }
@@ -1205,7 +1168,7 @@
                             🎯 Muscle Group: <span style="color:#fff; font-weight:bold;">${ex.muscle}</span><br>
                             🔥 Peak Day Score:<br><strong style="color:var(--warning-color);">${labelStr}: ${pbEntry.score.toFixed(1)}x</strong><br>
                             📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
-                            🏋️ Performance Breakdown:<br>
+                            🏋️ Performance Performance Breakdown:<br>
                             <span style="color:#fff; padding-left:4px; display:inline-block; margin-top:2px;">${setsListText.join(' | ')}</span>
                         </div>
                     </div>
@@ -1266,7 +1229,7 @@
                 const trackingClockText = document.getElementById(`clock-${ex.id}`).innerText;
                 
                 for (let s = 1; s <= ex.sets; s++) {
-                    const weight = (ex.id === 'a5') ? '0' : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0');
+                    const weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
                     const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
                     
                     if (parseInt(reps) > 0) {
@@ -1395,7 +1358,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v15_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v14_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
