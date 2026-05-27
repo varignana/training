@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v16</title>
+    <title>Functional Path Overload v15</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -136,7 +136,7 @@
         .tab-btn { flex: 1; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-muted); padding: 10px 4px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
         .tab-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
 
-        .day-tracking-scoreboard { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #131e36, #0b1324); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.85rem; }
+        .day-tracking-scoreboard { background: linear-gradient(90deg, #131e36, #0b1324); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
         .day-score-block { display: flex; flex-direction: column; }
         .day-score-title { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;}
         .day-score-data { font-size: 1.05rem; font-weight: bold; margin-top: 2px; }
@@ -150,9 +150,7 @@
         .muscle-badge-header { font-size: 0.7rem; color: var(--accent-color); font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; }
         
         .ex-controls { display: flex; align-items: center; gap: 6px; }
-        
-        /* FIX 1: Increased minimum width & spacing to ensure mm:ss formats never clip digits */
-        .ex-clock-badge { font-size: 0.85rem; background: rgba(255,255,255,0.08); color: var(--text-main); padding: 4px 10px; min-width: 52px; text-align: center; border-radius: 6px; font-family: monospace; font-weight: bold; border: 1px solid var(--border-color); }
+        .ex-clock-badge { font-size: 0.8rem; background: rgba(255,255,255,0.08); color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-family: monospace; font-weight: bold; border: 1px solid var(--border-color); }
         .clock-toggle-btn { background: var(--border-color); border: 1px solid rgba(255,255,255,0.1); color: var(--accent-color); padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .clock-toggle-btn.active-run { background: var(--danger-color); color: white; }
 
@@ -178,7 +176,8 @@
         .log-input { width: 100%; background: transparent; border: none; color: var(--text-main); padding: 6px 2px; text-align: center; font-size: 0.9rem; font-weight: bold; outline: none; }
         .log-input:disabled { opacity: 0.2; }
 
-        .stopwatch-btn { width: 100%; background: #1e293b; border: none; color: var(--warning-color); padding: 7px 2px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+        .hybrid-stopwatch-wrapper { display: flex; gap: 4px; width: 100%; align-items: center; }
+        .stopwatch-btn { background: #1e293b; border: none; color: var(--warning-color); padding: 7px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .stopwatch-btn.running { background: var(--danger-color); color: white; }
 
         .target-cell { width: 36%; font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; padding-left: 4px; }
@@ -220,21 +219,16 @@
         .badge-b { background: var(--warning-color); color: #000; }
         .badge-c { background: var(--cooldown-color); color: #000; }
 
-        /* UI/UX UPGRADE: Cleaned up layouts inside the Log Editor Box */
         .focused-day-inspector { background: #111a2e; border: 1px solid var(--warning-color); border-radius: 12px; padding: 14px; margin-bottom: 15px; }
         .editable-session-card { background: #0b1324; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-top: 10px; }
-        
-        /* FIX 2: Switched cramped horizontal row fields to vertical flex blocks so inputs fit screen bounds perfectly */
-        .editor-row-item { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
-        .editor-field-group { width: 100%; display: flex; flex-direction: column; }
-        .editor-field-group label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
-        .editor-field-group input { background: #16223f; border: 1px solid var(--border-color); border-radius: 6px; color: #fff; padding: 8px; font-size: 0.85rem; outline: none; font-weight: bold; width: 100%; box-sizing: border-box; }
-        
-        /* FIX 3: Increased text field comfort container height to 250px for seamless view/editing scrolling space */
-        .editable-session-card textarea { width: 100%; height: 250px; background: #060913; border: 1px solid var(--border-color); color: #fff; font-family: monospace; font-size: 0.85rem; padding: 10px; box-sizing: border-box; border-radius: 6px; resize: vertical; margin-top: 5px; outline: none; line-height: 1.4; }
-        .editor-action-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); }
-        .editor-btn-save { background: var(--success-color); color: #000; font-size: 0.8rem; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
-        .editor-btn-delete { background: var(--danger-color); color: #fff; font-size: 0.8rem; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        .editor-row-item { display: flex; gap: 8px; margin-bottom: 8px; }
+        .editor-field-group { flex: 1; display: flex; flex-direction: column; }
+        .editor-field-group label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 3px; }
+        .editor-field-group input { background: #16223f; border: 1px solid var(--border-color); border-radius: 4px; color: #fff; padding: 6px; font-size: 0.8rem; outline: none; font-weight: bold; }
+        .editable-session-card textarea { width: 100%; height: 130px; background: #060913; border: 1px solid var(--border-color); color: #fff; font-family: monospace; font-size: 0.8rem; padding: 8px; box-sizing: border-box; border-radius: 4px; resize: vertical; margin-top: 5px; outline: none; }
+        .editor-action-row { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-color); }
+        .editor-btn-save { background: var(--success-color); color: #000; font-size: 0.75rem; font-weight: bold; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        .editor-btn-delete { background: var(--danger-color); color: #fff; font-size: 0.75rem; font-weight: bold; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 
         .history-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-top: 15px; }
         .history-section h3 { margin-top: 0; color: var(--accent-color); font-size: 1rem; }
@@ -255,7 +249,7 @@
 <body>
 
     <header>
-        <h1>Functional Path v16</h1>
+        <h1>Functional Path v15</h1>
         <div class="header-controls">
             <div id="global-timer-box" class="global-timer-display" style="display:none;">00:00</div>
             <div id="bio-pill-widget" class="biometrics-pill" onclick="openBiometricsModal()">
@@ -583,7 +577,7 @@
                                     <tr>
                                         <th>Set</th>
                                         <th>Weight</th>
-                                        <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps'}</th>
+                                        <th>${ex.type === 'hold' ? 'Duration Score (Sec)' : 'Reps'}</th>
                                         <th style="padding-left:4px;">Best Day Combo</th>
                                         <th></th>
                                     </tr>
@@ -615,26 +609,28 @@
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
                                     <div class="input-container-box">
-                                        <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        <input type="text" id="${weightKey}" class="log-input" placeholder="${ex.type === 'hold' ? 'BW' : '0'}" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
                                     </div>
                                 </td>
                                 <td class="input-cell">
-                                    <div class="input-container-box" style="background:transparent; border:none; width:95%;">
                                     ${ex.type === 'hold' ? `
-                                        <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
-                                            ${rVal ? rVal + 's' : '⏱️ Start'}
-                                        </button>
-                                        <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
+                                        <div class="hybrid-stopwatch-wrapper">
+                                            <div class="input-container-box" style="flex:1;">
+                                                <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                            </div>
+                                            <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
+                                                ⏱️ Start
+                                            </button>
+                                        </div>
                                     ` : `
-                                        <div class="input-container-box" style="width:100%;">
+                                        <div class="input-container-box">
                                             <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
                                         </div>
                                     `}
-                                    </div>
                                 </td>
                                 <td class="target-cell">${historicalBestString}</td>
                                 <td class="checkbox-cell">
-                                    <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})">
+                                    <button class="manual-check-btn" onclick="toggleManualRowCheck('${exId}', ${s})">
                                         ${isChecked ? '✓' : ''}
                                     </button>
                                 </td>
@@ -695,8 +691,8 @@
                                     const secMatch = line.match(/:\s*([0-9.]+)\s*sec/);
                                     if (secMatch) setsBreakdown[sNum] = { reps: parseInt(secMatch[1]), weight: 0 };
                                 } else {
-                                    const wtRepMatch = line.match(/:\s*([0-9.]+)kg\s*x\s*([0-9.]+)\s*reps/);
-                                    if (wtRepMatch) setsBreakdown[sNum] = { weight: parseFloat(wtRepMatch[1]), reps: parseInt(wtRepMatch[2]) };
+                                    const wtRepMatch = line.match(/:\s*([0-9.]+|BW)kg\s*x\s*([0-9.]+)\s*reps/);
+                                    if (wtRepMatch) setsBreakdown[sNum] = { weight: wtRepMatch[1], reps: parseInt(wtRepMatch[2]) };
                                 }
                             }
                         }
@@ -804,12 +800,12 @@
                                 <label>Log Date (e.g., Mar 25, 2026)</label>
                                 <input type="text" id="edit-date-${index}" value="${log.date}">
                             </div>
-                            <div class="editor-field-group">
+                            <div class="editor-field-group" style="max-width:110px;">
                                 <label>Routine</label>
                                 <input type="text" id="edit-type-${index}" value="${log.type}">
                             </div>
-                            <div class="editor-field-group">
-                                <label>Total RLI Score</label>
+                            <div class="editor-field-group" style="max-width:80px;">
+                                <label>Total RLI</label>
                                 <input type="number" step="0.1" id="edit-ratio-${index}" value="${log.ratio}">
                             </div>
                         </div>
@@ -979,7 +975,7 @@
             const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
             const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
             if(wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
-            if(rpIn && rpIn.style.display !== 'none') localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
+            if(rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
 
             if (rowElement.classList.contains('row-filled')) {
                 rowElement.classList.remove('row-filled');
@@ -1010,13 +1006,17 @@
 
         function toggleHoldStopwatch(exId, setNum, repKey) {
             const btn = document.getElementById('btn-' + exId + '-' + setNum);
+            const inputField = document.getElementById(repKey);
             const timerId = exId + '-' + setNum;
 
             if (holdTimers[timerId]) {
                 clearInterval(holdTimers[timerId].interval);
                 const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
-                localStorage.setItem(repKey, totalSeconds);
-                btn.innerText = totalSeconds + "s";
+                if (inputField) {
+                    inputField.value = totalSeconds;
+                    localStorage.setItem(repKey, totalSeconds);
+                }
+                btn.innerText = "⏱️ Start";
                 btn.classList.remove('running');
                 delete holdTimers[timerId];
                 updateLiveMetricsOnly();
@@ -1027,7 +1027,10 @@
                     start: Date.now(),
                     interval: setInterval(() => {
                         const elapsed = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
-                        btn.innerText = "⏱️ " + elapsed + "s";
+                        if (inputField) {
+                            inputField.value = elapsed;
+                            localStorage.setItem(repKey, elapsed);
+                        }
                     }, 1000)
                 };
             }
@@ -1041,10 +1044,15 @@
             const scalingDenominator = isAdvanced ? (userBw * (musclePct / 100)) : userBw;
             const labelStr = isAdvanced ? 'Muscle RLI' : 'RLI';
             
-            document.getElementById('widget-title-past-best').innerText = `All-Time Best Day ${labelStr}`;
-            document.getElementById('widget-title-live').innerText = `Live Session ${labelStr}`;
-            document.getElementById('stat-label-week').innerText = `Weekly ${labelStr}`;
-            document.getElementById('stat-label-last').innerText = `Last ${labelStr}`;
+            const rPastBest = document.getElementById('widget-title-past-best');
+            const rLiveTitle = document.getElementById('widget-title-live');
+            const rWeekLbl = document.getElementById('stat-label-week');
+            const rLastLbl = document.getElementById('stat-label-last');
+
+            if(rPastBest) rPastBest.innerText = `All-Time Best Day ${labelStr}`;
+            if(rLiveTitle) rLiveTitle.innerText = `Live Session ${labelStr}`;
+            if(rWeekLbl) rWeekLbl.innerText = `Weekly ${labelStr}`;
+            if(rLastLbl) rLastLbl.innerText = `Last ${labelStr}`;
 
             const currentRoutine = routines[activeTabId];
             let dayTotalVolumeScore = 0;
@@ -1058,14 +1066,20 @@
                         const wInput = document.getElementById(`cur-${ex.id}-w-${s}`);
                         const rInput = document.getElementById(`cur-${ex.id}-r-${s}`);
                         
-                        const wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
-                        const rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
+                        let wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
+                        let rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
 
                         if (rVal !== '') {
                             if (ex.type === 'hold') {
                                 holdsTotalSeconds += parseInt(rVal) || 0;
-                            } else if (wVal !== '') {
-                                exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
+                            } else {
+                                let numericWeight = 0;
+                                if (wVal.toUpperCase() === 'BW') {
+                                    numericWeight = userBw;
+                                } else {
+                                    numericWeight = parseFloat(wVal) || 0;
+                                }
+                                exerciseVolumeLoad += numericWeight * (parseInt(rVal) || 0);
                             }
                         }
                     }
@@ -1078,7 +1092,8 @@
                 });
             }
 
-            document.getElementById('widget-live-score').innerText = dayTotalVolumeScore.toFixed(1) + 'x';
+            const rLiveScore = document.getElementById('widget-live-score');
+            if(rLiveScore) rLiveScore.innerText = dayTotalVolumeScore.toFixed(1) + 'x';
             
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             const specificRoutineLogs = historyList.filter(s => s.type === currentRoutine?.name);
@@ -1086,7 +1101,8 @@
             if(specificRoutineLogs.length > 0) {
                 absoluteBestDayTotalVal = Math.max(...specificRoutineLogs.map(l => l.ratio || 0));
             }
-            document.getElementById('widget-past-best').innerText = absoluteBestDayTotalVal.toFixed(1) + 'x';
+            const rPastBestScore = document.getElementById('widget-past-best');
+            if(rPastBestScore) rPastBestScore.innerText = absoluteBestDayTotalVal.toFixed(1) + 'x';
         }
 
         function switchWorkout(dayId) {
@@ -1157,7 +1173,8 @@
                     if(ex.type === 'hold') {
                         setsListText.push(`Set ${sNum}: ${info.reps}s`);
                     } else {
-                        setsListText.push(`Set ${sNum}: ${info.weight}kg x ${info.reps} reps`);
+                        const printedWeight = (info.weight === 'BW' || info.weight === 0) ? 'BW' : info.weight + 'kg';
+                        setsListText.push(`Set ${sNum}: ${printedWeight} x ${info.reps} reps`);
                     }
                 });
 
@@ -1168,7 +1185,7 @@
                             🎯 Muscle Group: <span style="color:#fff; font-weight:bold;">${ex.muscle}</span><br>
                             🔥 Peak Day Score:<br><strong style="color:var(--warning-color);">${labelStr}: ${pbEntry.score.toFixed(1)}x</strong><br>
                             📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
-                            🏋️ Performance Performance Breakdown:<br>
+                            🏋️ Performance Breakdown:<br>
                             <span style="color:#fff; padding-left:4px; display:inline-block; margin-top:2px;">${setsListText.join(' | ')}</span>
                         </div>
                     </div>
@@ -1229,16 +1246,26 @@
                 const trackingClockText = document.getElementById(`clock-${ex.id}`).innerText;
                 
                 for (let s = 1; s <= ex.sets; s++) {
-                    const weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
+                    let weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '';
                     const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
                     
+                    if (weight === '' && ex.type === 'hold') weight = 'BW';
+
                     if (parseInt(reps) > 0) {
-                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : weight + 'kg x '}${reps} ${ex.type === 'hold' ? 'sec' : 'reps'}`);
                         if (ex.type === 'hold') {
+                            exLines.push(`  Set ${s}: ${reps} sec`);
                             holdsTotalSeconds += parseInt(reps);
                         } else {
-                            exerciseVolumeLoad += (parseFloat(weight) * parseInt(reps));
-                            rawAbsoluteWeightVolumeSum += (parseFloat(weight) * parseInt(reps));
+                            let numericWeight = 0;
+                            if (weight.toUpperCase() === 'BW') {
+                                numericWeight = userBw;
+                                exLines.push(`  Set ${s}: BW x ${reps} reps`);
+                            } else {
+                                numericWeight = parseFloat(weight) || 0;
+                                exLines.push(`  Set ${s}: ${numericWeight}kg x ${reps} reps`);
+                            }
+                            exerciseVolumeLoad += (numericWeight * parseInt(reps));
+                            rawAbsoluteWeightVolumeSum += (numericWeight * parseInt(reps));
                         }
                         loggedCount++;
                     }
@@ -1358,7 +1385,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v16_backup.json`);
+            downloadAnchor.setAttribute("download", `gym_tracker_v15_backup.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
