@@ -151,7 +151,6 @@
         
         .ex-controls { display: flex; align-items: center; gap: 6px; }
         
-        /* FIX 1: Increased minimum width & spacing to ensure mm:ss formats never clip digits */
         .ex-clock-badge { font-size: 0.85rem; background: rgba(255,255,255,0.08); color: var(--text-main); padding: 4px 10px; min-width: 52px; text-align: center; border-radius: 6px; font-family: monospace; font-weight: bold; border: 1px solid var(--border-color); }
         .clock-toggle-btn { background: var(--border-color); border: 1px solid rgba(255,255,255,0.1); color: var(--accent-color); padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .clock-toggle-btn.active-run { background: var(--danger-color); color: white; }
@@ -178,8 +177,12 @@
         .log-input { width: 100%; background: transparent; border: none; color: var(--text-main); padding: 6px 2px; text-align: center; font-size: 0.9rem; font-weight: bold; outline: none; }
         .log-input:disabled { opacity: 0.2; }
 
-        .stopwatch-btn { width: 100%; background: #1e293b; border: none; color: var(--warning-color); padding: 7px 2px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+        /* Isometric Segment Styling Updates */
+        .hold-input-wrapper { display: flex; gap: 4px; width: 100%; align-items: center; }
+        .stopwatch-btn { width: 100%; background: #1e293b; border: none; color: var(--warning-color); padding: 7px 2px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .stopwatch-btn.running { background: var(--danger-color); color: white; }
+        .hold-edit-input { width: 100%; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 2px; text-align: center; font-size: 0.9rem; font-weight: bold; border-radius: 6px; outline: none; }
+        .hold-edit-input:focus { border-color: var(--accent-color); }
 
         .target-cell { width: 36%; font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; padding-left: 4px; }
         .target-group { white-space: nowrap; display: inline-block; }
@@ -220,17 +223,14 @@
         .badge-b { background: var(--warning-color); color: #000; }
         .badge-c { background: var(--cooldown-color); color: #000; }
 
-        /* UI/UX UPGRADE: Cleaned up layouts inside the Log Editor Box */
         .focused-day-inspector { background: #111a2e; border: 1px solid var(--warning-color); border-radius: 12px; padding: 14px; margin-bottom: 15px; }
         .editable-session-card { background: #0b1324; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-top: 10px; }
         
-        /* FIX 2: Switched cramped horizontal row fields to vertical flex blocks so inputs fit screen bounds perfectly */
         .editor-row-item { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
         .editor-field-group { width: 100%; display: flex; flex-direction: column; }
         .editor-field-group label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
         .editor-field-group input { background: #16223f; border: 1px solid var(--border-color); border-radius: 6px; color: #fff; padding: 8px; font-size: 0.85rem; outline: none; font-weight: bold; width: 100%; box-sizing: border-box; }
         
-        /* FIX 3: Increased text field comfort container height to 250px for seamless view/editing scrolling space */
         .editable-session-card textarea { width: 100%; height: 250px; background: #060913; border: 1px solid var(--border-color); color: #fff; font-family: monospace; font-size: 0.85rem; padding: 10px; box-sizing: border-box; border-radius: 6px; resize: vertical; margin-top: 5px; outline: none; line-height: 1.4; }
         .editor-action-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); }
         .editor-btn-save { background: var(--success-color); color: #000; font-size: 0.8rem; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
@@ -583,7 +583,7 @@
                                     <tr>
                                         <th>Set</th>
                                         <th>Weight</th>
-                                        <th>${ex.type === 'hold' ? 'Stopwatch' : 'Reps'}</th>
+                                        <th>${ex.type === 'hold' ? 'Stopwatch / Sec' : 'Reps'}</th>
                                         <th style="padding-left:4px;">Best Day Combo</th>
                                         <th></th>
                                     </tr>
@@ -621,10 +621,15 @@
                                 <td class="input-cell">
                                     <div class="input-container-box" style="background:transparent; border:none; width:95%;">
                                     ${ex.type === 'hold' ? `
-                                        <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
-                                            ${rVal ? rVal + 's' : '⏱️ Start'}
-                                        </button>
-                                        <input type="number" id="${repKey}" value="${rVal}" style="display:none;">
+                                        <div class="hold-input-wrapper" id="hold-wrapper-${ex.id}-${s}">
+                                            ${rVal === '' ? `
+                                                <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
+                                                    ⏱️ Start
+                                                </button>
+                                            ` : `
+                                                <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                            `}
+                                        </div>
                                     ` : `
                                         <div class="input-container-box" style="width:100%;">
                                             <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
@@ -979,7 +984,7 @@
             const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
             const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
             if(wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
-            if(rpIn && rpIn.style.display !== 'none') localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
+            if(rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
 
             if (rowElement.classList.contains('row-filled')) {
                 rowElement.classList.remove('row-filled');
@@ -1009,18 +1014,26 @@
         }
 
         function toggleHoldStopwatch(exId, setNum, repKey) {
-            const btn = document.getElementById('btn-' + exId + '-' + setNum);
             const timerId = exId + '-' + setNum;
+            const btn = document.getElementById('btn-' + timerId);
 
             if (holdTimers[timerId]) {
+                // STOP TIMER
                 clearInterval(holdTimers[timerId].interval);
                 const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
                 localStorage.setItem(repKey, totalSeconds);
-                btn.innerText = totalSeconds + "s";
-                btn.classList.remove('running');
                 delete holdTimers[timerId];
+
+                // Instantly transform the stopwatch button into an editable input cell
+                const wrapper = document.getElementById(`hold-wrapper-${timerId}`);
+                if(wrapper) {
+                    wrapper.innerHTML = `
+                        <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${totalSeconds}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();">
+                    `;
+                }
                 updateLiveMetricsOnly();
             } else {
+                // START TIMER
                 btn.innerText = "⏱️ Stop";
                 btn.classList.add('running');
                 holdTimers[timerId] = {
@@ -1168,7 +1181,7 @@
                             🎯 Muscle Group: <span style="color:#fff; font-weight:bold;">${ex.muscle}</span><br>
                             🔥 Peak Day Score:<br><strong style="color:var(--warning-color);">${labelStr}: ${pbEntry.score.toFixed(1)}x</strong><br>
                             📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
-                            🏋️ Performance Performance Breakdown:<br>
+                            🏋️ Performance Breakdown:<br>
                             <span style="color:#fff; padding-left:4px; display:inline-block; margin-top:2px;">${setsListText.join(' | ')}</span>
                         </div>
                     </div>
