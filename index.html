@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v16 - Fixed</title>
+    <title>Functional Path Overload v16</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -113,7 +113,23 @@
         .bio-input-wrapper input { background: transparent; border: none; color: #fff; width: 100%; font-size: 1rem; font-weight: bold; outline: none; padding: 6px 0; }
         .bio-input-wrapper .unit { font-size: 0.8rem; color: var(--text-muted); font-weight: bold; }
 
-        .science-info-trigger { background: transparent; border: none; color: var(--info-color); cursor: pointer; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; padding: 4px; z-index: 50; position: relative; }
+        .science-info-trigger { background: transparent; border: none; color: var(--info-color); cursor: pointer; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; padding: 4px; }
+
+        .exercise-info-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 6px;
+            padding: 2px 4px;
+            vertical-align: middle;
+            transition: opacity 0.2s;
+        }
+        .exercise-info-btn:hover { opacity: 0.8; }
 
         .session-gate-panel { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px dashed var(--accent-color); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; }
         .start-session-btn { background: var(--accent-color); color: #000; border: none; padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
@@ -188,8 +204,8 @@
         .target-cell strong { color: var(--warning-color); }
 
         .checkbox-cell { width: 8%; text-align: center; }
-        .manual-check-btn { background: #111a2e; border: 1px solid var(--border-color); color: var(--text-muted); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0 auto; font-weight: bold; }
-        .row-filled .manual-check-btn { background: var(--success-color); border-color: var(--success-color); color: #000000; }
+        .manual-check-btn { background: #111a2e; border: 1px solid var(--border-color); color: var(--text-muted); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0 auto; font-weight: bold; }
+        .row-filled .manual-check-btn { background: var(--success-color) !important; border-color: var(--success-color) !important; color: #000000 !important; font-weight: 900 !important; }
 
         .action-tray { margin: 20px 0; display: none; flex-direction: column; gap: 10px; }
         .finish-btn { width: 100%; background: var(--success-color); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
@@ -328,6 +344,19 @@
                 <p style="background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; font-family:monospace; font-size:0.75rem; text-align:center; color:var(--accent-color);">
                     Muscle RLI = Total Lifted Volume ÷ Pure Muscle Mass (kg)
                 </p>
+                
+                <p><strong>The Recomposition Paradox:</strong> If you build muscle and shed fat, your Muscle RLI score might drop slightly for the same lifted weights. This is not structural loss—it shows your active engine has become highly efficient, clearing the same load with less strain per muscle unit. Your goal is to increase weight to match this new structural capability.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="explanation-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 450px;">
+            <div class="modal-header">
+                <span id="explanation-modal-title" class="modal-title">📋 Exercise Guide</span>
+                <button class="modal-close-btn" onclick="closeExplanationModal()">✕</button>
+            </div>
+            <div id="explanation-modal-content" class="science-text-block" style="max-height:60vh; overflow-y:auto; padding-right:4px;">
             </div>
         </div>
     </div>
@@ -377,7 +406,7 @@
             <span id="widget-title-past-best" class="day-score-title">All-Time Best Day RLI</span>
             <span id="widget-past-best" class="day-score-data" style="color: #ec4899;">RLI: 0.0x</span>
         </div>
-        <button class="science-info-trigger" onclick="openScienceModal(); event.stopPropagation();" title="View Scientific Methodology Documentation">ℹ️</button>
+        <button class="science-info-trigger" onclick="openScienceModal()" title="View Scientific Methodology Documentation">ℹ️</button>
         <div class="day-score-block" style="text-align: right;">
             <span id="widget-title-live" class="day-score-title">Live Session RLI</span>
             <span id="widget-live-score" class="day-score-data" style="color: var(--accent-color);">RLI: 0.0x</span>
@@ -456,231 +485,559 @@
             'workout-a': {
                 name: 'Workout A',
                 exercises: [
-                    { id: 'a1', name: '1. Goblet Squat or Box Squat', muscle: 'Quads / Glutes / Core', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', muscle: 'Lats / Upper Back / Biceps', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
-                    { id: 'a3', name: '3. Dumbbell Bench Press', muscle: 'Chest / Anterior Delts / Triceps', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'a4', name: '4. Cable Face Pulls', muscle: 'Rear Delts / Rotator Cuff / Upper Back', sets: 3, repsRange: '15', unit: 'kg', type: 'reps' },
-                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold' }
+                    { id: 'a1', name: '1. Goblet Squat or Box Squat', muscle: 'Quads / Glutes / Core', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', desc: 'Hold a heavy dumbbell or kettlebell vertically against your chest. Keep elbows tucked. Brace core, sit hips down and back until thighs are parallel or hit the box. Drive firmly through your heels to return upright.' },
+                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', muscle: 'Lats / Upper Back / Biceps', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps', desc: 'Pull down with a wide grip toward upper chest or drive elbows down in an assisted machine. Depress and retract shoulder blades before letting your arms break. Avoid torso swing.' },
+                    { id: 'a3', name: '3. Dumbbell Bench Press', muscle: 'Chest / Anterior Delts / Triceps', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', desc: 'Lie flat on your bench, feet planted. Press dumbbells evenly upwards over the mid-chest line. Control the speed down until arms reach a 90-degree bend with elbows angled slightly inwards.' },
+                    { id: 'a4', name: '4. Cable Face Pulls', muscle: 'Rear Delts / Rotator Cuff / Upper Back', sets: 3, repsRange: '15', unit: 'kg', type: 'reps', desc: 'Set cable height at nose level using a double-rope attachment. Pull the center toward your forehead while separating hands out laterally. Focus on high elbows and external shoulder rotation.' },
+                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold', desc: 'For RKC Plank: Maintain standard forearm stance but consciously lock out knees, clench glutes aggressively, and intentionally pull elbows toward toes to create massive core internal leverage stress.' }
                 ]
             },
             'workout-b': {
                 name: 'Workout B',
                 exercises: [
-                    { id: 'b1', name: '1. Romanian Deadlift (Dumbbell or Barbell)', muscle: 'Hamstrings / Glutes / Spinal Erectors', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'b2', name: '2. Standing Overhead Press (Barbell or DB)', muscle: 'Deltoids / Triceps / Core Stability', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'b3', name: '3. Chest-Supported Row or Dumbbell Row', muscle: 'Mid-Back / Rhomboids / Latissimus Dorsi', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
-                    { id: 'b4', name: '4. Calf Raises (Seated or Standing)', muscle: 'Gastrocnemius / Soleus', sets: 3, repsRange: '15', unit: 'kg', type: 'reps' },
-                    { id: 'b5', name: '5. Pallof Press', muscle: 'Anti-Rotation Core / Obliques', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold' }
+                    { id: 'b1', name: '1. Romanian Deadlift', muscle: 'Hamstrings / Glutes / Lower Back', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', desc: 'Stand straight holding weight in front. Hinge at hips by driving them backwards, maintaining straight shins and a flat spinal position. Lower until hamstrings stretch fully, then use glutes to snap upright.' },
+                    { id: 'b2', name: '2. Seated Cable Row (Wide)', muscle: 'Rhomboids / Mid-Traps / Lats', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps', desc: 'Use a wide bar attachment. Sit tall, pull toward mid-torso while expanding the chest out. Squeeze your scapula together tightly at maximum compression. Keep shoulders down away from ears.' },
+                    { id: 'b3', name: '3. DB Overhead Shoulder Press', muscle: 'Deltoids / Triceps / Core Stability', sets: 3, repsRange: '8', unit: 'kg', type: 'reps', desc: 'Sit or stand bracing core firmly. Press dumbbells straight up until arms lock directly overhead aligned with ears. Lower under strict control back down to shoulder/chin height.' },
+                    { id: 'b4', name: '4. Bulgarian Split Squat', muscle: 'Quads / Glutes / Unilateral Balance', sets: 3, repsRange: '8', unit: 'kg', type: 'reps', desc: 'Place one foot back on a low bench or step. Drop your rear knee toward the floor while loading your front foot heavily. Ensure front knee traces outward inline over your toes.' },
+                    { id: 'b5', name: '5. Farmer’s Walks / Carries', muscle: 'Grip Strength / Forearms / Full-Body Core', sets: 3, repsRange: '40m', unit: 'kg', type: 'hold', desc: 'Pick up heavy dumbells or kettlebells on each side. Pull shoulders back into pockets and stand tall. Walk forward with slow, controlled, balanced paces without allowing the loads to shift.' }
                 ]
             },
             'workout-c': {
                 name: 'Workout C',
                 exercises: [
-                    { id: 'c1', name: '1. Bulgarians or Reverse Lunges', muscle: 'Quads / Glutes / Unilateral Balance', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'c2', name: '2. Seated Cable Row (Wide or Close Grip)', muscle: 'Rhomboids / Mid-Traps / Biceps', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
-                    { id: 'c3', name: '3. Incline Dumbbell Press', muscle: 'Upper Chest / Anterior Delts', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
-                    { id: 'c4', name: '4. Cable Woodchoppers', muscle: 'Obliques / Core Rotational Power', sets: 3, repsRange: '12', unit: 'kg', type: 'reps' },
-                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps' }
+                    { id: 'c1', name: '1. Leg Press or Hack Squat', muscle: 'Quads / Glutes / Hamstrings', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Position feet securely on the sledge plate. Lower your weight smoothly until knees form a clean 90-degree configuration without letting your tailbone lift off the pad. Drive straight out.' },
+                    { id: 'c2', name: '2. Chest-Supported DB Row', muscle: 'Upper Back / Mid-Traps / Biceps', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Set an incline bench to 30 degrees and lie chest down. Flare elbows out slightly as you pull dumbbells upward to maximize the mechanical loading across the upper back musculature.' },
+                    { id: 'c3', name: '3. Incline Dumbbell Press', muscle: 'Upper Chest / Anterior Delts', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Lie back on an incline bench set to roughly 30-45 degrees. Press weights straight up over upper chest line. Keep shoulders retracted and safely packed against the bench frame.' },
+                    { id: 'c4', name: '4. Cable Woodchoppers', muscle: 'Obliques / Core Rotational Power', sets: 3, repsRange: '12', unit: 'kg', type: 'reps', desc: 'Set pulley to upper height. Stand sideways and grip attachment with both hands. Pull diagonally downward across your frame, pivoting on the back foot while maintaining a braced core.' },
+                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps', desc: 'Hang from a bar. Contract your lower abdominals to raise knees upward toward your chest line. Control the descent strictly to avoid creating swinging momentum.' }
                 ]
             }
         };
 
         let activeTabId = 'workout-a';
         let currentSelectedAnalyticsPill = 'Workout A';
-        let calendarFocusDate = new Date();
+        let calendarFocusDate = new Date(); 
         let sessionIsRunning = false;
         let globalTimeElapsed = 0;
         let globalTimerInterval = null;
+        
         let warmupTimeElapsed = 0;
         let warmupRunning = false;
+
         let stretchTimeElapsed = 0;
         let stretchRunning = false;
-        let exerciseClockStates = {};
+
+        let exerciseClockStates = {}; 
         let holdTimers = {};
 
-        // Make all execution targets globally discoverable to elements safely
-        window.openBiometricsModal = function() {
-            const el = document.getElementById('biometrics-modal');
-            if (el) el.style.display = 'flex';
-        };
+        function openBiometricsModal() { document.getElementById('biometrics-modal').style.display = 'flex'; }
+        function closeBiometricsModal() { document.getElementById('biometrics-modal').style.display = 'none'; renderApp(); }
+        function openScienceModal() { document.getElementById('science-modal').style.display = 'flex'; }
+        function closeScienceModal() { document.getElementById('science-modal').style.display = 'none'; }
 
-        window.closeBiometricsModal = function() {
-            const el = document.getElementById('biometrics-modal');
-            if (el) el.style.display = 'none';
-            renderApp();
-        };
+        function openExplanationModal(exId) {
+            let foundEx = null;
+            Object.values(routines).forEach(r => {
+                let e = r.exercises.find(i => i.id === exId);
+                if(e) foundEx = e;
+            });
+            if(!foundEx) return;
+            document.getElementById('explanation-modal-title').innerText = `📋 ${foundEx.name}`;
+            document.getElementById('explanation-modal-content').innerHTML = `
+                <p><strong>Target Muscle:</strong> ${foundEx.muscle}</p>
+                <p><strong>Execution Strategy:</strong></p>
+                <p>${foundEx.desc || "No specific guidelines provided for this exercise card node yet."}</p>
+            `;
+            document.getElementById('explanation-modal-overlay' || 'explanation-modal').style.display = 'flex';
+        }
+        function closeExplanationModal() { document.getElementById('explanation-modal').style.display = 'none'; }
 
-        window.openScienceModal = function() {
-            const el = document.getElementById('science-modal');
-            if (el) el.style.display = 'flex';
-        };
+        function saveBiometricsToMemory() {
+            const weightVal = document.getElementById('input-bio-weight').value;
+            const fatVal = document.getElementById('input-bio-fat').value;
+            const muscleVal = document.getElementById('input-bio-muscle').value;
 
-        window.closeScienceModal = function() {
-            const el = document.getElementById('science-modal');
-            if (el) el.style.display = 'none';
-        };
-
-        window.saveBiometricsToMemory = function() {
-            const weightVal = document.getElementById('input-bio-weight')?.value;
-            const fatVal = document.getElementById('input-bio-fat')?.value;
-            const muscleVal = document.getElementById('input-bio-muscle')?.value;
             if (weightVal) localStorage.setItem('user_bodyweight', weightVal);
-            if (fatVal !== undefined && fatVal !== null) localStorage.setItem('user_bodyfat_pct', fatVal);
-            if (muscleVal !== undefined && muscleVal !== null) localStorage.setItem('user_muscle_pct', muscleVal);
-            updateLiveMetricsOnly();
-        };
-
-        window.switchWorkout = function(dayId) {
-            activeTabId = dayId;
-            document.querySelectorAll('.workout-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            localStorage.setItem('user_bodyfat_pct', fatVal);
+            localStorage.setItem('user_muscle_pct', muscleVal);
             
-            const targetedSec = document.getElementById(dayId);
-            const targetedTab = document.getElementById(`tab-${dayId}`);
-            if (targetedSec) targetedSec.classList.add('active');
-            if (targetedTab) targetedTab.classList.add('active');
+            updateLiveMetricsOnly();
+        }
 
-            const stretchingDashboard = document.getElementById('stretching-dashboard');
-            const scoreboardWidget = document.getElementById('day-scoreboard-widget');
+        function renderApp() {
+            const savedWeight = localStorage.getItem('user_bodyweight') || '80';
+            const savedFat = localStorage.getItem('user_bodyfat_pct') || '';
+            const savedMuscle = localStorage.getItem('user_muscle_pct') || '';
 
-            if (dayId !== 'view-history') {
-                if (scoreboardWidget) scoreboardWidget.style.display = 'flex';
-                if (stretchingDashboard) stretchingDashboard.style.display = sessionIsRunning ? 'block' : 'none';
-                updateLiveMetricsOnly();
+            document.getElementById('input-bio-weight').value = savedWeight;
+            document.getElementById('input-bio-fat').value = savedFat;
+            document.getElementById('input-bio-muscle').value = savedMuscle;
+
+            const pillWidget = document.getElementById('bio-pill-widget');
+            const pillText = document.getElementById('bio-pill-text');
+
+            if(savedMuscle && parseFloat(savedMuscle) > 0) {
+                pillWidget.classList.add('active-bio');
+                pillText.innerText = `Engine Loaded: ${savedWeight}kg (${savedMuscle}%)`;
             } else {
-                if (scoreboardWidget) scoreboardWidget.style.display = 'none';
-                if (stretchingDashboard) stretchingDashboard.style.display = 'none';
-                const inspector = document.getElementById('calendar-inspector-panel');
-                if (inspector) inspector.style.display = 'none';
-                renderCalendarWorkspace();
-                renderDeepHistoricPillsSummary();
+                pillWidget.classList.remove('active-bio');
+                pillText.innerText = `BW: ${savedWeight}kg`;
             }
-            window.scrollTo({top: 0});
-        };
 
-        window.startWorkoutSession = function() {
+            const calculatedExercisePBs = parseDayBoundExercisePBs();
+
+            for (const [dayId, data] of Object.entries(routines)) {
+                const container = document.getElementById(dayId);
+                let html = '';
+
+                data.exercises.forEach(ex => {
+                    const exPbData = calculatedExercisePBs[ex.id];
+                    let peakPersonalBestScore = exPbData ? exPbData.score : 0.0;
+                    const elapsedSavedClock = localStorage.getItem(`ex-clock-time-${ex.id}`) || '00:00';
+                    const scoreLabelStr = (savedMuscle && parseFloat(savedMuscle) > 0) ? 'Muscle RLI' : 'RLI';
+
+                    html += `
+                        <div class="exercise-card" id="card-${ex.id}">
+                            <div class="exercise-header">
+                                <h2 class="exercise-title">
+                                    ${ex.name} 
+                                    <span style="color:var(--text-muted); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span>
+                                    <button class="exercise-info-btn" onclick="openExplanationModal('${ex.id}')" title="Show details">ⓘ</button>
+                                </h2>
+                                <div class="ex-controls">
+                                    <div class="ex-clock-badge" id="clock-${ex.id}">${elapsedSavedClock}</div>
+                                    <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" 
+                                            onclick="toggleExerciseClock('${ex.id}')" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        ▶ Clock
+                                    </button>
+                                </div>
+                            </div>
+                            <span class="muscle-badge-header">🎯 Target: ${ex.muscle}</span>
+                            
+                            <div class="metrics-bar">
+                                <div class="metric-cell-vertical">
+                                    <span class="m-lbl">Peak Day Combo:</span>
+                                    <span class="m-val-pb">${scoreLabelStr}: ${peakPersonalBestScore.toFixed(1)}x</span>
+                                </div>
+                                <div class="metric-cell-vertical" style="text-align: right;">
+                                    <span class="m-lbl">Live Card:</span>
+                                    <span class="m-val-live" id="eff-${ex.id}">${scoreLabelStr}: 0.0x</span>
+                                </div>
+                            </div>
+
+                            <table class="log-table">
+                                <thead>
+                                    <tr>
+                                        <th>Set</th>
+                                        <th>Weight</th>
+                                        <th>${ex.type === 'hold' ? 'Stopwatch / Sec' : 'Reps'}</th>
+                                        <th style="padding-left:4px;">Best Day Combo</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    for (let s = 1; s <= ex.sets; s++) {
+                        const weightKey = `cur-${ex.id}-w-${s}`;
+                        const repKey = `cur-${ex.id}-r-${s}`;
+                        const checkKey = `cur-check-${ex.id}-${s}`;
+
+                        const wVal = localStorage.getItem(weightKey) || '';
+                        const rVal = localStorage.getItem(repKey) || '';
+                        const isChecked = localStorage.getItem(checkKey) === 'true';
+
+                        let historicalBestString = '<span style="color:var(--text-muted)">--</span>';
+                        if (exPbData && exPbData.setsBreakdown[s]) {
+                            const pbSet = exPbData.setsBreakdown[s];
+                            if (ex.type === 'hold') {
+                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.reps}s</strong></span>`;
+                            } else {
+                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.weight}kg×${pbSet.reps}</strong></span>`;
+                            }
+                        }
+
+                        // Determine standard placeholder text string safely
+                        let weightPlaceholder = "0";
+                        if(ex.id === 'a5' || ex.id === 'c5') {
+                            weightPlaceholder = "BW";
+                        }
+
+                        html += `
+                            <tr class="log-row ${isChecked ? 'row-filled' : ''}" id="row-${ex.id}-${s}">
+                                <td class="set-num">${s}</td>
+                                <td class="input-cell">
+                                    <div class="input-container-box">
+                                        <input type="text" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="${weightPlaceholder}" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                    </div>
+                                </td>
+                                <td class="input-cell">
+                                    <div class="input-container-box" style="background:transparent; border:none; width:95%;">
+                                    ${ex.type === 'hold' ? `
+                                        <div class="hold-input-wrapper" id="hold-wrapper-${ex.id}-${s}">
+                                            ${rVal === '' ? `
+                                                <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
+                                                    ⏱️ Start
+                                                </button>
+                                            ` : `
+                                                <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                            `}
+                                        </div>
+                                    ` : `
+                                        <div class="input-container-box" style="width:100%;">
+                                            <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        </div>
+                                    `}
+                                    </div>
+                                </td>
+                                <td class="target-cell">${historicalBestString}</td>
+                                <td class="checkbox-cell">
+                                    <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})">
+                                        ✓
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    html += `</tbody></table></div>`;
+                });
+                
+                container.innerHTML = html;
+            }
+            updateDashboardStats();
+            renderHistoryLog();
+            updateLiveMetricsOnly();
+            renderPillDeepAnalysis();
+            renderCalendarWorkspace();
+        }
+
+        function parseDayBoundExercisePBs() {
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            const exercisePBs = {}; 
+
+            for (let i = historyList.length - 1; i >= 0; i--) {
+                const session = historyList[i];
+                const rawDetails = session.details || '';
+                const exBlocks = rawDetails.split(/\n(?=[0-9]\.)/);
+                
+                exBlocks.forEach(block => {
+                    const lines = block.trim().split('\n');
+                    const firstLine = lines[0];
+                    if (!firstLine) return;
+
+                    let matchedExId = null;
+                    let currentExType = 'reps';
+                    
+                    Object.keys(routines).forEach(dId => {
+                        routines[dId].exercises.forEach(exObj => {
+                            if (firstLine.includes(exObj.name)) {
+                                matchedExId = exObj.id;
+                                currentExType = exObj.type;
+                            }
+                        });
+                    });
+
+                    if (!matchedExId) return;
+
+                    const scoreMatch = firstLine.match(/Score:\s*([0-9.]+)/);
+                    if (!scoreMatch) return;
+                    const blockDayScore = parseFloat(scoreMatch[1]) || 0;
+
+                    const setsBreakdown = {};
+                    lines.forEach(line => {
+                        if (line.trim().startsWith('Set')) {
+                            const setNumMatch = line.match(/Set\s*([0-9]+):/);
+                            if (setNumMatch) {
+                                const sNum = parseInt(setNumMatch[1]);
+                                if (currentExType === 'hold') {
+                                    const secMatch = line.match(/:\s*([0-9.]+)\s*sec/);
+                                    if (secMatch) setsBreakdown[sNum] = { reps: parseInt(secMatch[1]), weight: 0 };
+                                } else {
+                                    const wtRepMatch = line.match(/:\s*([0-9.]+)kg\s*x\s*([0-9.]+)\s*reps/);
+                                    if (wtRepMatch) setsBreakdown[sNum] = { weight: parseFloat(wtRepMatch[1]), reps: parseInt(wtRepMatch[2]) };
+                                }
+                            }
+                        }
+                    });
+
+                    if (!exercisePBs[matchedExId] || blockDayScore >= exercisePBs[matchedExId].score) {
+                        exercisePBs[matchedExId] = {
+                            score: blockDayScore,
+                            date: session.date,
+                            timestamp: session.timestamp,
+                            setsBreakdown: setsBreakdown
+                        };
+                    }
+                });
+            }
+            return exercisePBs;
+        }
+
+        function renderCalendarWorkspace() {
+            const gridContainer = document.getElementById('calendar-render-grid');
+            const headerTitle = document.getElementById('calendar-header-title');
+            if(!gridContainer || !headerTitle) return;
+
+            const year = calendarFocusDate.getFullYear();
+            const month = calendarFocusDate.getMonth();
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            headerTitle.innerText = `${monthNames[month]} ${year}`;
+            gridContainer.innerHTML = '';
+
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'calendar-weekday-hdr';
+                el.innerText = d;
+                gridContainer.appendChild(el);
+            });
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                gridContainer.appendChild(document.createElement('div'));
+            }
+
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+
+            for (let day = 1; day <= totalDaysInMonth; day++) {
+                const cellDateObj = new Date(year, month, day);
+                const cellLocaleString = cellDateObj.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day-cell';
+                
+                const numLabel = document.createElement('span');
+                numLabel.className = 'num-label';
+                numLabel.innerText = day;
+                cell.appendChild(numLabel);
+
+                const matchingLogs = historyList.filter(l => l.date === cellLocaleString);
+
+                if (matchingLogs.length > 0) {
+                    cell.classList.add('has-log');
+                    
+                    matchingLogs.forEach(log => {
+                        const badge = document.createElement('div');
+                        badge.className = 'calendar-badge';
+                        
+                        let letter = 'A';
+                        if(log.type.toLowerCase().includes('b')) letter = 'B';
+                        if(log.type.toLowerCase().includes('c')) letter = 'C';
+
+                        badge.classList.add(`badge-${letter.toLowerCase()}`);
+                        badge.innerText = letter;
+                        cell.appendChild(badge);
+                    });
+
+                    cell.onclick = () => {
+                        openDayInspectorPanel(cellLocaleString);
+                        document.querySelectorAll('.calendar-day-cell').forEach(c => c.classList.remove('selected-day'));
+                        cell.classList.add('selected-day');
+                    };
+                }
+                gridContainer.appendChild(cell);
+            }
+        }
+
+        function openDayInspectorPanel(targetDateString) {
+            const inspectorPanel = document.getElementById('calendar-inspector-panel');
+            const inspectorTitle = document.getElementById('inspector-date-title');
+            const inspectorContent = document.getElementById('inspector-output-content');
+
+            inspectorPanel.style.display = 'block';
+            inspectorTitle.innerText = `🔍 Training Node: ${targetDateString}`;
+            inspectorContent.innerHTML = '';
+
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            
+            historyList.forEach((log, index) => {
+                if(log.date === targetDateString) {
+                    const sessionCard = document.createElement('div');
+                    sessionCard.className = 'editable-session-card';
+                    sessionCard.innerHTML = `
+                        <div class="editor-row-item">
+                            <div class="editor-field-group">
+                                <label>Log Date (e.g., Mar 25, 2026)</label>
+                                <input type="text" id="edit-date-${index}" value="${log.date}">
+                            </div>
+                            <div class="editor-field-group">
+                                <label>Routine</label>
+                                <input type="text" id="edit-type-${index}" value="${log.type}">
+                            </div>
+                            <div class="editor-field-group">
+                                <label>Total RLI Score</label>
+                                <input type="number" step="0.1" id="edit-ratio-${index}" value="${log.ratio}">
+                            </div>
+                        </div>
+                        <div class="editor-field-group">
+                            <label>Workout Performance Raw Metric Log</label>
+                            <textarea id="edit-textarea-${index}">${log.details}</textarea>
+                        </div>
+                        <div class="editor-action-row">
+                            <button class="editor-btn-save" onclick="saveInspectedLogEdits(${index})">💾 Save Session changes</button>
+                            <button class="editor-btn-delete" onclick="deleteInspectedLogNode(${index})">🗑️ Delete</button>
+                        </div>
+                    `;
+                    inspectorContent.appendChild(sessionCard);
+                }
+            });
+        }
+
+        function saveInspectedLogEdits(globalIndex) {
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            
+            const newDate = document.getElementById(`edit-date-${globalIndex}`).value.trim();
+            const newType = document.getElementById(`edit-type-${globalIndex}`).value.trim();
+            const newRatio = parseFloat(document.getElementById(`edit-ratio-${globalIndex}`).value) || 0;
+            const newDetails = document.getElementById(`edit-textarea-${globalIndex}`).value;
+
+            historyList[globalIndex].date = newDate;
+            historyList[globalIndex].type = newType;
+            historyList[globalIndex].ratio = newRatio;
+            historyList[globalIndex].details = newDetails;
+
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
+            alert("Workout node successfully amended.");
+            
+            document.getElementById('calendar-inspector-panel').style.display = 'none';
+            renderApp();
+        }
+
+        function deleteInspectedLogNode(globalIndex) {
+            if(!confirm("Wipe this training block from history?")) return;
+            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            const targetedDate = historyList[globalIndex].date;
+            
+            historyList.splice(globalIndex, 1);
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
+            
+            if(historyList.filter(l => l.date === targetedDate).length === 0) {
+                document.getElementById('calendar-inspector-panel').style.display = 'none';
+            } else {
+                openDayInspectorPanel(targetedDate);
+            }
+            renderApp();
+        }
+
+        function shiftCalendarMonth(direction) {
+            calendarFocusDate.setMonth(calendarFocusDate.getMonth() + direction);
+            renderCalendarWorkspace();
+        }
+
+        function startWorkoutSession() {
             sessionIsRunning = true;
             globalTimeElapsed = 0;
-            if (document.getElementById('session-gate')) document.getElementById('session-gate').style.display = 'none';
-            if (document.getElementById('global-timer-box')) document.getElementById('global-timer-box').style.display = 'block';
-            if (document.getElementById('warmup-dashboard')) document.getElementById('warmup-dashboard').style.display = 'block';
-            if (document.getElementById('stretching-dashboard')) document.getElementById('stretching-dashboard').style.display = 'block';
-            if (document.getElementById('footer-actions')) document.getElementById('footer-actions').style.display = 'flex';
+            
+            document.getElementById('session-gate').style.display = 'none';
+            document.getElementById('global-timer-box').style.display = 'block';
+            document.getElementById('warmup-dashboard').style.display = 'block';
+            document.getElementById('stretching-dashboard').style.display = 'block';
+            document.getElementById('footer-actions').style.display = 'flex';
 
-            if (globalTimerInterval) clearInterval(globalTimerInterval);
             globalTimerInterval = setInterval(() => {
                 globalTimeElapsed++;
                 const gMin = Math.floor(globalTimeElapsed / 60).toString().padStart(2, '0');
                 const gSec = (globalTimeElapsed % 60).toString().padStart(2, '0');
-                const gBox = document.getElementById('global-timer-box');
-                if (gBox) gBox.innerText = `${gMin}:${gSec}`;
+                document.getElementById('global-timer-box').innerText = `${gMin}:${gSec}`;
 
                 if (warmupRunning) {
                     warmupTimeElapsed++;
                     const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
                     const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-                    const wText = document.getElementById('warmup-timer-text');
-                    if (wText) wText.innerText = `${wMin}:${wSec}`;
+                    document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
                 }
 
                 if (stretchRunning) {
                     stretchTimeElapsed++;
                     const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
                     const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
-                    const sText = document.getElementById('stretch-timer-text');
-                    if (sText) sText.innerText = `${sMin}:${sSec}`;
+                    document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
                 }
 
                 Object.keys(exerciseClockStates).forEach(exId => {
-                    if (exerciseClockStates[exId] && exerciseClockStates[exId].running) {
+                    if (exerciseClockStates[exId].running) {
                         exerciseClockStates[exId].time++;
                         const eMin = Math.floor(exerciseClockStates[exId].time / 60).toString().padStart(2, '0');
                         const eSec = (exerciseClockStates[exId].time % 60).toString().padStart(2, '0');
-                        const badge = document.getElementById(`clock-badge-${exId}`);
-                        if (badge) badge.innerText = `${eMin}:${eSec}`;
+                        const clockText = `${eMin}:${eSec}`;
+                        localStorage.setItem(`ex-clock-time-${exId}`, clockText);
+                        const badge = document.getElementById(`clock-${exId}`);
+                        if (badge) badge.innerText = clockText;
                     }
                 });
             }, 1000);
 
             renderApp();
-        };
+        }
 
-        window.toggleWarmupClock = function() {
+        function toggleWarmupClock() {
             const btn = document.getElementById('warmup-toggle');
-            if (!btn) return;
             if (warmupRunning) {
                 warmupRunning = false;
-                btn.innerText = "▶ Start Warmup";
+                btn.innerText = "▶ Resume Warmup";
                 btn.classList.remove('active-run');
             } else {
                 warmupRunning = true;
                 btn.innerText = "⏸ Pause Warmup";
                 btn.classList.add('active-run');
             }
-        };
+        }
 
-        window.adjustWarmupTime = function(seconds) {
+        function adjustWarmupTime(seconds) {
             warmupTimeElapsed += seconds;
-            if (warmupTimeElapsed < 0) warmupTimeElapsed = 0;
+            if(warmupTimeElapsed < 0) warmupTimeElapsed = 0;
             const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
             const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-            const wText = document.getElementById('warmup-timer-text');
-            if (wText) wText.innerText = `${wMin}:${wSec}`;
-        };
+            document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
+        }
 
-        window.resetWarmupClock = function() {
+        function resetWarmupClock() {
             warmupRunning = false;
             warmupTimeElapsed = 0;
-            if (document.getElementById('warmup-timer-text')) document.getElementById('warmup-timer-text').innerText = "00:00";
-            const btn = document.getElementById('warmup-toggle');
-            if (btn) {
-                btn.innerText = "▶ Start Warmup";
-                btn.classList.remove('active-run');
-            }
-        };
+            document.getElementById('warmup-timer-text').innerText = "00:00";
+            document.getElementById('warmup-toggle').innerText = "▶ Start Warmup";
+            document.getElementById('warmup-toggle').classList.remove('active-run');
+        }
 
-        window.toggleStretchClock = function() {
+        function toggleStretchClock() {
             const btn = document.getElementById('stretch-toggle');
-            if (!btn) return;
             if (stretchRunning) {
                 stretchRunning = false;
-                btn.innerText = "▶ Start Stretching";
+                btn.innerText = "▶ Resume Stretching";
                 btn.classList.remove('active-run');
             } else {
                 stretchRunning = true;
                 btn.innerText = "⏸ Pause Stretching";
                 btn.classList.add('active-run');
             }
-        };
+        }
 
-        window.adjustStretchTime = function(seconds) {
+        function adjustStretchTime(seconds) {
             stretchTimeElapsed += seconds;
-            if (stretchTimeElapsed < 0) stretchTimeElapsed = 0;
+            if(stretchTimeElapsed < 0) stretchTimeElapsed = 0;
             const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
             const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
-            if (document.getElementById('stretch-timer-text')) document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
-        };
+            document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
+        }
 
-        window.resetStretchClock = function() {
+        function resetStretchClock() {
             stretchRunning = false;
             stretchTimeElapsed = 0;
-            if (document.getElementById('stretch-timer-text')) document.getElementById('stretch-timer-text').innerText = "00:00";
-            const btn = document.getElementById('stretch-toggle');
-            if (btn) {
-                btn.innerText = "▶ Start Stretching";
-                btn.classList.remove('active-run');
-            }
-        };
+            document.getElementById('stretch-timer-text').innerText = "00:00";
+            document.getElementById('stretch-toggle').innerText = "▶ Start Stretching";
+            document.getElementById('stretch-toggle').classList.remove('active-run');
+        }
 
-        window.toggleManualRowCheck = function(exId, setNum) {
+        function toggleManualRowCheck(exId, setNum) {
             const rowElement = document.getElementById(`row-${exId}-${setNum}`);
-            if (!rowElement) return;
             const checkKey = `cur-check-${exId}-${setNum}`;
+            
             const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
             const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
-            
-            if (wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
-            if (rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
+            if(wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
+            if(rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
 
             if (rowElement.classList.contains('row-filled')) {
                 rowElement.classList.remove('row-filled');
@@ -690,14 +1047,14 @@
                 localStorage.setItem(checkKey, 'true');
             }
             updateLiveMetricsOnly();
-        };
+        }
 
-        window.toggleExerciseClock = function(exId) {
+        function toggleExerciseClock(exId) {
             const btn = document.getElementById(`clock-toggle-${exId}`);
-            if (!btn) return;
             if (!exerciseClockStates[exId]) {
                 exerciseClockStates[exId] = { time: 0, running: false };
             }
+
             if (exerciseClockStates[exId].running) {
                 exerciseClockStates[exId].running = false;
                 btn.innerText = "▶ Clock";
@@ -707,12 +1064,11 @@
                 btn.innerText = "⏸ Pause";
                 btn.classList.add('active-run');
             }
-        };
+        }
 
-        window.toggleHoldStopwatch = function(exId, setNum, repKey) {
+        function toggleHoldStopwatch(exId, setNum, repKey) {
             const timerId = exId + '-' + setNum;
             const btn = document.getElementById('btn-' + timerId);
-            if (!btn) return;
 
             if (holdTimers[timerId]) {
                 clearInterval(holdTimers[timerId].interval);
@@ -721,42 +1077,385 @@
                 delete holdTimers[timerId];
 
                 const wrapper = document.getElementById(`hold-wrapper-${timerId}`);
-                if (wrapper) {
-                    wrapper.innerHTML = `<input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${totalSeconds}" oninput="localStorage.setItem('${repKey}', this.value); updateLiveMetricsOnly();">`;
+                if(wrapper) {
+                    wrapper.innerHTML = `
+                        <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${totalSeconds}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();">
+                    `;
                 }
                 updateLiveMetricsOnly();
             } else {
-                btn.innerText = "⏱️ 0s";
+                btn.innerText = "⏱️ Stop";
                 btn.classList.add('running');
                 holdTimers[timerId] = {
                     start: Date.now(),
                     interval: setInterval(() => {
-                        if (holdTimers[timerId]) {
-                            const elapsed = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
-                            btn.innerText = `⏱️ ${elapsed}s`;
-                        }
+                        const elapsed = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
+                        btn.innerText = "⏱️ " + elapsed + "s";
                     }, 1000)
                 };
             }
-        };
+        }
 
-        window.changeAnalyticsPill = function(routineName) {
+        function updateLiveMetricsOnly() {
+            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
+            const musclePct = parseFloat(localStorage.getItem('user_muscle_pct')) || 0;
+            const isAdvanced = musclePct > 0;
+
+            const scalingDenominator = isAdvanced ? (userBw * (musclePct / 100)) : userBw;
+            const labelStr = isAdvanced ? 'Muscle RLI' : 'RLI';
+            
+            document.getElementById('widget-title-past-best').innerText = `All-Time Best Day ${labelStr}`;
+            document.getElementById('widget-title-live').innerText = `Live Session ${labelStr}`;
+            document.getElementById('stat-label-week').innerText = `Weekly ${labelStr}`;
+            document.getElementById('stat-label-last').innerText = `Last ${labelStr}`;
+
+            const currentRoutine = routines[activeTabId];
+            let dayTotalVolumeScore = 0;
+
+            if (currentRoutine) {
+                currentRoutine.exercises.forEach(ex => {
+                    let exerciseVolumeLoad = 0;
+                    let holdsTotalSeconds = 0;
+                    
+                    for (let s = 1; s <= ex.sets; s++) {
+                        const wInput = document.getElementById(`cur-${ex.id}-w-${s}`);
+                        const rInput = document.getElementById(`cur-${ex.id}-r-${s}`);
+                        
+                        let wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
+                        const rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
+
+                        if (wVal.toUpperCase() === 'BW') {
+                            wVal = '0';
+                        }
+
+                        if (rVal !== '') {
+                            if (ex.type === 'hold') {
+                                holdsTotalSeconds += parseInt(rVal) || 0;
+                            } else if (wVal !== '') {
+                                exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
+                            }
+                        }
+                    }
+
+                    let calculatedExerciseScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
+                    dayTotalVolumeScore += calculatedExerciseScore;
+                    
+                    const exEffBadge = document.getElementById(`eff-${ex.id}`);
+                    if (exEffBadge) exEffBadge.innerText = `${labelStr}: ${calculatedExerciseScore.toFixed(1)}x`;
+                });
+            }
+
+            document.getElementById('widget-live-score').innerText = dayTotalVolumeScore.toFixed(1) + 'x';
+            
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            const specificRoutineLogs = historyList.filter(s => s.type === currentRoutine?.name);
+            let absoluteBestDayTotalVal = 0;
+            if(specificRoutineLogs.length > 0) {
+                absoluteBestDayTotalVal = Math.max(...specificRoutineLogs.map(l => l.ratio || 0));
+            }
+            document.getElementById('widget-past-best').innerText = absoluteBestDayTotalVal.toFixed(1) + 'x';
+        }
+
+        function switchWorkout(dayId) {
+            activeTabId = dayId;
+            document.querySelectorAll('.workout-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(dayId).classList.add('active');
+            document.getElementById(`tab-${dayId}`).classList.add('active');
+
+            const stretchingDashboard = document.getElementById('stretching-dashboard');
+            const scoreboardWidget = document.getElementById('day-scoreboard-widget');
+            
+            if(dayId !== 'view-history') {
+                scoreboardWidget.style.display = 'flex';
+                stretchingDashboard.style.display = sessionIsRunning ? 'block' : 'none';
+                updateLiveMetricsOnly();
+            } else {
+                scoreboardWidget.style.display = 'none';
+                stretchingDashboard.style.display = 'none';
+                document.getElementById('calendar-inspector-panel').style.display = 'none';
+            }
+            window.scrollTo({top: 0});
+        }
+
+        function changeAnalyticsPill(routineName) {
             currentSelectedAnalyticsPill = routineName;
             document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-            if (routineName === 'Workout A') document.getElementById('pill-a')?.classList.add('active');
-            if (routineName === 'Workout B') document.getElementById('pill-b')?.classList.add('active');
-            if (routineName === 'Workout C') document.getElementById('pill-c')?.classList.add('active');
-            renderDeepHistoricPillsSummary();
-        };
+            if(routineName === 'Workout A') document.getElementById('pill-a').classList.add('active');
+            if(routineName === 'Workout B') document.getElementById('pill-b').classList.add('active');
+            if(routineName === 'Workout C') document.getElementById('pill-c').classList.add('active');
+            renderPillDeepAnalysis();
+        }
 
-        window.shiftCalendarMonth = function(direction) {
-            calendarFocusDate.setMonth(calendarFocusDate.getMonth() + direction);
-            renderCalendarWorkspace();
-        };
+        function renderPillDeepAnalysis() {
+            const container = document.getElementById('deep-pill-results-box');
+            if(!container) return;
 
-        window.saveInspectedLogEdits = function(globalIndex) {
-            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            if (!historyList[globalIndex]) return;
+            let associatedWorkoutKey = 'workout-a';
+            if(currentSelectedAnalyticsPill === 'Workout B') associatedWorkoutKey = 'workout-b';
+            if(currentSelectedAnalyticsPill === 'Workout C') associatedWorkoutKey = 'workout-c';
+
+            const targetedRoutine = routines[associatedWorkoutKey];
+            const calculatedPBs = parseDayBoundExercisePBs();
+            const nowTime = Date.now();
+            const labelStr = (parseFloat(localStorage.getItem('user_muscle_pct')) > 0) ? 'Muscle RLI' : 'RLI';
+
+            let html = '';
+
+            targetedRoutine.exercises.forEach(ex => {
+                const pbEntry = calculatedPBs[ex.id];
+                if(!pbEntry) {
+                    html += `
+                        <div class="deep-exercise-card">
+                            <div class="deep-exercise-title">${ex.name}</div>
+                            <div class="deep-exercise-meta" style="color:var(--text-muted);">No history logged for this exercise yet.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const elapsedDaysAgo = Math.floor((nowTime - pbEntry.timestamp) / (1000 * 60 * 60 * 24));
+                const daysAgoString = elapsedDaysAgo === 0 ? "Today" : `${elapsedDaysAgo} days ago`;
+
+                let setsListText = [];
+                Object.keys(pbEntry.setsBreakdown).forEach(sNum => {
+                    const info = pbEntry.setsBreakdown[sNum];
+                    if(ex.type === 'hold') {
+                        setsListText.push(`Set ${sNum}: ${info.reps}s`);
+                    } else {
+                        setsListText.push(`Set ${sNum}: ${info.weight}kg x ${info.reps} reps`);
+                    }
+                });
+
+                html += `
+                    <div class="deep-exercise-card">
+                        <div class="deep-exercise-title" style="color:var(--accent-color);">${ex.name}</div>
+                        <div class="deep-exercise-meta">
+                            🎯 Muscle Group: <span style="color:#fff; font-weight:bold;">${ex.muscle}</span><br>
+                            🔥 Peak Day Score:<br><strong style="color:var(--warning-color);">${labelStr}: ${pbEntry.score.toFixed(1)}x</strong><br>
+                            📅 Achieved: <strong>${pbEntry.date}</strong> (${daysAgoString})<br>
+                            🏋️ Performance Breakdown:<br>
+                            <span style="color:#fff; padding-left:4px; display:inline-block; margin-top:2px;">${setsListText.join(' | ')}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function saveCurrentLive(key, val) { localStorage.setItem(key, val); }
+
+        function resetCurrentSessionInputs() {
+            if (!confirm("Clear current tracking grid workspace row sets?")) return;
+            const currentRoutine = routines[activeTabId];
             
-            const newDate = document.getElementById(`edit-date-${globalIndex}`)?.value.trim();
-            const newType = document.getElementById(`edit-type-${globalIndex}`)?.
+            resetWarmupClock();
+            resetStretchClock();
+
+            currentRoutine.exercises.forEach(ex => {
+                localStorage.removeItem(`ex-clock-time-${ex.id}`);
+                exerciseClockStates[ex.id] = { time: 0, running: false };
+                for (let s = 1; s <= ex.sets; s++) {
+                    localStorage.removeItem(`cur-${ex.id}-w-${s}`);
+                    localStorage.removeItem(`cur-${ex.id}-r-${s}`);
+                    localStorage.removeItem(`cur-check-${ex.id}-${s}`);
+                }
+            });
+
+            renderApp();
+        }
+
+        function finishWorkout() {
+            clearInterval(globalTimerInterval);
+            const currentRoutine = routines[activeTabId];
+            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
+            const musclePct = parseFloat(localStorage.getItem('user_muscle_pct')) || 0;
+            const isAdvanced = musclePct > 0;
+            const scalingDenominator = isAdvanced ? (userBw * (musclePct / 100)) : userBw;
+
+            let logDetails = '';
+            let parsedSessionScoreTotal = 0;
+            let rawAbsoluteWeightVolumeSum = 0;
+            let loggedCount = 0;
+
+            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+            const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
+            const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
+
+            logDetails += `Warmup Prep Duration: ${wMin}:${wSec}\n`;
+            logDetails += `Session Active Lift Duration: ${document.getElementById('global-timer-box').innerText}\n`;
+            logDetails += `Post-Workout Stretching Duration: ${sMin}:${sSec}\n\n`;
+
+            currentRoutine.exercises.forEach(ex => {
+                let exLines = [];
+                let exerciseVolumeLoad = 0;
+                let holdsTotalSeconds = 0;
+                const trackingClockText = document.getElementById(`clock-${ex.id}`).innerText;
+                
+                for (let s = 1; s <= ex.sets; s++) {
+                    let weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
+                    const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
+                    
+                    if (weight.toUpperCase() === 'BW') {
+                        weight = '0';
+                    }
+
+                    if (parseInt(reps) > 0) {
+                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : (weight === '0' ? 'BW' : weight + 'kg') + ' x '}${reps} ${ex.type === 'hold' ? 'sec' : 'reps'}`);
+                        if (ex.type === 'hold') {
+                            holdsTotalSeconds += parseInt(reps);
+                        } else {
+                            exerciseVolumeLoad += (parseFloat(weight) * parseInt(reps));
+                            rawAbsoluteWeightVolumeSum += (parseFloat(weight) * parseInt(reps));
+                        }
+                        loggedCount++;
+                    }
+                }
+                
+                if (exLines.length > 0) {
+                    let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
+                    parsedSessionScoreTotal += finalExScore;
+                    logDetails += `${ex.name} (Time: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x)\n${exLines.join('\n')}\n\n`;
+                }
+            });
+
+            if (loggedCount === 0) {
+                alert("Please track at least one completed set before ending session.");
+                return;
+            }
+
+            const finalRecordedDayRatio = parsedSessionScoreTotal.toFixed(1);
+            const today = new Date();
+            const dateString = today.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+
+            const sessionRecord = {
+                date: dateString,
+                timestamp: Date.now(),
+                type: currentRoutine.name,
+                volume: rawAbsoluteWeightVolumeSum,
+                ratio: parseFloat(finalRecordedDayRatio),
+                details: logDetails.trim()
+            };
+
+            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            historyList.unshift(sessionRecord);
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
+
+            resetWarmupClock();
+            resetStretchClock();
+            
+            currentRoutine.exercises.forEach(ex => {
+                localStorage.removeItem(`ex-clock-time-${ex.id}`);
+                delete exerciseClockStates[ex.id];
+                for (let s = 1; s <= ex.sets; s++) {
+                    localStorage.removeItem(`cur-${ex.id}-w-${s}`);
+                    localStorage.removeItem(`cur-${ex.id}-r-${s}`);
+                    localStorage.removeItem(`cur-check-${ex.id}-${s}`);
+                }
+            });
+
+            sessionIsRunning = false;
+            document.getElementById('session-gate').style.display = 'block';
+            document.getElementById('global-timer-box').style.display = 'none';
+            document.getElementById('warmup-dashboard').style.display = 'none';
+            document.getElementById('stretching-dashboard').style.display = 'none';
+            document.getElementById('footer-actions').style.display = 'none';
+            
+            alert(`Logged successfully! Score: ${finalRecordedDayRatio}x.`);
+            renderApp();
+            switchWorkout('view-history');
+        }
+
+        function updateDashboardStats() {
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            document.getElementById('stat-count').innerText = historyList.length;
+
+            if(historyList.length > 0) {
+                document.getElementById('stat-last-ratio').innerText = historyList[0].ratio.toFixed(1) + 'x';
+            } else {
+                document.getElementById('stat-last-ratio').innerText = '0.0x';
+            }
+
+            const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            const recentSessions = historyList.filter(s => s.timestamp >= sevenDaysAgo);
+            const weeklyScoreSum = recentSessions.reduce((acc, curr) => acc + (curr.ratio || 0), 0);
+            
+            document.getElementById('stat-week-ratio').innerText = weeklyScoreSum.toFixed(1) + 'x';
+
+            const analyticsBox = document.getElementById('weekly-analytics-panel');
+            if(analyticsBox) {
+                const labelStr = (parseFloat(localStorage.getItem('user_muscle_pct')) > 0) ? 'Muscle RLI' : 'RLI';
+                analyticsBox.innerHTML = `
+                    <div class="analytics-block">
+                        <div class="analytics-title">📊 Rolling 7-Day Cumulative ${labelStr} Efficiency Profile</div>
+                        Completed Workouts: <strong>${recentSessions.length}</strong><br>
+                        Total Capacity Cleared: <strong>${weeklyScoreSum.toFixed(1)}x</strong>
+                    </div>
+                `;
+            }
+        }
+
+        function renderHistoryLog() {
+            const historyStream = document.getElementById('history-stream');
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+
+            if (historyList.length === 0) {
+                historyStream.innerHTML = "No training sessions recorded yet.";
+                return;
+            }
+
+            let html = '';
+            historyList.forEach(item => {
+                html += `
+                    <div class="history-item">
+                        <span class="history-date">${item.date}</span> - <span style="color: var(--accent-color); font-weight:bold;">${item.type}</span> 
+                        <span style="color: var(--success-color); font-weight:bold; margin-left:10px;">(Score: ${item.ratio.toFixed(1)}x)</span>
+                        <div class="history-details">${item.details}</div>
+                    </div>
+                `;
+            });
+            historyStream.innerHTML = html;
+        }
+
+        function exportDataData() {
+            const stateData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                stateData[key] = localStorage.getItem(key);
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `gym_tracker_v16_backup.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importDataData(event) {
+            const fileElement = event.target.files[0];
+            if (!fileElement) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const parsed = JSON.parse(e.target.result);
+                Object.keys(parsed).forEach(k => { localStorage.setItem(k, parsed[k]); });
+                alert("Analytics data synchronized successfully!");
+                renderApp();
+            };
+            reader.readAsText(fileElement);
+        }
+
+        function resetAllHistory() {
+            if (confirm("Permanently clear application local memory space?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>
