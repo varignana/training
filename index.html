@@ -498,37 +498,37 @@
         let exerciseClockStates = {};
         let holdTimers = {};
 
-        // Make functions globally available explicitly
+        // Make all execution targets globally discoverable to elements safely
         window.openBiometricsModal = function() {
             const el = document.getElementById('biometrics-modal');
             if (el) el.style.display = 'flex';
-        }
+        };
 
         window.closeBiometricsModal = function() {
             const el = document.getElementById('biometrics-modal');
             if (el) el.style.display = 'none';
             renderApp();
-        }
+        };
 
         window.openScienceModal = function() {
             const el = document.getElementById('science-modal');
             if (el) el.style.display = 'flex';
-        }
+        };
 
         window.closeScienceModal = function() {
             const el = document.getElementById('science-modal');
             if (el) el.style.display = 'none';
-        }
+        };
 
         window.saveBiometricsToMemory = function() {
             const weightVal = document.getElementById('input-bio-weight')?.value;
             const fatVal = document.getElementById('input-bio-fat')?.value;
             const muscleVal = document.getElementById('input-bio-muscle')?.value;
             if (weightVal) localStorage.setItem('user_bodyweight', weightVal);
-            if (fatVal !== undefined) localStorage.setItem('user_bodyfat_pct', fatVal);
-            if (muscleVal !== undefined) localStorage.setItem('user_muscle_pct', muscleVal);
+            if (fatVal !== undefined && fatVal !== null) localStorage.setItem('user_bodyfat_pct', fatVal);
+            if (muscleVal !== undefined && muscleVal !== null) localStorage.setItem('user_muscle_pct', muscleVal);
             updateLiveMetricsOnly();
-        }
+        };
 
         window.switchWorkout = function(dayId) {
             activeTabId = dayId;
@@ -556,7 +556,7 @@
                 renderDeepHistoricPillsSummary();
             }
             window.scrollTo({top: 0});
-        }
+        };
 
         window.startWorkoutSession = function() {
             sessionIsRunning = true;
@@ -603,7 +603,7 @@
             }, 1000);
 
             renderApp();
-        }
+        };
 
         window.toggleWarmupClock = function() {
             const btn = document.getElementById('warmup-toggle');
@@ -617,7 +617,7 @@
                 btn.innerText = "⏸ Pause Warmup";
                 btn.classList.add('active-run');
             }
-        }
+        };
 
         window.adjustWarmupTime = function(seconds) {
             warmupTimeElapsed += seconds;
@@ -626,7 +626,7 @@
             const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
             const wText = document.getElementById('warmup-timer-text');
             if (wText) wText.innerText = `${wMin}:${wSec}`;
-        }
+        };
 
         window.resetWarmupClock = function() {
             warmupRunning = false;
@@ -637,7 +637,7 @@
                 btn.innerText = "▶ Start Warmup";
                 btn.classList.remove('active-run');
             }
-        }
+        };
 
         window.toggleStretchClock = function() {
             const btn = document.getElementById('stretch-toggle');
@@ -651,7 +651,7 @@
                 btn.innerText = "⏸ Pause Stretching";
                 btn.classList.add('active-run');
             }
-        }
+        };
 
         window.adjustStretchTime = function(seconds) {
             stretchTimeElapsed += seconds;
@@ -659,7 +659,7 @@
             const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
             const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
             if (document.getElementById('stretch-timer-text')) document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
-        }
+        };
 
         window.resetStretchClock = function() {
             stretchRunning = false;
@@ -670,7 +670,7 @@
                 btn.innerText = "▶ Start Stretching";
                 btn.classList.remove('active-run');
             }
-        }
+        };
 
         window.toggleManualRowCheck = function(exId, setNum) {
             const rowElement = document.getElementById(`row-${exId}-${setNum}`);
@@ -690,7 +690,7 @@
                 localStorage.setItem(checkKey, 'true');
             }
             updateLiveMetricsOnly();
-        }
+        };
 
         window.toggleExerciseClock = function(exId) {
             const btn = document.getElementById(`clock-toggle-${exId}`);
@@ -707,7 +707,7 @@
                 btn.innerText = "⏸ Pause";
                 btn.classList.add('active-run');
             }
-        }
+        };
 
         window.toggleHoldStopwatch = function(exId, setNum, repKey) {
             const timerId = exId + '-' + setNum;
@@ -722,7 +722,7 @@
 
                 const wrapper = document.getElementById(`hold-wrapper-${timerId}`);
                 if (wrapper) {
-                    wrapper.innerHTML = `<input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${totalSeconds}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();">`;
+                    wrapper.innerHTML = `<input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${totalSeconds}" oninput="localStorage.setItem('${repKey}', this.value); updateLiveMetricsOnly();">`;
                 }
                 updateLiveMetricsOnly();
             } else {
@@ -738,7 +738,7 @@
                     }, 1000)
                 };
             }
-        }
+        };
 
         window.changeAnalyticsPill = function(routineName) {
             currentSelectedAnalyticsPill = routineName;
@@ -747,294 +747,16 @@
             if (routineName === 'Workout B') document.getElementById('pill-b')?.classList.add('active');
             if (routineName === 'Workout C') document.getElementById('pill-c')?.classList.add('active');
             renderDeepHistoricPillsSummary();
-        }
+        };
 
         window.shiftCalendarMonth = function(direction) {
             calendarFocusDate.setMonth(calendarFocusDate.getMonth() + direction);
             renderCalendarWorkspace();
-        }
+        };
 
         window.saveInspectedLogEdits = function(globalIndex) {
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             if (!historyList[globalIndex]) return;
             
             const newDate = document.getElementById(`edit-date-${globalIndex}`)?.value.trim();
-            const newType = document.getElementById(`edit-type-${globalIndex}`)?.value.trim();
-            const newRatio = parseFloat(document.getElementById(`edit-ratio-${globalIndex}`)?.value) || 0;
-            const newDetails = document.getElementById(`edit-textarea-${globalIndex}`)?.value;
-
-            if (newDate) historyList[globalIndex].date = newDate;
-            if (newType) historyList[globalIndex].type = newType;
-            historyList[globalIndex].ratio = newRatio;
-            if (newDetails !== undefined) historyList[globalIndex].details = newDetails;
-
-            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
-            alert("Workout node successfully amended.");
-            if (document.getElementById('calendar-inspector-panel')) document.getElementById('calendar-inspector-panel').style.display = 'none';
-            renderApp();
-        }
-
-        window.deleteInspectedLogNode = function(globalIndex) {
-            if (!confirm("Wipe this training block from history?")) return;
-            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            if (!historyList[globalIndex]) return;
-            
-            const targetedDate = historyList[globalIndex].date;
-            historyList.splice(globalIndex, 1);
-            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
-
-            if (historyList.filter(l => l.date === targetedDate).length === 0) {
-                if (document.getElementById('calendar-inspector-panel')) document.getElementById('calendar-inspector-panel').style.display = 'none';
-            } else {
-                openDayInspectorPanel(targetedDate);
-            }
-            renderApp();
-        }
-
-        window.resetCurrentSessionInputs = function() {
-            if (!confirm("Clear current tracking grid workspace row sets?")) return;
-            const currentRoutine = routines[activeTabId];
-            resetWarmupClock();
-            resetStretchClock();
-            if (currentRoutine && currentRoutine.exercises) {
-                currentRoutine.exercises.forEach(ex => {
-                    localStorage.removeItem(`ex-clock-time-${ex.id}`);
-                    exerciseClockStates[ex.id] = { time: 0, running: false };
-                    for (let s = 1; s <= ex.sets; s++) {
-                        localStorage.removeItem(`cur-${ex.id}-w-${s}`);
-                        localStorage.removeItem(`cur-${ex.id}-r-${s}`);
-                        localStorage.removeItem(`cur-check-${ex.id}-${s}`);
-                    }
-                });
-            }
-            renderApp();
-        }
-
-        window.finishWorkout = function() {
-            if (globalTimerInterval) clearInterval(globalTimerInterval);
-            const currentRoutine = routines[activeTabId];
-            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
-            const musclePct = parseFloat(localStorage.getItem('user_muscle_pct')) || 0;
-            const isAdvanced = musclePct > 0;
-            const scalingDenominator = isAdvanced ? (userBw * (musclePct / 100)) : userBw;
-
-            let logDetails = '';
-            let parsedSessionScoreTotal = 0;
-            let loggedCount = 0;
-
-            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
-            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-            const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
-            const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
-
-            const gTimerBox = document.getElementById('global-timer-box')?.innerText || "00:00";
-
-            logDetails += `Warmup Prep Duration: ${wMin}:${wSec}\n`;
-            logDetails += `Session Active Lift Duration: ${gTimerBox}\n`;
-            logDetails += `Post-Workout Stretching Duration: ${sMin}:${sSec}\n\n`;
-
-            if (currentRoutine && currentRoutine.exercises) {
-                currentRoutine.exercises.forEach(ex => {
-                    let exerciseVolumeLoad = 0;
-                    let holdsTotalSeconds = 0;
-                    let exerciseHasData = false;
-                    let subLines = [];
-
-                    for (let s = 1; s <= ex.sets; s++) {
-                        const wVal = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '';
-                        const rVal = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '';
-
-                        if (rVal !== '') {
-                            exerciseHasData = true;
-                            if (ex.type === 'hold') {
-                                holdsTotalSeconds += parseInt(rVal) || 0;
-                                subLines.push(`   ↳ Set ${s}: ${rVal} sec`);
-                            } else {
-                                const numericW = parseFloat(wVal) || 0;
-                                const numericR = parseInt(rVal) || 0;
-                                exerciseVolumeLoad += numericW * numericR;
-                                subLines.push(`   ↳ Set ${s}: ${numericW}kg x ${numericR} reps`);
-                            }
-                        }
-                    }
-
-                    if (exerciseHasData) {
-                        loggedCount++;
-                        let score = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
-                        parsedSessionScoreTotal += score;
-                        logDetails += `■ ${ex.name} [ID: ${ex.id}] — Score: ${score.toFixed(1)}x\n${subLines.join('\n')}\n\n`;
-                    }
-                });
-            }
-
-            if (loggedCount === 0) {
-                alert("Cannot commit an empty tracking dashboard array template configuration.");
-                startWorkoutSession(); 
-                return;
-            }
-
-            const finalRecordedDayRatio = parsedSessionScoreTotal;
-            const todayObj = new Date();
-            const dateString = todayObj.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
-
-            const sessionRecord = {
-                date: dateString,
-                timestamp: Date.now(),
-                type: currentRoutine.name,
-                ratio: finalRecordedDayRatio,
-                details: logDetails.trim()
-            };
-
-            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            historyList.unshift(sessionRecord);
-            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
-
-            resetWarmupClock();
-            resetStretchClock();
-
-            if (currentRoutine && currentRoutine.exercises) {
-                currentRoutine.exercises.forEach(ex => {
-                    localStorage.removeItem(`ex-clock-time-${ex.id}`);
-                    delete exerciseClockStates[ex.id];
-                    for (let s = 1; s <= ex.sets; s++) {
-                        localStorage.removeItem(`cur-${ex.id}-w-${s}`);
-                        localStorage.removeItem(`cur-${ex.id}-r-${s}`);
-                        localStorage.removeItem(`cur-check-${ex.id}-${s}`);
-                    }
-                });
-            }
-
-            sessionIsRunning = false;
-            if (document.getElementById('session-gate')) document.getElementById('session-gate').style.display = 'block';
-            if (document.getElementById('global-timer-box')) document.getElementById('global-timer-box').style.display = 'none';
-            if (document.getElementById('warmup-dashboard')) document.getElementById('warmup-dashboard').style.display = 'none';
-            if (document.getElementById('stretching-dashboard')) document.getElementById('stretching-dashboard').style.display = 'none';
-            if (document.getElementById('footer-actions')) document.getElementById('footer-actions').style.display = 'none';
-
-            alert(`Logged successfully! Score: ${finalRecordedDayRatio.toFixed(1)}x.`);
-            renderApp();
-            switchWorkout('view-history');
-        }
-
-        window.exportDataData = function() {
-            const stateData = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                stateData[key] = localStorage.getItem(key);
-            }
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `gym_tracker_v16_backup.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        window.importDataData = function(event) {
-            const fileElement = event.target.files[0];
-            if (!fileElement) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const parsed = JSON.parse(e.target.result);
-                Object.keys(parsed).forEach(k => { localStorage.setItem(k, parsed[k]); });
-                alert("Analytics data synchronized successfully!");
-                renderApp();
-            };
-            reader.readAsText(fileElement);
-        }
-
-        window.resetAllHistory = function() {
-            if (confirm("Permanently clear application local memory space?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function openDayInspectorPanel(localeDateStr) {
-            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const inspectorPanel = document.getElementById('calendar-inspector-panel');
-            const titleEl = document.getElementById('inspector-date-title');
-            const inspectorContent = document.getElementById('inspector-output-content');
-            
-            if (!inspectorPanel || !titleEl || !inspectorContent) return;
-            
-            titleEl.innerText = `🔍 History Inspector: ${localeDateStr}`;
-            inspectorContent.innerHTML = '';
-            
-            let occurrencesFound = 0;
-            
-            historyList.forEach((log, index) => {
-                if (log.date === localeDateStr) {
-                    occurrencesFound++;
-                    const sessionCard = document.createElement('div');
-                    sessionCard.className = 'editable-session-card';
-                    sessionCard.innerHTML = `
-                    <div class="editor-row-item">
-                        <div class="editor-field-group">
-                            <label>Saved Stamp Reference Text</label>
-                            <input type="text" id="edit-date-${index}" value="${log.date}">
-                        </div>
-                        <div class="editor-field-group">
-                            <label>Routine Name Tag</label>
-                            <input type="text" id="edit-type-${index}" value="${log.type || ''}">
-                        </div>
-                        <div class="editor-field-group">
-                            <label>Recorded Day Relative Load Metric</label>
-                            <input type="number" step="0.1" id="edit-ratio-${index}" value="${log.ratio || 0}">
-                        </div>
-                    </div>
-                    <div class="editor-field-group">
-                        <label>Workout Performance Raw Metric Log</label>
-                        <textarea id="edit-textarea-${index}">${log.details || ''}</textarea>
-                    </div>
-                    <div class="editor-action-row">
-                        <button class="editor-btn-save" onclick="saveInspectedLogEdits(${index})">💾 Save Session changes</button>
-                        <button class="editor-btn-delete" onclick="deleteInspectedLogNode(${index})">🗑️ Delete</button>
-                    </div>`;
-                    inspectorContent.appendChild(sessionCard);
-                }
-            });
-
-            if (occurrencesFound > 0) {
-                inspectorPanel.style.display = 'block';
-            } else {
-                inspectorPanel.style.display = 'none';
-                alert(`No structural logs located on ${localeDateStr}`);
-            }
-        }
-
-        function buildExercisePersonalBestsRecord() {
-            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const exercisePBs = {};
-            const chronologicalList = [...historyList].reverse();
-
-            chronologicalList.forEach(session => {
-                if (!session.details) return;
-                const lines = session.details.split('\n');
-                const linesMap = [];
-                let tempBlock = null;
-
-                lines.forEach(line => {
-                    const exStartMatch = line.match(/^■\s+(.+?)\s+\[ID:\s*([a-z0-9]+)\]/i);
-                    if (exStartMatch) {
-                        if (tempBlock) linesMap.push(tempBlock);
-                        const scoreMatch = line.match(/Score:\s*([0-9.]+)x/);
-                        tempBlock = {
-                            id: exStartMatch[2],
-                            score: scoreMatch ? parseFloat(scoreMatch[1]) : 0,
-                            lines: []
-                        };
-                    } else if (tempBlock) {
-                        tempBlock.lines.push(line);
-                    }
-                });
-                if (tempBlock) linesMap.push(tempBlock);
-
-                linesMap.forEach(block => {
-                    const matchedExId = block.id;
-                    const blockDayScore = block.score;
-
-                    let targetExObj = null;
-                    Object.keys(routines).forEach(r => {
-                        const found = routines[r].exercises.find(e => e.id === matched
+            const newType = document.getElementById(`edit-type-${globalIndex}`)?.
