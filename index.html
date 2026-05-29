@@ -531,9 +531,10 @@
             const savedWeight = localStorage.getItem('user_bodyweight') || '80';
             const savedFat = localStorage.getItem('user_bodyfat_pct') || '';
             const savedMuscle = localStorage.getItem('user_muscle_pct') || '';
-            document.getElementById('input-bio-weight').value = savedWeight;
-            document.getElementById('input-bio-fat').value = savedFat;
-            document.getElementById('input-bio-muscle').value = savedMuscle;
+            
+            if(document.getElementById('input-bio-weight')) document.getElementById('input-bio-weight').value = savedWeight;
+            if(document.getElementById('input-bio-fat')) document.getElementById('input-bio-fat').value = savedFat;
+            if(document.getElementById('input-bio-muscle')) document.getElementById('input-bio-muscle').value = savedMuscle;
 
             const pillText = document.getElementById('bio-pill-text');
             if (pillText) {
@@ -656,15 +657,10 @@
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
             const exercisePBs = {};
 
-            // Sort chronically ascendently so later high scores naturally overwrite matches
             const chronologicalList = [...historyList].reverse();
 
             chronologicalList.forEach(session => {
                 const lines = session.details.split('\n');
-                let currentExId = null;
-                let blockDayScore = 0;
-                let currentExType = 'reps';
-
                 const linesMap = [];
                 let tempBlock = null;
 
@@ -695,7 +691,7 @@
                     });
                     if (!targetExObj) return;
 
-                    currentExType = targetExObj.type;
+                    let currentExType = targetExObj.type;
                     const setsBreakdown = {};
 
                     block.lines.forEach(line => {
@@ -771,10 +767,10 @@
                         const badge = document.createElement('div');
                         badge.className = 'calendar-badge';
                         let letter = 'A';
-                        if (log.type.toLowerCase().includes('b')) letter = 'B';
-                        if (log.type.toLowerCase().includes('c')) letter = 'C';
+                        if (log.type && log.type.toLowerCase().includes('b')) letter = 'B';
+                        if (log.type && log.type.toLowerCase().includes('c')) letter = 'C';
                         badge.classList.add(letter === 'A' ? 'badge-a' : (letter === 'B' ? 'badge-b' : 'badge-c'));
-                        badge.innerText = `${letter}:${log.ratio.toFixed(1)}x`;
+                        badge.innerText = `${letter}:${(log.ratio || 0).toFixed(1)}x`;
                         cell.appendChild(badge);
                     });
                 }
@@ -808,16 +804,16 @@
                         </div>
                         <div class="editor-field-group">
                             <label>Routine Routine Name Tag</label>
-                            <input type="text" id="edit-type-${index}" value="${log.type}">
+                            <input type="text" id="edit-type-${index}" value="${log.type || ''}">
                         </div>
                         <div class="editor-field-group">
                             <label>Recorded Day Relative Load Metric</label>
-                            <input type="number" step="0.1" id="edit-ratio-${index}" value="${log.ratio}">
+                            <input type="number" step="0.1" id="edit-ratio-${index}" value="${log.ratio || 0}">
                         </div>
                     </div>
                     <div class="editor-field-group">
                         <label>Workout Performance Raw Metric Log</label>
-                        <textarea id="edit-textarea-${index}">${log.details}</textarea>
+                        <textarea id="edit-textarea-${index}">${log.details || ''}</textarea>
                     </div>
                     <div class="editor-action-row">
                         <button class="editor-btn-save" onclick="saveInspectedLogEdits(${index})">💾 Save Session changes</button>
@@ -898,4 +894,106 @@
 
                 if (stretchRunning) {
                     stretchTimeElapsed++;
-                    const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart
+                    const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
+                    const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
+                }
+
+                Object.keys(exerciseClockStates).forEach(exId => {
+                    if (exerciseClockStates[exId].running) {
+                        exerciseClockStates[exId].time++;
+                        const eMin = Math.floor(exerciseClockStates[exId].time / 60).toString().padStart(2, '0');
+                        const eSec = (exerciseClockStates[exId].time % 60).toString().padStart(2, '0');
+                        const badge = document.getElementById(`clock-badge-${exId}`);
+                        if (badge) badge.innerText = `${eMin}:${eSec}`;
+                    }
+                });
+            }, 1000);
+
+            renderApp();
+        }
+
+        function toggleWarmupClock() {
+            const btn = document.getElementById('warmup-toggle');
+            if (warmupRunning) {
+                warmupRunning = false;
+                btn.innerText = "▶ Start Warmup";
+                btn.classList.remove('active-run');
+            } else {
+                warmupRunning = true;
+                btn.innerText = "⏸ Pause Warmup";
+                btn.classList.add('active-run');
+            }
+        }
+
+        function adjustWarmupTime(seconds) {
+            warmupTimeElapsed += seconds;
+            if (warmupTimeElapsed < 0) warmupTimeElapsed = 0;
+            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
+        }
+
+        function resetWarmupClock() {
+            warmupRunning = false;
+            warmupTimeElapsed = 0;
+            document.getElementById('warmup-timer-text').innerText = "00:00";
+            document.getElementById('warmup-toggle').innerText = "▶ Start Warmup";
+            document.getElementById('warmup-toggle').classList.remove('active-run');
+        }
+
+        function toggleStretchClock() {
+            const btn = document.getElementById('stretch-toggle');
+            if (stretchRunning) {
+                stretchRunning = false;
+                btn.innerText = "▶ Start Stretching";
+                btn.classList.remove('active-run');
+            } else {
+                stretchRunning = true;
+                btn.innerText = "⏸ Pause Stretching";
+                btn.classList.add('active-run');
+            }
+        }
+
+        function adjustStretchTime(seconds) {
+            stretchTimeElapsed += seconds;
+            if (stretchTimeElapsed < 0) stretchTimeElapsed = 0;
+            const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
+            const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
+        }
+
+        function resetStretchClock() {
+            stretchRunning = false;
+            stretchTimeElapsed = 0;
+            document.getElementById('stretch-timer-text').innerText = "00:00";
+            document.getElementById('stretch-toggle').innerText = "▶ Start Stretching";
+            document.getElementById('stretch-toggle').classList.remove('active-run');
+        }
+
+        function toggleManualRowCheck(exId, setNum) {
+            const rowElement = document.getElementById(`row-${exId}-${setNum}`);
+            const checkKey = `cur-check-${exId}-${setNum}`;
+            const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
+            const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
+            
+            if (wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
+            if (rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
+
+            if (rowElement.classList.contains('row-filled')) {
+                rowElement.classList.remove('row-filled');
+                localStorage.setItem(checkKey, 'false');
+            } else {
+                rowElement.classList.add('row-filled');
+                localStorage.setItem(checkKey, 'true');
+            }
+            updateLiveMetricsOnly();
+        }
+
+        function toggleExerciseClock(exId) {
+            const btn = document.getElementById(`clock-toggle-${exId}`);
+            if (!exerciseClockStates[exId]) {
+                exerciseClockStates[exId] = { time: 0, running: false };
+            }
+            if (exerciseClockStates[exId].running) {
+                exercise
