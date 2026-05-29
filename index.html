@@ -115,6 +115,22 @@
 
         .science-info-trigger { background: transparent; border: none; color: var(--info-color); cursor: pointer; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; padding: 4px; }
 
+        .exercise-info-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 6px;
+            padding: 2px 4px;
+            vertical-align: middle;
+            transition: opacity 0.2s;
+        }
+        .exercise-info-btn:hover { opacity: 0.8; }
+
         .session-gate-panel { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px dashed var(--accent-color); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; }
         .start-session-btn { background: var(--accent-color); color: #000; border: none; padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
 
@@ -177,7 +193,6 @@
         .log-input { width: 100%; background: transparent; border: none; color: var(--text-main); padding: 6px 2px; text-align: center; font-size: 0.9rem; font-weight: bold; outline: none; }
         .log-input:disabled { opacity: 0.2; }
 
-        /* Isometric Segment Styling Updates */
         .hold-input-wrapper { display: flex; gap: 4px; width: 100%; align-items: center; }
         .stopwatch-btn { width: 100%; background: #1e293b; border: none; color: var(--warning-color); padding: 7px 2px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .stopwatch-btn.running { background: var(--danger-color); color: white; }
@@ -189,8 +204,8 @@
         .target-cell strong { color: var(--warning-color); }
 
         .checkbox-cell { width: 8%; text-align: center; }
-        .manual-check-btn { background: #111a2e; border: 1px solid var(--border-color); color: var(--text-muted); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0 auto; font-weight: bold; }
-        .row-filled .manual-check-btn { background: var(--success-color); border-color: var(--success-color); color: #000000; }
+        .manual-check-btn { background: #111a2e; border: 1px solid var(--border-color); color: var(--text-muted); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0 auto; font-weight: bold; }
+        .row-filled .manual-check-btn { background: var(--success-color) !important; border-color: var(--success-color) !important; color: #000000 !important; font-weight: 900 !important; }
 
         .action-tray { margin: 20px 0; display: none; flex-direction: column; gap: 10px; }
         .finish-btn { width: 100%; background: var(--success-color); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
@@ -335,6 +350,17 @@
         </div>
     </div>
 
+    <div id="explanation-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 450px;">
+            <div class="modal-header">
+                <span id="explanation-modal-title" class="modal-title">📋 Exercise Guide</span>
+                <button class="modal-close-btn" onclick="closeExplanationModal()">✕</button>
+            </div>
+            <div id="explanation-modal-content" class="science-text-block" style="max-height:60vh; overflow-y:auto; padding-right:4px;">
+            </div>
+        </div>
+    </div>
+
     <div id="session-gate" class="session-gate-panel">
         <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-muted);">Configure biometrics from your scale, then initiate training.</p>
         <button class="start-session-btn" onclick="startWorkoutSession()">▶ Start Training Session</button>
@@ -459,31 +485,31 @@
             'workout-a': {
                 name: 'Workout A',
                 exercises: [
-                    { id: 'a1', name: '1. Goblet Squat or Box Squat', muscle: 'Quads / Glutes / Core', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', muscle: 'Lats / Upper Back / Biceps', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
-                    { id: 'a3', name: '3. Dumbbell Bench Press', muscle: 'Chest / Anterior Delts / Triceps', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'a4', name: '4. Cable Face Pulls', muscle: 'Rear Delts / Rotator Cuff / Upper Back', sets: 3, repsRange: '15', unit: 'kg', type: 'reps' },
-                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold' }
+                    { id: 'a1', name: '1. Goblet Squat or Box Squat', muscle: 'Quads / Glutes / Core', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', desc: 'Hold a heavy dumbbell or kettlebell vertically against your chest. Keep elbows tucked. Brace core, sit hips down and back until thighs are parallel or hit the box. Drive firmly through your heels to return upright.' },
+                    { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', muscle: 'Lats / Upper Back / Biceps', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps', desc: 'Pull down with a wide grip toward upper chest or drive elbows down in an assisted machine. Depress and retract shoulder blades before letting your arms break. Avoid torso swing.' },
+                    { id: 'a3', name: '3. Dumbbell Bench Press', muscle: 'Chest / Anterior Delts / Triceps', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', desc: 'Lie flat on your bench, feet planted. Press dumbbells evenly upwards over the mid-chest line. Control the speed down until arms reach a 90-degree bend with elbows angled slightly inwards.' },
+                    { id: 'a4', name: '4. Cable Face Pulls', muscle: 'Rear Delts / Rotator Cuff / Upper Back', sets: 3, repsRange: '15', unit: 'kg', type: 'reps', desc: 'Set cable height at nose level using a double-rope attachment. Pull the center toward your forehead while separating hands out laterally. Focus on high elbows and external shoulder rotation.' },
+                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold', desc: 'For RKC Plank: Maintain standard forearm stance but consciously lock out knees, clench glutes aggressively, and intentionally pull elbows toward toes to create massive core internal leverage stress.' }
                 ]
             },
             'workout-b': {
                 name: 'Workout B',
                 exercises: [
-                    { id: 'b1', name: '1. Romanian Deadlift', muscle: 'Hamstrings / Glutes / Lower Back', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps' },
-                    { id: 'b2', name: '2. Seated Cable Row (Wide)', muscle: 'Rhomboids / Mid-Traps / Lats', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps' },
-                    { id: 'b3', name: '3. DB Overhead Shoulder Press', muscle: 'Deltoids / Triceps / Core Stability', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
-                    { id: 'b4', name: '4. Bulgarian Split Squat', muscle: 'Quads / Glutes / Unilateral Balance', sets: 3, repsRange: '8', unit: 'kg', type: 'reps' },
-                    { id: 'b5', name: '5. Farmer’s Walks / Carries', muscle: 'Grip Strength / Forearms / Full-Body Core', sets: 3, repsRange: '40m', unit: 'kg', type: 'hold' }
+                    { id: 'b1', name: '1. Romanian Deadlift', muscle: 'Hamstrings / Glutes / Lower Back', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', desc: 'Stand straight holding weight in front. Hinge at hips by driving them backwards, maintaining straight shins and a flat spinal position. Lower until hamstrings stretch fully, then use glutes to snap upright.' },
+                    { id: 'b2', name: '2. Seated Cable Row (Wide)', muscle: 'Rhomboids / Mid-Traps / Lats', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps', desc: 'Use a wide bar attachment. Sit tall, pull toward mid-torso while expanding the chest out. Squeeze your scapula together tightly at maximum compression. Keep shoulders down away from ears.' },
+                    { id: 'b3', name: '3. DB Overhead Shoulder Press', muscle: 'Deltoids / Triceps / Core Stability', sets: 3, repsRange: '8', unit: 'kg', type: 'reps', desc: 'Sit or stand bracing core firmly. Press dumbbells straight up until arms lock directly overhead aligned with ears. Lower under strict control back down to shoulder/chin height.' },
+                    { id: 'b4', name: '4. Bulgarian Split Squat', muscle: 'Quads / Glutes / Unilateral Balance', sets: 3, repsRange: '8', unit: 'kg', type: 'reps', desc: 'Place one foot back on a low bench or step. Drop your rear knee toward the floor while loading your front foot heavily. Ensure front knee traces outward inline over your toes.' },
+                    { id: 'b5', name: '5. Farmer’s Walks / Carries', muscle: 'Grip Strength / Forearms / Full-Body Core', sets: 3, repsRange: '40m', unit: 'kg', type: 'hold', desc: 'Pick up heavy dumbells or kettlebells on each side. Pull shoulders back into pockets and stand tall. Walk forward with slow, controlled, balanced paces without allowing the loads to shift.' }
                 ]
             },
             'workout-c': {
                 name: 'Workout C',
                 exercises: [
-                    { id: 'c1', name: '1. Leg Press or Hack Squat', muscle: 'Quads / Glutes / Hamstrings', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
-                    { id: 'c2', name: '2. Chest-Supported DB Row', muscle: 'Upper Back / Mid-Traps / Biceps', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
-                    { id: 'c3', name: '3. Incline Dumbbell Press', muscle: 'Upper Chest / Anterior Delts', sets: 3, repsRange: '10', unit: 'kg', type: 'reps' },
-                    { id: 'c4', name: '4. Cable Woodchoppers', muscle: 'Obliques / Core Rotational Power', sets: 3, repsRange: '12', unit: 'kg', type: 'reps' },
-                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps' }
+                    { id: 'c1', name: '1. Leg Press or Hack Squat', muscle: 'Quads / Glutes / Hamstrings', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Position feet securely on the sledge plate. Lower your weight smoothly until knees form a clean 90-degree configuration without letting your tailbone lift off the pad. Drive straight out.' },
+                    { id: 'c2', name: '2. Chest-Supported DB Row', muscle: 'Upper Back / Mid-Traps / Biceps', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Set an incline bench to 30 degrees and lie chest down. Flare elbows out slightly as you pull dumbbells upward to maximize the mechanical loading across the upper back musculature.' },
+                    { id: 'c3', name: '3. Incline Dumbbell Press', muscle: 'Upper Chest / Anterior Delts', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Lie back on an incline bench set to roughly 30-45 degrees. Press weights straight up over upper chest line. Keep shoulders retracted and safely packed against the bench frame.' },
+                    { id: 'c4', name: '4. Cable Woodchoppers', muscle: 'Obliques / Core Rotational Power', sets: 3, repsRange: '12', unit: 'kg', type: 'reps', desc: 'Set pulley to upper height. Stand sideways and grip attachment with both hands. Pull diagonally downward across your frame, pivoting on the back foot while maintaining a braced core.' },
+                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps', desc: 'Hang from a bar. Contract your lower abdominals to raise knees upward toward your chest line. Control the descent strictly to avoid creating swinging momentum.' }
                 ]
             }
         };
@@ -508,6 +534,23 @@
         function closeBiometricsModal() { document.getElementById('biometrics-modal').style.display = 'none'; renderApp(); }
         function openScienceModal() { document.getElementById('science-modal').style.display = 'flex'; }
         function closeScienceModal() { document.getElementById('science-modal').style.display = 'none'; }
+
+        function openExplanationModal(exId) {
+            let foundEx = null;
+            Object.values(routines).forEach(r => {
+                let e = r.exercises.find(i => i.id === exId);
+                if(e) foundEx = e;
+            });
+            if(!foundEx) return;
+            document.getElementById('explanation-modal-title').innerText = `📋 ${foundEx.name}`;
+            document.getElementById('explanation-modal-content').innerHTML = `
+                <p><strong>Target Muscle:</strong> ${foundEx.muscle}</p>
+                <p><strong>Execution Strategy:</strong></p>
+                <p>${foundEx.desc || "No specific guidelines provided for this exercise card node yet."}</p>
+            `;
+            document.getElementById('explanation-modal-overlay' || 'explanation-modal').style.display = 'flex';
+        }
+        function closeExplanationModal() { document.getElementById('explanation-modal').style.display = 'none'; }
 
         function saveBiometricsToMemory() {
             const weightVal = document.getElementById('input-bio-weight').value;
@@ -556,7 +599,11 @@
                     html += `
                         <div class="exercise-card" id="card-${ex.id}">
                             <div class="exercise-header">
-                                <h2 class="exercise-title">${ex.name} <span style="color:var(--text-muted); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span></h2>
+                                <h2 class="exercise-title">
+                                    ${ex.name} 
+                                    <span style="color:var(--text-muted); font-size:0.8rem; margin-left:4px;">(${ex.repsRange})</span>
+                                    <button class="exercise-info-btn" onclick="openExplanationModal('${ex.id}')" title="Show details">ⓘ</button>
+                                </h2>
                                 <div class="ex-controls">
                                     <div class="ex-clock-badge" id="clock-${ex.id}">${elapsedSavedClock}</div>
                                     <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" 
@@ -610,12 +657,18 @@
                             }
                         }
 
+                        // Determine standard placeholder text string safely
+                        let weightPlaceholder = "0";
+                        if(ex.id === 'a5' || ex.id === 'c5') {
+                            weightPlaceholder = "BW";
+                        }
+
                         html += `
                             <tr class="log-row ${isChecked ? 'row-filled' : ''}" id="row-${ex.id}-${s}">
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
                                     <div class="input-container-box">
-                                        <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        <input type="text" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="${weightPlaceholder}" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
                                     </div>
                                 </td>
                                 <td class="input-cell">
@@ -640,7 +693,7 @@
                                 <td class="target-cell">${historicalBestString}</td>
                                 <td class="checkbox-cell">
                                     <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})">
-                                        ${isChecked ? '✓' : ''}
+                                        ✓
                                     </button>
                                 </td>
                             </tr>
@@ -1018,13 +1071,11 @@
             const btn = document.getElementById('btn-' + timerId);
 
             if (holdTimers[timerId]) {
-                // STOP TIMER
                 clearInterval(holdTimers[timerId].interval);
                 const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
                 localStorage.setItem(repKey, totalSeconds);
                 delete holdTimers[timerId];
 
-                // Instantly transform the stopwatch button into an editable input cell
                 const wrapper = document.getElementById(`hold-wrapper-${timerId}`);
                 if(wrapper) {
                     wrapper.innerHTML = `
@@ -1033,7 +1084,6 @@
                 }
                 updateLiveMetricsOnly();
             } else {
-                // START TIMER
                 btn.innerText = "⏱️ Stop";
                 btn.classList.add('running');
                 holdTimers[timerId] = {
@@ -1071,8 +1121,12 @@
                         const wInput = document.getElementById(`cur-${ex.id}-w-${s}`);
                         const rInput = document.getElementById(`cur-${ex.id}-r-${s}`);
                         
-                        const wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
+                        let wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
                         const rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
+
+                        if (wVal.toUpperCase() === 'BW') {
+                            wVal = '0';
+                        }
 
                         if (rVal !== '') {
                             if (ex.type === 'hold') {
@@ -1242,11 +1296,15 @@
                 const trackingClockText = document.getElementById(`clock-${ex.id}`).innerText;
                 
                 for (let s = 1; s <= ex.sets; s++) {
-                    const weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
+                    let weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
                     const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
                     
+                    if (weight.toUpperCase() === 'BW') {
+                        weight = '0';
+                    }
+
                     if (parseInt(reps) > 0) {
-                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : weight + 'kg x '}${reps} ${ex.type === 'hold' ? 'sec' : 'reps'}`);
+                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : (weight === '0' ? 'BW' : weight + 'kg') + ' x '}${reps} ${ex.type === 'hold' ? 'sec' : 'reps'}`);
                         if (ex.type === 'hold') {
                             holdsTotalSeconds += parseInt(reps);
                         } else {
