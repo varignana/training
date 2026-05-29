@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functional Path Overload v16</title>
+    <title>Functional Path Overload v16 - Fixed</title>
     <style>
         :root {
             --bg-color: #060913;
@@ -328,8 +328,6 @@
                 <p style="background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; font-family:monospace; font-size:0.75rem; text-align:center; color:var(--accent-color);">
                     Muscle RLI = Total Lifted Volume ÷ Pure Muscle Mass (kg)
                 </p>
-                
-                <p><strong>The Recomposition Paradox:</strong> If you build muscle and shed fat, your Muscle RLI score might drop slightly for the same lifted weights. This is not structural loss—it shows your active engine has become highly efficient, clearing the same load with less strain per muscle unit. Your goal is to increase weight to match this new structural capability.</p>
             </div>
         </div>
     </div>
@@ -500,283 +498,456 @@
         let exerciseClockStates = {};
         let holdTimers = {};
 
-        function openBiometricsModal() {
-            document.getElementById('biometrics-modal').style.display = 'flex';
+        // Make functions globally available explicitly
+        window.openBiometricsModal = function() {
+            const el = document.getElementById('biometrics-modal');
+            if (el) el.style.display = 'flex';
         }
 
-        function closeBiometricsModal() {
-            document.getElementById('biometrics-modal').style.display = 'none';
+        window.closeBiometricsModal = function() {
+            const el = document.getElementById('biometrics-modal');
+            if (el) el.style.display = 'none';
             renderApp();
         }
 
-        function openScienceModal() {
-            document.getElementById('science-modal').style.display = 'flex';
+        window.openScienceModal = function() {
+            const el = document.getElementById('science-modal');
+            if (el) el.style.display = 'flex';
         }
 
-        function closeScienceModal() {
-            document.getElementById('science-modal').style.display = 'none';
+        window.closeScienceModal = function() {
+            const el = document.getElementById('science-modal');
+            if (el) el.style.display = 'none';
         }
 
-        function saveBiometricsToMemory() {
-            const weightVal = document.getElementById('input-bio-weight').value;
-            const fatVal = document.getElementById('input-bio-fat').value;
-            const muscleVal = document.getElementById('input-bio-muscle').value;
+        window.saveBiometricsToMemory = function() {
+            const weightVal = document.getElementById('input-bio-weight')?.value;
+            const fatVal = document.getElementById('input-bio-fat')?.value;
+            const muscleVal = document.getElementById('input-bio-muscle')?.value;
             if (weightVal) localStorage.setItem('user_bodyweight', weightVal);
-            localStorage.setItem('user_bodyfat_pct', fatVal);
-            localStorage.setItem('user_muscle_pct', muscleVal);
+            if (fatVal !== undefined) localStorage.setItem('user_bodyfat_pct', fatVal);
+            if (muscleVal !== undefined) localStorage.setItem('user_muscle_pct', muscleVal);
             updateLiveMetricsOnly();
         }
 
-        function renderApp() {
-            const savedWeight = localStorage.getItem('user_bodyweight') || '80';
-            const savedFat = localStorage.getItem('user_bodyfat_pct') || '';
-            const savedMuscle = localStorage.getItem('user_muscle_pct') || '';
+        window.switchWorkout = function(dayId) {
+            activeTabId = dayId;
+            document.querySelectorAll('.workout-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             
-            if(document.getElementById('input-bio-weight')) document.getElementById('input-bio-weight').value = savedWeight;
-            if(document.getElementById('input-bio-fat')) document.getElementById('input-bio-fat').value = savedFat;
-            if(document.getElementById('input-bio-muscle')) document.getElementById('input-bio-muscle').value = savedMuscle;
+            const targetedSec = document.getElementById(dayId);
+            const targetedTab = document.getElementById(`tab-${dayId}`);
+            if (targetedSec) targetedSec.classList.add('active');
+            if (targetedTab) targetedTab.classList.add('active');
 
-            const pillText = document.getElementById('bio-pill-text');
-            if (pillText) {
-                pillText.innerText = `BW: ${savedWeight}kg` + (savedMuscle ? ` | M: ${savedMuscle}%` : '');
+            const stretchingDashboard = document.getElementById('stretching-dashboard');
+            const scoreboardWidget = document.getElementById('day-scoreboard-widget');
+
+            if (dayId !== 'view-history') {
+                if (scoreboardWidget) scoreboardWidget.style.display = 'flex';
+                if (stretchingDashboard) stretchingDashboard.style.display = sessionIsRunning ? 'block' : 'none';
+                updateLiveMetricsOnly();
+            } else {
+                if (scoreboardWidget) scoreboardWidget.style.display = 'none';
+                if (stretchingDashboard) stretchingDashboard.style.display = 'none';
+                const inspector = document.getElementById('calendar-inspector-panel');
+                if (inspector) inspector.style.display = 'none';
+                renderCalendarWorkspace();
+                renderDeepHistoricPillsSummary();
             }
+            window.scrollTo({top: 0});
+        }
 
-            // Build dynamic grids
-            Object.keys(routines).forEach(routineKey => {
-                const container = document.getElementById(routineKey);
-                if (!container) return;
-                
-                const routine = routines[routineKey];
-                let html = '';
-                
-                const exercisePBs = buildExercisePersonalBestsRecord();
+        window.startWorkoutSession = function() {
+            sessionIsRunning = true;
+            globalTimeElapsed = 0;
+            if (document.getElementById('session-gate')) document.getElementById('session-gate').style.display = 'none';
+            if (document.getElementById('global-timer-box')) document.getElementById('global-timer-box').style.display = 'block';
+            if (document.getElementById('warmup-dashboard')) document.getElementById('warmup-dashboard').style.display = 'block';
+            if (document.getElementById('stretching-dashboard')) document.getElementById('stretching-dashboard').style.display = 'block';
+            if (document.getElementById('footer-actions')) document.getElementById('footer-actions').style.display = 'flex';
 
-                routine.exercises.forEach(ex => {
-                    const exPbData = exercisePBs[ex.id];
-                    let pbDisplayHeaderStr = '<span style="color:var(--text-muted)">No past recorded high-score data</span>';
-                    if (exPbData) {
-                        pbDisplayHeaderStr = `🥇 Best Record Score: <strong style="color:var(--warning-color);">${exPbData.score.toFixed(1)}x</strong> <span style="font-size:0.7rem; color:var(--text-muted);">on ${exPbData.date}</span>`;
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            globalTimerInterval = setInterval(() => {
+                globalTimeElapsed++;
+                const gMin = Math.floor(globalTimeElapsed / 60).toString().padStart(2, '0');
+                const gSec = (globalTimeElapsed % 60).toString().padStart(2, '0');
+                const gBox = document.getElementById('global-timer-box');
+                if (gBox) gBox.innerText = `${gMin}:${gSec}`;
+
+                if (warmupRunning) {
+                    warmupTimeElapsed++;
+                    const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+                    const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+                    const wText = document.getElementById('warmup-timer-text');
+                    if (wText) wText.innerText = `${wMin}:${wSec}`;
+                }
+
+                if (stretchRunning) {
+                    stretchTimeElapsed++;
+                    const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
+                    const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
+                    const sText = document.getElementById('stretch-timer-text');
+                    if (sText) sText.innerText = `${sMin}:${sSec}`;
+                }
+
+                Object.keys(exerciseClockStates).forEach(exId => {
+                    if (exerciseClockStates[exId] && exerciseClockStates[exId].running) {
+                        exerciseClockStates[exId].time++;
+                        const eMin = Math.floor(exerciseClockStates[exId].time / 60).toString().padStart(2, '0');
+                        const eSec = (exerciseClockStates[exId].time % 60).toString().padStart(2, '0');
+                        const badge = document.getElementById(`clock-badge-${exId}`);
+                        if (badge) badge.innerText = `${eMin}:${eSec}`;
                     }
-
-                    const scoreLabelStr = localStorage.getItem('user_muscle_pct') > 0 ? "Muscle RLI" : "RLI";
-
-                    html += `
-                    <div class="exercise-card">
-                        <span class="muscle-badge-header">// target: ${ex.muscle}</span>
-                        <div class="exercise-header">
-                            <h3 class="exercise-title">${ex.name}</h3>
-                            <div class="ex-controls">
-                                <span id="clock-badge-${ex.id}" class="ex-clock-badge">00:00</span>
-                                <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" onclick="toggleExerciseClock('${ex.id}')">▶ Clock</button>
-                            </div>
-                        </div>
-                        <div class="metrics-bar">
-                            <div class="metric-cell-vertical">
-                                <span class="m-lbl">${ex.type === 'hold' ? 'Target Structure' : 'Target Strategy'}</span>
-                                <span style="color:var(--accent-color); font-weight:bold; font-size:0.8rem;">${ex.sets} Sets × ${ex.repsRange} ${ex.unit}</span>
-                            </div>
-                            <div class="metric-cell-vertical" style="text-align:right;">
-                                <span class="m-lbl">${pbDisplayHeaderStr}</span>
-                                <span class="m-val-live" id="eff-${ex.id}">${scoreLabelStr}: 0.0x</span>
-                            </div>
-                        </div>
-                        <table class="log-table">
-                            <thead>
-                                <tr>
-                                    <th>Set</th>
-                                    <th>Weight</th>
-                                    <th>${ex.type === 'hold' ? 'Stopwatch / Sec' : 'Reps'}</th>
-                                    <th style="padding-left:4px;">Best Day Combo</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-
-                    for (let s = 1; s <= ex.sets; s++) {
-                        const weightKey = `cur-${ex.id}-w-${s}`;
-                        const repKey = `cur-${ex.id}-r-${s}`;
-                        const checkKey = `cur-check-${ex.id}-${s}`;
-                        const wVal = localStorage.getItem(weightKey) || '';
-                        const rVal = localStorage.getItem(repKey) || '';
-                        const isChecked = localStorage.getItem(checkKey) === 'true';
-
-                        let historicalBestString = '<span style="color:var(--text-muted)">--</span>';
-                        if (exPbData && exPbData.setsBreakdown[s]) {
-                            const pbSet = exPbData.setsBreakdown[s];
-                            if (ex.type === 'hold') {
-                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.reps}s</strong></span>`;
-                            } else {
-                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.weight}kg×${pbSet.reps}</strong></span>`;
-                            }
-                        }
-
-                        html += `
-                        <tr class="log-row ${isChecked ? 'row-filled' : ''}" id="row-${ex.id}-${s}">
-                            <td class="set-num">${s}</td>
-                            <td class="input-cell">
-                                <div class="input-container-box">
-                                    <input type="number" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
-                                </div>
-                            </td>
-                            <td class="input-cell">
-                                <div class="input-container-box" style="background:transparent; border:none; width:95%;">
-                                    ${ex.type === 'hold' ? `
-                                    <div class="hold-input-wrapper" id="hold-wrapper-${ex.id}-${s}">
-                                        ${rVal === '' ? `
-                                        <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>⏱️ Start</button>
-                                        ` : `
-                                        <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
-                                        `}
-                                    </div>
-                                    ` : `
-                                    <div class="input-container-box" style="width:100%;">
-                                        <input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="log-input" placeholder="0" value="${rVal}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
-                                    </div>
-                                    `}
-                                </div>
-                            </td>
-                            <td class="target-cell">${historicalBestString}</td>
-                            <td class="checkbox-cell">
-                                <button class="manual-check-btn" onclick="toggleManualRowCheck('${ex.id}', ${s})" ${!sessionIsRunning ? 'disabled' : ''}>✓</button>
-                            </td>
-                        </tr>`;
-                    }
-
-                    html += `</tbody></table></div>`;
                 });
-                container.innerHTML = html;
-            });
+            }, 1000);
 
+            renderApp();
+        }
+
+        window.toggleWarmupClock = function() {
+            const btn = document.getElementById('warmup-toggle');
+            if (!btn) return;
+            if (warmupRunning) {
+                warmupRunning = false;
+                btn.innerText = "▶ Start Warmup";
+                btn.classList.remove('active-run');
+            } else {
+                warmupRunning = true;
+                btn.innerText = "⏸ Pause Warmup";
+                btn.classList.add('active-run');
+            }
+        }
+
+        window.adjustWarmupTime = function(seconds) {
+            warmupTimeElapsed += seconds;
+            if (warmupTimeElapsed < 0) warmupTimeElapsed = 0;
+            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+            const wText = document.getElementById('warmup-timer-text');
+            if (wText) wText.innerText = `${wMin}:${wSec}`;
+        }
+
+        window.resetWarmupClock = function() {
+            warmupRunning = false;
+            warmupTimeElapsed = 0;
+            if (document.getElementById('warmup-timer-text')) document.getElementById('warmup-timer-text').innerText = "00:00";
+            const btn = document.getElementById('warmup-toggle');
+            if (btn) {
+                btn.innerText = "▶ Start Warmup";
+                btn.classList.remove('active-run');
+            }
+        }
+
+        window.toggleStretchClock = function() {
+            const btn = document.getElementById('stretch-toggle');
+            if (!btn) return;
+            if (stretchRunning) {
+                stretchRunning = false;
+                btn.innerText = "▶ Start Stretching";
+                btn.classList.remove('active-run');
+            } else {
+                stretchRunning = true;
+                btn.innerText = "⏸ Pause Stretching";
+                btn.classList.add('active-run');
+            }
+        }
+
+        window.adjustStretchTime = function(seconds) {
+            stretchTimeElapsed += seconds;
+            if (stretchTimeElapsed < 0) stretchTimeElapsed = 0;
+            const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
+            const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
+            if (document.getElementById('stretch-timer-text')) document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
+        }
+
+        window.resetStretchClock = function() {
+            stretchRunning = false;
+            stretchTimeElapsed = 0;
+            if (document.getElementById('stretch-timer-text')) document.getElementById('stretch-timer-text').innerText = "00:00";
+            const btn = document.getElementById('stretch-toggle');
+            if (btn) {
+                btn.innerText = "▶ Start Stretching";
+                btn.classList.remove('active-run');
+            }
+        }
+
+        window.toggleManualRowCheck = function(exId, setNum) {
+            const rowElement = document.getElementById(`row-${exId}-${setNum}`);
+            if (!rowElement) return;
+            const checkKey = `cur-check-${exId}-${setNum}`;
+            const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
+            const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
+            
+            if (wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
+            if (rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
+
+            if (rowElement.classList.contains('row-filled')) {
+                rowElement.classList.remove('row-filled');
+                localStorage.setItem(checkKey, 'false');
+            } else {
+                rowElement.classList.add('row-filled');
+                localStorage.setItem(checkKey, 'true');
+            }
             updateLiveMetricsOnly();
-            updateDashboardStats();
-            renderCalendarWorkspace();
+        }
+
+        window.toggleExerciseClock = function(exId) {
+            const btn = document.getElementById(`clock-toggle-${exId}`);
+            if (!btn) return;
+            if (!exerciseClockStates[exId]) {
+                exerciseClockStates[exId] = { time: 0, running: false };
+            }
+            if (exerciseClockStates[exId].running) {
+                exerciseClockStates[exId].running = false;
+                btn.innerText = "▶ Clock";
+                btn.classList.remove('active-run');
+            } else {
+                exerciseClockStates[exId].running = true;
+                btn.innerText = "⏸ Pause";
+                btn.classList.add('active-run');
+            }
+        }
+
+        window.toggleHoldStopwatch = function(exId, setNum, repKey) {
+            const timerId = exId + '-' + setNum;
+            const btn = document.getElementById('btn-' + timerId);
+            if (!btn) return;
+
+            if (holdTimers[timerId]) {
+                clearInterval(holdTimers[timerId].interval);
+                const totalSeconds = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
+                localStorage.setItem(repKey, totalSeconds);
+                delete holdTimers[timerId];
+
+                const wrapper = document.getElementById(`hold-wrapper-${timerId}`);
+                if (wrapper) {
+                    wrapper.innerHTML = `<input type="number" pattern="[0-9]*" inputmode="numeric" id="${repKey}" class="hold-edit-input" placeholder="0" value="${totalSeconds}" oninput="saveCurrentLive('${repKey}', this.value); updateLiveMetricsOnly();">`;
+                }
+                updateLiveMetricsOnly();
+            } else {
+                btn.innerText = "⏱️ 0s";
+                btn.classList.add('running');
+                holdTimers[timerId] = {
+                    start: Date.now(),
+                    interval: setInterval(() => {
+                        if (holdTimers[timerId]) {
+                            const elapsed = Math.round((Date.now() - holdTimers[timerId].start) / 1000);
+                            btn.innerText = `⏱️ ${elapsed}s`;
+                        }
+                    }, 1000)
+                };
+            }
+        }
+
+        window.changeAnalyticsPill = function(routineName) {
+            currentSelectedAnalyticsPill = routineName;
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            if (routineName === 'Workout A') document.getElementById('pill-a')?.classList.add('active');
+            if (routineName === 'Workout B') document.getElementById('pill-b')?.classList.add('active');
+            if (routineName === 'Workout C') document.getElementById('pill-c')?.classList.add('active');
             renderDeepHistoricPillsSummary();
         }
 
-        function buildExercisePersonalBestsRecord() {
-            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const exercisePBs = {};
-
-            const chronologicalList = [...historyList].reverse();
-
-            chronologicalList.forEach(session => {
-                const lines = session.details.split('\n');
-                const linesMap = [];
-                let tempBlock = null;
-
-                lines.forEach(line => {
-                    const exStartMatch = line.match(/^■\s+(.+?)\s+\[ID:\s*([a-z0-9]+)\]/i);
-                    if (exStartMatch) {
-                        if (tempBlock) linesMap.push(tempBlock);
-                        const scoreMatch = line.match(/Score:\s*([0-9.]+)x/);
-                        tempBlock = {
-                            id: exStartMatch[2],
-                            score: scoreMatch ? parseFloat(scoreMatch[1]) : 0,
-                            lines: []
-                        };
-                    } else if (tempBlock) {
-                        tempBlock.lines.push(line);
-                    }
-                });
-                if (tempBlock) linesMap.push(tempBlock);
-
-                linesMap.forEach(block => {
-                    const matchedExId = block.id;
-                    const blockDayScore = block.score;
-
-                    let targetExObj = null;
-                    Object.keys(routines).forEach(r => {
-                        const found = routines[r].exercises.find(e => e.id === matchedExId);
-                        if (found) targetExObj = found;
-                    });
-                    if (!targetExObj) return;
-
-                    let currentExType = targetExObj.type;
-                    const setsBreakdown = {};
-
-                    block.lines.forEach(line => {
-                        const setNumMatch = line.match(/^\s*↳\s*Set\s*([0-9]+)/i);
-                        if (setNumMatch) {
-                            const sNum = parseInt(setNumMatch[1]);
-                            if (currentExType === 'hold') {
-                                const secMatch = line.match(/:\s*([0-9.]+)\s*sec/);
-                                if (secMatch) setsBreakdown[sNum] = { reps: parseInt(secMatch[1]), weight: 0 };
-                            } else {
-                                const wtRepMatch = line.match(/:\s*([0-9.]+)kg\s*x\s*([0-9.]+)\s*reps/);
-                                if (wtRepMatch) setsBreakdown[sNum] = { weight: parseFloat(wtRepMatch[1]), reps: parseInt(wtRepMatch[2]) };
-                            }
-                        }
-                    });
-
-                    if (!exercisePBs[matchedExId] || blockDayScore >= exercisePBs[matchedExId].score) {
-                        exercisePBs[matchedExId] = {
-                            score: blockDayScore,
-                            date: session.date,
-                            timestamp: session.timestamp,
-                            setsBreakdown: setsBreakdown
-                        };
-                    }
-                });
-            });
-            return exercisePBs;
+        window.shiftCalendarMonth = function(direction) {
+            calendarFocusDate.setMonth(calendarFocusDate.getMonth() + direction);
+            renderCalendarWorkspace();
         }
 
-        function renderCalendarWorkspace() {
-            const gridContainer = document.getElementById('calendar-render-grid');
-            const headerTitle = document.getElementById('calendar-header-title');
-            if (!gridContainer || !headerTitle) return;
+        window.saveInspectedLogEdits = function(globalIndex) {
+            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            if (!historyList[globalIndex]) return;
+            
+            const newDate = document.getElementById(`edit-date-${globalIndex}`)?.value.trim();
+            const newType = document.getElementById(`edit-type-${globalIndex}`)?.value.trim();
+            const newRatio = parseFloat(document.getElementById(`edit-ratio-${globalIndex}`)?.value) || 0;
+            const newDetails = document.getElementById(`edit-textarea-${globalIndex}`)?.value;
 
-            const year = calendarFocusDate.getFullYear();
-            const month = calendarFocusDate.getMonth();
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            headerTitle.innerText = `${monthNames[month]} ${year}`;
-            gridContainer.innerHTML = '';
+            if (newDate) historyList[globalIndex].date = newDate;
+            if (newType) historyList[globalIndex].type = newType;
+            historyList[globalIndex].ratio = newRatio;
+            if (newDetails !== undefined) historyList[globalIndex].details = newDetails;
 
-            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
-                const el = document.createElement('div');
-                el.className = 'calendar-weekday-hdr';
-                el.innerText = d;
-                gridContainer.appendChild(el);
-            });
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
+            alert("Workout node successfully amended.");
+            if (document.getElementById('calendar-inspector-panel')) document.getElementById('calendar-inspector-panel').style.display = 'none';
+            renderApp();
+        }
 
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+        window.deleteInspectedLogNode = function(globalIndex) {
+            if (!confirm("Wipe this training block from history?")) return;
+            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            if (!historyList[globalIndex]) return;
+            
+            const targetedDate = historyList[globalIndex].date;
+            historyList.splice(globalIndex, 1);
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
 
-            for (let i = 0; i < firstDayIndex; i++) {
-                gridContainer.appendChild(document.createElement('div'));
+            if (historyList.filter(l => l.date === targetedDate).length === 0) {
+                if (document.getElementById('calendar-inspector-panel')) document.getElementById('calendar-inspector-panel').style.display = 'none';
+            } else {
+                openDayInspectorPanel(targetedDate);
+            }
+            renderApp();
+        }
+
+        window.resetCurrentSessionInputs = function() {
+            if (!confirm("Clear current tracking grid workspace row sets?")) return;
+            const currentRoutine = routines[activeTabId];
+            resetWarmupClock();
+            resetStretchClock();
+            if (currentRoutine && currentRoutine.exercises) {
+                currentRoutine.exercises.forEach(ex => {
+                    localStorage.removeItem(`ex-clock-time-${ex.id}`);
+                    exerciseClockStates[ex.id] = { time: 0, running: false };
+                    for (let s = 1; s <= ex.sets; s++) {
+                        localStorage.removeItem(`cur-${ex.id}-w-${s}`);
+                        localStorage.removeItem(`cur-${ex.id}-r-${s}`);
+                        localStorage.removeItem(`cur-check-${ex.id}-${s}`);
+                    }
+                });
+            }
+            renderApp();
+        }
+
+        window.finishWorkout = function() {
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            const currentRoutine = routines[activeTabId];
+            const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
+            const musclePct = parseFloat(localStorage.getItem('user_muscle_pct')) || 0;
+            const isAdvanced = musclePct > 0;
+            const scalingDenominator = isAdvanced ? (userBw * (musclePct / 100)) : userBw;
+
+            let logDetails = '';
+            let parsedSessionScoreTotal = 0;
+            let loggedCount = 0;
+
+            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
+            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
+            const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
+            const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
+
+            const gTimerBox = document.getElementById('global-timer-box')?.innerText || "00:00";
+
+            logDetails += `Warmup Prep Duration: ${wMin}:${wSec}\n`;
+            logDetails += `Session Active Lift Duration: ${gTimerBox}\n`;
+            logDetails += `Post-Workout Stretching Duration: ${sMin}:${sSec}\n\n`;
+
+            if (currentRoutine && currentRoutine.exercises) {
+                currentRoutine.exercises.forEach(ex => {
+                    let exerciseVolumeLoad = 0;
+                    let holdsTotalSeconds = 0;
+                    let exerciseHasData = false;
+                    let subLines = [];
+
+                    for (let s = 1; s <= ex.sets; s++) {
+                        const wVal = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '';
+                        const rVal = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '';
+
+                        if (rVal !== '') {
+                            exerciseHasData = true;
+                            if (ex.type === 'hold') {
+                                holdsTotalSeconds += parseInt(rVal) || 0;
+                                subLines.push(`   ↳ Set ${s}: ${rVal} sec`);
+                            } else {
+                                const numericW = parseFloat(wVal) || 0;
+                                const numericR = parseInt(rVal) || 0;
+                                exerciseVolumeLoad += numericW * numericR;
+                                subLines.push(`   ↳ Set ${s}: ${numericW}kg x ${numericR} reps`);
+                            }
+                        }
+                    }
+
+                    if (exerciseHasData) {
+                        loggedCount++;
+                        let score = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
+                        parsedSessionScoreTotal += score;
+                        logDetails += `■ ${ex.name} [ID: ${ex.id}] — Score: ${score.toFixed(1)}x\n${subLines.join('\n')}\n\n`;
+                    }
+                });
             }
 
-            const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            if (loggedCount === 0) {
+                alert("Cannot commit an empty tracking dashboard array template configuration.");
+                startWorkoutSession(); 
+                return;
+            }
 
-            for (let day = 1; day <= totalDaysInMonth; day++) {
-                const cellDateObj = new Date(year, month, day);
-                const cellLocaleString = cellDateObj.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
-                
-                const cell = document.createElement('div');
-                cell.className = 'calendar-day-cell';
-                
-                const numLabel = document.createElement('span');
-                numLabel.className = 'num-label';
-                numLabel.innerText = day;
-                cell.appendChild(numLabel);
+            const finalRecordedDayRatio = parsedSessionScoreTotal;
+            const todayObj = new Date();
+            const dateString = todayObj.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
 
-                const matchingLogs = historyList.filter(l => l.date === cellLocaleString);
-                if (matchingLogs.length > 0) {
-                    cell.classList.add('has-log');
-                    matchingLogs.forEach(log => {
-                        const badge = document.createElement('div');
-                        badge.className = 'calendar-badge';
-                        let letter = 'A';
-                        if (log.type && log.type.toLowerCase().includes('b')) letter = 'B';
-                        if (log.type && log.type.toLowerCase().includes('c')) letter = 'C';
-                        badge.classList.add(letter === 'A' ? 'badge-a' : (letter === 'B' ? 'badge-b' : 'badge-c'));
-                        badge.innerText = `${letter}:${(log.ratio || 0).toFixed(1)}x`;
-                        cell.appendChild(badge);
-                    });
-                }
+            const sessionRecord = {
+                date: dateString,
+                timestamp: Date.now(),
+                type: currentRoutine.name,
+                ratio: finalRecordedDayRatio,
+                details: logDetails.trim()
+            };
 
-                cell.onclick = () => openDayInspectorPanel(cellLocaleString);
-                gridContainer.appendChild(cell);
+            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
+            historyList.unshift(sessionRecord);
+            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
+
+            resetWarmupClock();
+            resetStretchClock();
+
+            if (currentRoutine && currentRoutine.exercises) {
+                currentRoutine.exercises.forEach(ex => {
+                    localStorage.removeItem(`ex-clock-time-${ex.id}`);
+                    delete exerciseClockStates[ex.id];
+                    for (let s = 1; s <= ex.sets; s++) {
+                        localStorage.removeItem(`cur-${ex.id}-w-${s}`);
+                        localStorage.removeItem(`cur-${ex.id}-r-${s}`);
+                        localStorage.removeItem(`cur-check-${ex.id}-${s}`);
+                    }
+                });
+            }
+
+            sessionIsRunning = false;
+            if (document.getElementById('session-gate')) document.getElementById('session-gate').style.display = 'block';
+            if (document.getElementById('global-timer-box')) document.getElementById('global-timer-box').style.display = 'none';
+            if (document.getElementById('warmup-dashboard')) document.getElementById('warmup-dashboard').style.display = 'none';
+            if (document.getElementById('stretching-dashboard')) document.getElementById('stretching-dashboard').style.display = 'none';
+            if (document.getElementById('footer-actions')) document.getElementById('footer-actions').style.display = 'none';
+
+            alert(`Logged successfully! Score: ${finalRecordedDayRatio.toFixed(1)}x.`);
+            renderApp();
+            switchWorkout('view-history');
+        }
+
+        window.exportDataData = function() {
+            const stateData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                stateData[key] = localStorage.getItem(key);
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `gym_tracker_v16_backup.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        window.importDataData = function(event) {
+            const fileElement = event.target.files[0];
+            if (!fileElement) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const parsed = JSON.parse(e.target.result);
+                Object.keys(parsed).forEach(k => { localStorage.setItem(k, parsed[k]); });
+                alert("Analytics data synchronized successfully!");
+                renderApp();
+            };
+            reader.readAsText(fileElement);
+        }
+
+        window.resetAllHistory = function() {
+            if (confirm("Permanently clear application local memory space?")) {
+                localStorage.clear();
+                location.reload();
             }
         }
 
@@ -785,6 +956,8 @@
             const inspectorPanel = document.getElementById('calendar-inspector-panel');
             const titleEl = document.getElementById('inspector-date-title');
             const inspectorContent = document.getElementById('inspector-output-content');
+            
+            if (!inspectorPanel || !titleEl || !inspectorContent) return;
             
             titleEl.innerText = `🔍 History Inspector: ${localeDateStr}`;
             inspectorContent.innerHTML = '';
@@ -803,7 +976,7 @@
                             <input type="text" id="edit-date-${index}" value="${log.date}">
                         </div>
                         <div class="editor-field-group">
-                            <label>Routine Routine Name Tag</label>
+                            <label>Routine Name Tag</label>
                             <input type="text" id="edit-type-${index}" value="${log.type || ''}">
                         </div>
                         <div class="editor-field-group">
@@ -831,169 +1004,37 @@
             }
         }
 
-        function saveInspectedLogEdits(globalIndex) {
+        function buildExercisePersonalBestsRecord() {
             const historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const newDate = document.getElementById(`edit-date-${globalIndex}`).value.trim();
-            const newType = document.getElementById(`edit-type-${globalIndex}`).value.trim();
-            const newRatio = parseFloat(document.getElementById(`edit-ratio-${globalIndex}`).value) || 0;
-            const newDetails = document.getElementById(`edit-textarea-${globalIndex}`).value;
+            const exercisePBs = {};
+            const chronologicalList = [...historyList].reverse();
 
-            historyList[globalIndex].date = newDate;
-            historyList[globalIndex].type = newType;
-            historyList[globalIndex].ratio = newRatio;
-            historyList[globalIndex].details = newDetails;
+            chronologicalList.forEach(session => {
+                if (!session.details) return;
+                const lines = session.details.split('\n');
+                const linesMap = [];
+                let tempBlock = null;
 
-            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
-            alert("Workout node successfully amended.");
-            document.getElementById('calendar-inspector-panel').style.display = 'none';
-            renderApp();
-        }
-
-        function deleteInspectedLogNode(globalIndex) {
-            if (!confirm("Wipe this training block from history?")) return;
-            let historyList = JSON.parse(localStorage.getItem('gym_history_stream')) || [];
-            const targetedDate = historyList[globalIndex].date;
-            
-            historyList.splice(globalIndex, 1);
-            localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
-
-            if (historyList.filter(l => l.date === targetedDate).length === 0) {
-                document.getElementById('calendar-inspector-panel').style.display = 'none';
-            } else {
-                openDayInspectorPanel(targetedDate);
-            }
-            renderApp();
-        }
-
-        function shiftCalendarMonth(direction) {
-            calendarFocusDate.setMonth(calendarFocusDate.getMonth() + direction);
-            renderCalendarWorkspace();
-        }
-
-        function startWorkoutSession() {
-            sessionIsRunning = true;
-            globalTimeElapsed = 0;
-            document.getElementById('session-gate').style.display = 'none';
-            document.getElementById('global-timer-box').style.display = 'block';
-            document.getElementById('warmup-dashboard').style.display = 'block';
-            document.getElementById('stretching-dashboard').style.display = 'block';
-            document.getElementById('footer-actions').style.display = 'flex';
-
-            globalTimerInterval = setInterval(() => {
-                globalTimeElapsed++;
-                const gMin = Math.floor(globalTimeElapsed / 60).toString().padStart(2, '0');
-                const gSec = (globalTimeElapsed % 60).toString().padStart(2, '0');
-                document.getElementById('global-timer-box').innerText = `${gMin}:${gSec}`;
-
-                if (warmupRunning) {
-                    warmupTimeElapsed++;
-                    const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
-                    const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-                    document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
-                }
-
-                if (stretchRunning) {
-                    stretchTimeElapsed++;
-                    const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
-                    const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
-                    document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
-                }
-
-                Object.keys(exerciseClockStates).forEach(exId => {
-                    if (exerciseClockStates[exId].running) {
-                        exerciseClockStates[exId].time++;
-                        const eMin = Math.floor(exerciseClockStates[exId].time / 60).toString().padStart(2, '0');
-                        const eSec = (exerciseClockStates[exId].time % 60).toString().padStart(2, '0');
-                        const badge = document.getElementById(`clock-badge-${exId}`);
-                        if (badge) badge.innerText = `${eMin}:${eSec}`;
+                lines.forEach(line => {
+                    const exStartMatch = line.match(/^■\s+(.+?)\s+\[ID:\s*([a-z0-9]+)\]/i);
+                    if (exStartMatch) {
+                        if (tempBlock) linesMap.push(tempBlock);
+                        const scoreMatch = line.match(/Score:\s*([0-9.]+)x/);
+                        tempBlock = {
+                            id: exStartMatch[2],
+                            score: scoreMatch ? parseFloat(scoreMatch[1]) : 0,
+                            lines: []
+                        };
+                    } else if (tempBlock) {
+                        tempBlock.lines.push(line);
                     }
                 });
-            }, 1000);
+                if (tempBlock) linesMap.push(tempBlock);
 
-            renderApp();
-        }
+                linesMap.forEach(block => {
+                    const matchedExId = block.id;
+                    const blockDayScore = block.score;
 
-        function toggleWarmupClock() {
-            const btn = document.getElementById('warmup-toggle');
-            if (warmupRunning) {
-                warmupRunning = false;
-                btn.innerText = "▶ Start Warmup";
-                btn.classList.remove('active-run');
-            } else {
-                warmupRunning = true;
-                btn.innerText = "⏸ Pause Warmup";
-                btn.classList.add('active-run');
-            }
-        }
-
-        function adjustWarmupTime(seconds) {
-            warmupTimeElapsed += seconds;
-            if (warmupTimeElapsed < 0) warmupTimeElapsed = 0;
-            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
-            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-            document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
-        }
-
-        function resetWarmupClock() {
-            warmupRunning = false;
-            warmupTimeElapsed = 0;
-            document.getElementById('warmup-timer-text').innerText = "00:00";
-            document.getElementById('warmup-toggle').innerText = "▶ Start Warmup";
-            document.getElementById('warmup-toggle').classList.remove('active-run');
-        }
-
-        function toggleStretchClock() {
-            const btn = document.getElementById('stretch-toggle');
-            if (stretchRunning) {
-                stretchRunning = false;
-                btn.innerText = "▶ Start Stretching";
-                btn.classList.remove('active-run');
-            } else {
-                stretchRunning = true;
-                btn.innerText = "⏸ Pause Stretching";
-                btn.classList.add('active-run');
-            }
-        }
-
-        function adjustStretchTime(seconds) {
-            stretchTimeElapsed += seconds;
-            if (stretchTimeElapsed < 0) stretchTimeElapsed = 0;
-            const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
-            const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
-            document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
-        }
-
-        function resetStretchClock() {
-            stretchRunning = false;
-            stretchTimeElapsed = 0;
-            document.getElementById('stretch-timer-text').innerText = "00:00";
-            document.getElementById('stretch-toggle').innerText = "▶ Start Stretching";
-            document.getElementById('stretch-toggle').classList.remove('active-run');
-        }
-
-        function toggleManualRowCheck(exId, setNum) {
-            const rowElement = document.getElementById(`row-${exId}-${setNum}`);
-            const checkKey = `cur-check-${exId}-${setNum}`;
-            const wtIn = document.getElementById(`cur-${exId}-w-${setNum}`);
-            const rpIn = document.getElementById(`cur-${exId}-r-${setNum}`);
-            
-            if (wtIn) localStorage.setItem(`cur-${exId}-w-${setNum}`, wtIn.value);
-            if (rpIn) localStorage.setItem(`cur-${exId}-r-${setNum}`, rpIn.value);
-
-            if (rowElement.classList.contains('row-filled')) {
-                rowElement.classList.remove('row-filled');
-                localStorage.setItem(checkKey, 'false');
-            } else {
-                rowElement.classList.add('row-filled');
-                localStorage.setItem(checkKey, 'true');
-            }
-            updateLiveMetricsOnly();
-        }
-
-        function toggleExerciseClock(exId) {
-            const btn = document.getElementById(`clock-toggle-${exId}`);
-            if (!exerciseClockStates[exId]) {
-                exerciseClockStates[exId] = { time: 0, running: false };
-            }
-            if (exerciseClockStates[exId].running) {
-                exercise
+                    let targetExObj = null;
+                    Object.keys(routines).forEach(r => {
+                        const found = routines[r].exercises.find(e => e.id === matched
