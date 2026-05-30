@@ -122,8 +122,7 @@
             cursor: pointer;
             font-size: 0.85rem;
             display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            align-items: center; justify-content: center;
             margin-left: 6px;
             padding: 2px 4px;
             vertical-align: middle;
@@ -630,7 +629,7 @@
                                     <tr>
                                         <th>Set</th>
                                         <th>Weight</th>
-                                        <th>${ex.type === 'hold' ? 'Stopwatch / Sec' : 'Reps'}</th>
+                                        <th>${ex.type.toLowerCase() === 'hold' ? 'Stopwatch / Sec' : 'Reps'}</th>
                                         <th style="padding-left:4px;">Best Day Combo</th>
                                         <th></th>
                                     </tr>
@@ -650,7 +649,7 @@
                         let historicalBestString = '<span style="color:var(--text-muted)">--</span>';
                         if (exPbData && exPbData.setsBreakdown[s]) {
                             const pbSet = exPbData.setsBreakdown[s];
-                            if (ex.type === 'hold') {
+                            if (ex.type.toLowerCase() === 'hold') {
                                 historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.reps}s</strong></span>`;
                             } else {
                                 historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.weight}kg×${pbSet.reps}</strong></span>`;
@@ -672,7 +671,7 @@
                                 </td>
                                 <td class="input-cell">
                                     <div class="input-container-box" style="background:transparent; border:none; width:95%;">
-                                    ${ex.type === 'hold' ? `
+                                    ${ex.type.toLowerCase() === 'hold' ? `
                                         <div class="hold-input-wrapper" id="hold-wrapper-${ex.id}-${s}">
                                             ${rVal === '' ? `
                                                 <button id="btn-${ex.id}-${s}" class="stopwatch-btn" onclick="toggleHoldStopwatch('${ex.id}', ${s}, '${repKey}')" ${!sessionIsRunning ? 'disabled' : ''}>
@@ -731,7 +730,7 @@
                         routines[dId].exercises.forEach(exObj => {
                             if (firstLine.includes(exObj.name)) {
                                 matchedExId = exObj.id;
-                                currentExType = exObj.type;
+                                currentExType = exObj.type.toLowerCase();
                             }
                         });
                     });
@@ -1128,7 +1127,7 @@
                         }
 
                         if (rVal !== '') {
-                            if (ex.type === 'hold') {
+                            if (ex.type.toLowerCase() === 'hold') {
                                 holdsTotalSeconds += parseInt(rVal) || 0;
                             } else if (wVal !== '') {
                                 exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
@@ -1136,7 +1135,7 @@
                         }
                     }
 
-                    let calculatedExerciseScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
+                    let calculatedExerciseScore = ex.type.toLowerCase() === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
                     dayTotalVolumeScore += calculatedExerciseScore;
                     
                     const exEffBadge = document.getElementById(`eff-${ex.id}`);
@@ -1220,7 +1219,7 @@
                 let setsListText = [];
                 Object.keys(pbEntry.setsBreakdown).forEach(sNum => {
                     const info = pbEntry.setsBreakdown[sNum];
-                    if(ex.type === 'hold') {
+                    if(ex.type.toLowerCase() === 'hold') {
                         setsListText.push(`Set ${sNum}: ${info.reps}s`);
                     } else {
                         setsListText.push(`Set ${sNum}: ${info.weight}kg x ${info.reps} reps`);
@@ -1303,8 +1302,8 @@
                     }
 
                     if (parseInt(reps) > 0) {
-                        exLines.push(`  Set ${s}: ${ex.type === 'hold' ? '' : (weight === '0' ? 'BW' : weight + 'kg') + ' x '}${reps} ${ex.type === 'hold' ? 'sec' : 'reps'}`);
-                        if (ex.type === 'hold') {
+                        exLines.push(`  Set ${s}: ${ex.type.toLowerCase() === 'hold' ? '' : (weight === '0' ? 'BW' : weight + 'kg') + ' x '}${reps} ${ex.type.toLowerCase() === 'hold' ? 'sec' : 'reps'}`);
+                        if (ex.type.toLowerCase() === 'hold') {
                             holdsTotalSeconds += parseInt(reps);
                         } else {
                             exerciseVolumeLoad += (parseFloat(weight) * parseInt(reps));
@@ -1315,7 +1314,7 @@
                 }
                 
                 if (exLines.length > 0) {
-                    let finalExScore = ex.type === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
+                    let finalExScore = ex.type.toLowerCase() === 'hold' ? (holdsTotalSeconds / 10) : (exerciseVolumeLoad / scalingDenominator);
                     parsedSessionScoreTotal += finalExScore;
                     logDetails += `${ex.name} (Time: ${trackingClockText} | Score: ${finalExScore.toFixed(1)}x)\n${exLines.join('\n')}\n\n`;
                 }
