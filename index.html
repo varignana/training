@@ -191,6 +191,7 @@
 
         .log-input { width: 100%; background: transparent; border: none; color: var(--text-main); padding: 6px 2px; text-align: center; font-size: 0.9rem; font-weight: bold; outline: none; }
         .log-input:disabled { opacity: 0.2; }
+        .log-input.bw-lock { color: var(--warning-color); background: rgba(245, 158, 11, 0.05); cursor: not-allowed; }
 
         .hold-input-wrapper { display: flex; gap: 4px; width: 100%; align-items: center; }
         .stopwatch-btn { width: 100%; background: #1e293b; border: none; color: var(--warning-color); padding: 7px 2px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
@@ -488,7 +489,7 @@
                     { id: 'a2', name: '2. Lat Pulldown / Assisted Pull-up', muscle: 'Lats / Upper Back / Biceps', sets: 3, repsRange: '10-12', unit: 'kg', type: 'reps', desc: 'Pull down with a wide grip toward upper chest or drive elbows down in an assisted machine. Depress and retract shoulder blades before letting your arms break. Avoid torso swing.' },
                     { id: 'a3', name: '3. Dumbbell Bench Press', muscle: 'Chest / Anterior Delts / Triceps', sets: 3, repsRange: '8-10', unit: 'kg', type: 'reps', desc: 'Lie flat on your bench, feet planted. Press dumbbells evenly upwards over the mid-chest line. Control the speed down until arms reach a 90-degree bend with elbows angled slightly inwards.' },
                     { id: 'a4', name: '4. Cable Face Pulls', muscle: 'Rear Delts / Rotator Cuff / Upper Back', sets: 3, repsRange: '15', unit: 'kg', type: 'reps', desc: 'Set cable height at nose level using a double-rope attachment. Pull the center toward your forehead while separating hands out laterally. Focus on high elbows and external shoulder rotation.' },
-                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold', desc: 'For RKC Plank: Maintain standard forearm stance but consciously lock out knees, clench glutes aggressively, and intentionally pull elbows toward toes to create massive core internal leverage stress.' }
+                    { id: 'a5', name: '5. RKC Plank or Dead Bug', muscle: 'Deep Core / Transverse Abdominis', sets: 3, repsRange: 'Hold', unit: 'Sec', type: 'hold', isBodyweight: true, desc: 'For RKC Plank: Maintain standard forearm stance but consciously lock out knees, clench glutes aggressively, and intentionally pull elbows toward toes to create massive core internal leverage stress.' }
                 ]
             },
             'workout-b': {
@@ -508,7 +509,7 @@
                     { id: 'c2', name: '2. Chest-Supported DB Row', muscle: 'Upper Back / Mid-Traps / Biceps', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Set an incline bench to 30 degrees and lie chest down. Flare elbows out slightly as you pull dumbbells upward to maximize the mechanical loading across the upper back musculature.' },
                     { id: 'c3', name: '3. Incline Dumbbell Press', muscle: 'Upper Chest / Anterior Delts', sets: 3, repsRange: '10', unit: 'kg', type: 'reps', desc: 'Lie back on an incline bench set to roughly 30-45 degrees. Press weights straight up over upper chest line. Keep shoulders retracted and safely packed against the bench frame.' },
                     { id: 'c4', name: '4. Cable Woodchoppers', muscle: 'Obliques / Core Rotational Power', sets: 3, repsRange: '12', unit: 'kg', type: 'reps', desc: 'Set pulley to upper height. Stand sideways and grip attachment with both hands. Pull diagonally downward across your frame, pivoting on the back foot while maintaining a braced core.' },
-                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps', desc: 'Hang from a bar. Contract your lower abdominals to raise knees upward toward your chest line. Control the descent strictly to avoid creating swinging momentum.' }
+                    { id: 'c5', name: '5. Hanging Knee Raises', muscle: 'Lower Rectus Abdominis / Hip Flexors', sets: 3, repsRange: '12', unit: 'Reps', type: 'reps', isBodyweight: true, desc: 'Hang from a bar. Contract your lower abdominals to raise knees upward toward your chest line. Control the descent strictly to avoid creating swinging momentum.' }
                 ]
             }
         };
@@ -649,16 +650,18 @@
                         let historicalBestString = '<span style="color:var(--text-muted)">--</span>';
                         if (exPbData && exPbData.setsBreakdown[s]) {
                             const pbSet = exPbData.setsBreakdown[s];
-                            if (ex.type.toLowerCase() === 'hold') {
-                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.reps}s</strong></span>`;
+                            if (ex.type.toLowerCase() === 'hold' || ex.isBodyweight) {
+                                historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.reps} ${ex.type.toLowerCase() === 'hold' ? 's' : 'reps'}</strong></span>`;
                             } else {
                                 historicalBestString = `<span class="target-group">🥇 <strong>${pbSet.weight}kg×${pbSet.reps}</strong></span>`;
                             }
                         }
 
-                        let weightPlaceholder = "0";
-                        if(ex.id === 'a5' || ex.id === 'c5') {
-                            weightPlaceholder = "BW";
+                        let weightElementHTML = '';
+                        if (ex.isBodyweight) {
+                            weightElementHTML = `<input type="text" id="${weightKey}" class="log-input bw-lock" value="BW" disabled readonly style="text-align:center;">`;
+                        } else {
+                            weightElementHTML = `<input type="text" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="0" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>`;
                         }
 
                         html += `
@@ -666,7 +669,7 @@
                                 <td class="set-num">${s}</td>
                                 <td class="input-cell">
                                     <div class="input-container-box">
-                                        <input type="text" pattern="[0-9]*" inputmode="decimal" id="${weightKey}" class="log-input" placeholder="${weightPlaceholder}" value="${wVal}" oninput="saveCurrentLive('${weightKey}', this.value); updateLiveMetricsOnly();" ${!sessionIsRunning ? 'disabled' : ''}>
+                                        ${weightElementHTML}
                                     </div>
                                 </td>
                                 <td class="input-cell">
@@ -725,12 +728,14 @@
 
                     let matchedExId = null;
                     let currentExType = 'reps';
+                    let checkedIsBW = false;
                     
                     Object.keys(routines).forEach(dId => {
                         routines[dId].exercises.forEach(exObj => {
                             if (firstLine.includes(exObj.name)) {
                                 matchedExId = exObj.id;
                                 currentExType = exObj.type.toLowerCase();
+                                if(exObj.isBodyweight) checkedIsBW = true;
                             }
                         });
                     });
@@ -750,6 +755,9 @@
                                 if (currentExType === 'hold') {
                                     const secMatch = line.match(/:\s*([0-9.]+)\s*sec/);
                                     if (secMatch) setsBreakdown[sNum] = { reps: parseInt(secMatch[1]), weight: 0 };
+                                } else if (checkedIsBW) {
+                                    const repsMatch = line.match(/:\s*BW\s*x\s*([0-9.]+)\s*reps/);
+                                    if (repsMatch) setsBreakdown[sNum] = { reps: parseInt(repsMatch[1]), weight: 0 };
                                 } else {
                                     const wtRepMatch = line.match(/:\s*([0-9.]+)kg\s*x\s*([0-9.]+)\s*reps/);
                                     if (wtRepMatch) setsBreakdown[sNum] = { weight: parseFloat(wtRepMatch[1]), reps: parseInt(wtRepMatch[2]) };
@@ -1122,14 +1130,16 @@
                         let wVal = wInput ? wInput.value : (localStorage.getItem(`cur-${ex.id}-w-${s}`) || '');
                         const rVal = rInput ? rInput.value : (localStorage.getItem(`cur-${ex.id}-r-${s}`) || '');
 
-                        if (wVal.toUpperCase() === 'BW') {
+                        if (ex.isBodyweight) {
+                            wVal = userBw.toString();
+                        } else if (wVal.toUpperCase() === 'BW') {
                             wVal = '0';
                         }
 
                         if (rVal !== '') {
                             if (ex.type.toLowerCase() === 'hold') {
                                 holdsTotalSeconds += parseInt(rVal) || 0;
-                            } else if (wVal !== '') {
+                            } else {
                                 exerciseVolumeLoad += (parseFloat(wVal) || 0) * (parseInt(rVal) || 0);
                             }
                         }
@@ -1221,6 +1231,8 @@
                     const info = pbEntry.setsBreakdown[sNum];
                     if(ex.type.toLowerCase() === 'hold') {
                         setsListText.push(`Set ${sNum}: ${info.reps}s`);
+                    } else if (ex.isBodyweight) {
+                        setsListText.push(`Set ${sNum}: BW x ${info.reps} reps`);
                     } else {
                         setsListText.push(`Set ${sNum}: ${info.weight}kg x ${info.reps} reps`);
                     }
@@ -1297,12 +1309,14 @@
                     let weight = localStorage.getItem(`cur-${ex.id}-w-${s}`) || '0';
                     const reps = localStorage.getItem(`cur-${ex.id}-r-${s}`) || '0';
                     
-                    if (weight.toUpperCase() === 'BW') {
+                    if (ex.isBodyweight) {
+                        weight = userBw.toString();
+                    } else if (weight.toUpperCase() === 'BW') {
                         weight = '0';
                     }
 
                     if (parseInt(reps) > 0) {
-                        exLines.push(`  Set ${s}: ${ex.type.toLowerCase() === 'hold' ? '' : (weight === '0' ? 'BW' : weight + 'kg') + ' x '}${reps} ${ex.type.toLowerCase() === 'hold' ? 'sec' : 'reps'}`);
+                        exLines.push(`  Set ${s}: ${ex.type.toLowerCase() === 'hold' ? '' : (ex.isBodyweight ? 'BW' : weight + 'kg') + ' x '}${reps} ${ex.type.toLowerCase() === 'hold' ? 'sec' : 'reps'}`);
                         if (ex.type.toLowerCase() === 'hold') {
                             holdsTotalSeconds += parseInt(reps);
                         } else {
