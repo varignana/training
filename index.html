@@ -373,9 +373,6 @@
         </div>
         <div class="timer-dashboard-btn-group">
             <button id="warmup-toggle" class="timer-dashboard-btn" onclick="toggleWarmupClock()">▶ Start Warmup</button>
-            <button class="timer-dashboard-btn" onclick="adjustWarmupTime(60)">+1 Min</button>
-            <button class="timer-dashboard-btn" onclick="adjustWarmupTime(300)">+5 Min</button>
-            <button class="timer-dashboard-btn" onclick="resetWarmupClock()" style="color: var(--danger-color);">🔄 Reset</button>
         </div>
     </div>
 
@@ -469,9 +466,6 @@
         </div>
         <div class="timer-dashboard-btn-group">
             <button id="stretch-toggle" class="timer-dashboard-btn" onclick="toggleStretchClock()">▶ Start Stretching</button>
-            <button class="timer-dashboard-btn" onclick="adjustStretchTime(60)">+1 Min</button>
-            <button class="timer-dashboard-btn" onclick="adjustStretchTime(300)">+5 Min</button>
-            <button class="timer-dashboard-btn" onclick="resetStretchClock()" style="color: var(--danger-color);">🔄 Reset</button>
         </div>
     </div>
 
@@ -519,13 +513,16 @@
         let calendarFocusDate = new Date(); 
         let sessionIsRunning = false;
         let globalTimeElapsed = 0;
+        let sessionStartedAt = null;
         let globalTimerInterval = null;
         
         let warmupTimeElapsed = 0;
         let warmupRunning = false;
+        let warmupStartedAt = null;
 
         let stretchTimeElapsed = 0;
         let stretchRunning = false;
+        let stretchStartedAt = null;
 
         let exerciseClockStates = {}; 
         let holdTimers = {};
@@ -594,6 +591,7 @@
                     const exPbData = calculatedExercisePBs[ex.id];
                     let peakPersonalBestScore = exPbData ? exPbData.score : 0.0;
                     const elapsedSavedClock = localStorage.getItem(`ex-clock-time-${ex.id}`) || '00:00';
+                    const exerciseClockIsRunning = exerciseClockStates[ex.id]?.running;
                     const scoreLabelStr = (savedMuscle && parseFloat(savedMuscle) > 0) ? 'Muscle RLI' : 'RLI';
 
                     html += `
@@ -606,9 +604,9 @@
                                 </h2>
                                 <div class="ex-controls">
                                     <div class="ex-clock-badge" id="clock-${ex.id}">${elapsedSavedClock}</div>
-                                    <button id="clock-toggle-${ex.id}" class="clock-toggle-btn" 
+                                    <button id="clock-toggle-${ex.id}" class="clock-toggle-btn ${exerciseClockIsRunning ? 'active-run' : ''}"
                                             onclick="toggleExerciseClock('${ex.id}')" ${!sessionIsRunning ? 'disabled' : ''}>
-                                        ▶ Clock
+                                        ${exerciseClockIsRunning ? '⏸ Pause' : '▶ Clock'}
                                     </button>
                                 </div>
                             </div>
@@ -932,9 +930,58 @@
             renderCalendarWorkspace();
         }
 
+        function formatElapsedTime(totalSeconds) {
+            const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+            const minutes = Math.floor(safeSeconds / 60).toString().padStart(2, '0');
+            const seconds = (safeSeconds % 60).toString().padStart(2, '0');
+            return `${minutes}:${seconds}`;
+        }
+
+        function elapsedWhileRunning(savedSeconds, startedAt) {
+            if (!startedAt) return savedSeconds;
+            return savedSeconds + Math.floor((Date.now() - startedAt) / 1000);
+        }
+
+        function currentWarmupTime() {
+            return warmupRunning ? elapsedWhileRunning(warmupTimeElapsed, warmupStartedAt) : warmupTimeElapsed;
+        }
+
+        function currentStretchTime() {
+            return stretchRunning ? elapsedWhileRunning(stretchTimeElapsed, stretchStartedAt) : stretchTimeElapsed;
+        }
+
+        function refreshTimers() {
+            if (sessionIsRunning && sessionStartedAt) {
+                globalTimeElapsed = Math.floor((Date.now() - sessionStartedAt) / 1000);
+                const globalTimer = document.getElementById('global-timer-box');
+                if (globalTimer) globalTimer.innerText = formatElapsedTime(globalTimeElapsed);
+            }
+
+            const warmupTimer = document.getElementById('warmup-timer-text');
+            if (warmupTimer) warmupTimer.innerText = formatElapsedTime(currentWarmupTime());
+
+            const stretchTimer = document.getElementById('stretch-timer-text');
+            if (stretchTimer) stretchTimer.innerText = formatElapsedTime(currentStretchTime());
+
+            Object.keys(exerciseClockStates).forEach(exId => {
+                const clock = exerciseClockStates[exId];
+                const elapsed = clock.running ? elapsedWhileRunning(clock.time, clock.startedAt) : clock.time;
+                const clockText = formatElapsedTime(elapsed);
+                localStorage.setItem(`ex-clock-time-${exId}`, clockText);
+                const badge = document.getElementById(`clock-${exId}`);
+                if (badge) badge.innerText = clockText;
+            });
+
+            Object.entries(holdTimers).forEach(([timerId, timer]) => {
+                const btn = document.getElementById('btn-' + timerId);
+                if (btn) btn.innerText = "⏱️ " + Math.round((Date.now() - timer.start) / 1000) + "s";
+            });
+        }
+
         function startWorkoutSession() {
             sessionIsRunning = true;
             globalTimeElapsed = 0;
+            sessionStartedAt = Date.now();
             
             document.getElementById('session-gate').style.display = 'none';
             document.getElementById('global-timer-box').style.display = 'block';
@@ -942,66 +989,76 @@
             document.getElementById('stretching-dashboard').style.display = 'block';
             document.getElementById('footer-actions').style.display = 'flex';
 
-            globalTimerInterval = setInterval(() => {
-                globalTimeElapsed++;
-                const gMin = Math.floor(globalTimeElapsed / 60).toString().padStart(2, '0');
-                const gSec = (globalTimeElapsed % 60).toString().padStart(2, '0');
-                document.getElementById('global-timer-box').innerText = `${gMin}:${gSec}`;
-
-                if (warmupRunning) {
-                    warmupTimeElapsed++;
-                    const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
-                    const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-                    document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
-                }
-
-                if (stretchRunning) {
-                    stretchTimeElapsed++;
-                    const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
-                    const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
-                    document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
-                }
-
-                Object.keys(exerciseClockStates).forEach(exId => {
-                    if (exerciseClockStates[exId].running) {
-                        exerciseClockStates[exId].time++;
-                        const eMin = Math.floor(exerciseClockStates[exId].time / 60).toString().padStart(2, '0');
-                        const eSec = (exerciseClockStates[exId].time % 60).toString().padStart(2, '0');
-                        const clockText = `${eMin}:${eSec}`;
-                        localStorage.setItem(`ex-clock-time-${exId}`, clockText);
-                        const badge = document.getElementById(`clock-${exId}`);
-                        if (badge) badge.innerText = clockText;
-                    }
-                });
-            }, 1000);
+            globalTimerInterval = setInterval(refreshTimers, 1000);
 
             renderApp();
+            refreshTimers();
+        }
+
+        function pauseWarmupClock() {
+            if (!warmupRunning) return;
+            warmupTimeElapsed = currentWarmupTime();
+            warmupRunning = false;
+            warmupStartedAt = null;
+            const btn = document.getElementById('warmup-toggle');
+            if (btn) {
+                btn.innerText = "▶ Resume Warmup";
+                btn.classList.remove('active-run');
+            }
+        }
+
+        function pauseStretchClock() {
+            if (!stretchRunning) return;
+            stretchTimeElapsed = currentStretchTime();
+            stretchRunning = false;
+            stretchStartedAt = null;
+            const btn = document.getElementById('stretch-toggle');
+            if (btn) {
+                btn.innerText = "▶ Resume Stretching";
+                btn.classList.remove('active-run');
+            }
+        }
+
+        function pauseExerciseClock(exId) {
+            const clock = exerciseClockStates[exId];
+            if (!clock?.running) return;
+            clock.time = elapsedWhileRunning(clock.time, clock.startedAt);
+            clock.running = false;
+            clock.startedAt = null;
+            const btn = document.getElementById(`clock-toggle-${exId}`);
+            if (btn) {
+                btn.innerText = "▶ Clock";
+                btn.classList.remove('active-run');
+            }
+        }
+
+        // Only one main workout phase may run. Hold stopwatches are intentionally separate.
+        function pauseOtherPhaseClocks(exerciseToKeepRunning = null) {
+            pauseWarmupClock();
+            pauseStretchClock();
+            Object.keys(exerciseClockStates).forEach(exId => {
+                if (exId !== exerciseToKeepRunning) pauseExerciseClock(exId);
+            });
         }
 
         function toggleWarmupClock() {
             const btn = document.getElementById('warmup-toggle');
             if (warmupRunning) {
-                warmupRunning = false;
-                btn.innerText = "▶ Resume Warmup";
-                btn.classList.remove('active-run');
+                pauseWarmupClock();
             } else {
+                pauseOtherPhaseClocks();
                 warmupRunning = true;
+                warmupStartedAt = Date.now();
                 btn.innerText = "⏸ Pause Warmup";
                 btn.classList.add('active-run');
             }
-        }
-
-        function adjustWarmupTime(seconds) {
-            warmupTimeElapsed += seconds;
-            if(warmupTimeElapsed < 0) warmupTimeElapsed = 0;
-            const wMin = Math.floor(warmupTimeElapsed / 60).toString().padStart(2, '0');
-            const wSec = (warmupTimeElapsed % 60).toString().padStart(2, '0');
-            document.getElementById('warmup-timer-text').innerText = `${wMin}:${wSec}`;
+            refreshTimers();
         }
 
         function resetWarmupClock() {
             warmupRunning = false;
             warmupTimeElapsed = 0;
+            warmupStartedAt = null;
             document.getElementById('warmup-timer-text').innerText = "00:00";
             document.getElementById('warmup-toggle').innerText = "▶ Start Warmup";
             document.getElementById('warmup-toggle').classList.remove('active-run');
@@ -1010,27 +1067,27 @@
         function toggleStretchClock() {
             const btn = document.getElementById('stretch-toggle');
             if (stretchRunning) {
-                stretchRunning = false;
-                btn.innerText = "▶ Resume Stretching";
-                btn.classList.remove('active-run');
+                pauseStretchClock();
             } else {
+                pauseOtherPhaseClocks();
                 stretchRunning = true;
+                stretchStartedAt = Date.now();
                 btn.innerText = "⏸ Pause Stretching";
                 btn.classList.add('active-run');
             }
+            refreshTimers();
         }
 
         function adjustStretchTime(seconds) {
             stretchTimeElapsed += seconds;
             if(stretchTimeElapsed < 0) stretchTimeElapsed = 0;
-            const sMin = Math.floor(stretchTimeElapsed / 60).toString().padStart(2, '0');
-            const sSec = (stretchTimeElapsed % 60).toString().padStart(2, '0');
-            document.getElementById('stretch-timer-text').innerText = `${sMin}:${sSec}`;
+            refreshTimers();
         }
 
         function resetStretchClock() {
             stretchRunning = false;
             stretchTimeElapsed = 0;
+            stretchStartedAt = null;
             document.getElementById('stretch-timer-text').innerText = "00:00";
             document.getElementById('stretch-toggle').innerText = "▶ Start Stretching";
             document.getElementById('stretch-toggle').classList.remove('active-run');
@@ -1058,18 +1115,19 @@
         function toggleExerciseClock(exId) {
             const btn = document.getElementById(`clock-toggle-${exId}`);
             if (!exerciseClockStates[exId]) {
-                exerciseClockStates[exId] = { time: 0, running: false };
+                exerciseClockStates[exId] = { time: 0, running: false, startedAt: null };
             }
 
             if (exerciseClockStates[exId].running) {
-                exerciseClockStates[exId].running = false;
-                btn.innerText = "▶ Clock";
-                btn.classList.remove('active-run');
+                pauseExerciseClock(exId);
             } else {
+                pauseOtherPhaseClocks(exId);
                 exerciseClockStates[exId].running = true;
+                exerciseClockStates[exId].startedAt = Date.now();
                 btn.innerText = "⏸ Pause";
                 btn.classList.add('active-run');
             }
+            refreshTimers();
         }
 
         function toggleHoldStopwatch(exId, setNum, repKey) {
@@ -1278,7 +1336,7 @@
         }
 
         function finishWorkout() {
-            clearInterval(globalTimerInterval);
+            refreshTimers();
             const currentRoutine = routines[activeTabId];
             const userBw = parseFloat(localStorage.getItem('user_bodyweight')) || 80;
             const musclePct = parseFloat(localStorage.getItem('user_muscle_pct')) || 0;
@@ -1356,6 +1414,9 @@
             historyList.unshift(sessionRecord);
             localStorage.setItem('gym_history_stream', JSON.stringify(historyList));
 
+            clearInterval(globalTimerInterval);
+            globalTimerInterval = null;
+
             resetWarmupClock();
             resetStretchClock();
             
@@ -1370,6 +1431,7 @@
             });
 
             sessionIsRunning = false;
+            sessionStartedAt = null;
             document.getElementById('session-gate').style.display = 'block';
             document.getElementById('global-timer-box').style.display = 'none';
             document.getElementById('warmup-dashboard').style.display = 'none';
@@ -1466,6 +1528,14 @@
                 location.reload();
             }
         }
+
+        // Mobile browsers can pause timer callbacks while this page is in the background.
+        // Refresh from the saved start times as soon as the user returns.
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshTimers();
+        });
+        window.addEventListener('focus', refreshTimers);
+        window.addEventListener('pageshow', refreshTimers);
 
         renderApp();
     </script>
